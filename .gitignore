@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+dist/
+.mypy_cache/
+.ruff_cache/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.venv
+venv/
+poetry.toml
