@@ -13,3 +13,4 @@ dist/
 .venv
 venv/
 poetry.toml
+*.xdelta

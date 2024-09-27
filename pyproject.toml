@@ -1,0 +1,133 @@
+[project]
+name = "Collective-Modding-Toolkit"
+version = "0.1"
+requires-python = ">=3.12"
+
+[tool.poetry]
+name = "Collective-Modding-Toolkit"
+version = "0.1"
+description = "A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the Collective Modding Discord Community."
+authors = ["wxMichael"]
+readme = "README.md"
+homepage = "https://www.nexusmods.com/fallout4/mods/87907"
+repository = "https://github.com/wxMichael/Collective-Modding-Toolkit"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+packaging = "^24.1"
+psutil = "^6.0.0"
+pywin32 = "^306"
+pywin32-ctypes = "^0.2.3"
+pyxdelta = "^0.2.0"
+requests = "^2.32.3"
+sv-ttk = "^2.6.0"
+tkextrafont = "^0.6.3"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.11.2"
+types-psutil = "^6.0.0.20240901"
+types-pywin32 = "^306.0.0.20240822"
+types-requests = "^2.32.0.20240914"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry-pyinstaller-plugin]
+collect = { data = ["sv_ttk", "tkextrafont"] }
+include = { "src/assets" = "assets" }
+
+[tool.poetry-pyinstaller-plugin.scripts]
+cm-toolkit = { source = "src/main.py", type = "onefile", add_version = true, icon = "src/icon.ico", console = false, windowed = true, bundle = false }
+
+[tool.mypy]
+disable_error_code = ["call-arg"]
+
+[[tool.mypy.overrides]]
+module = ["pyxdelta", "tkextrafont"]
+ignore_missing_imports = true
+
+[tool.ruff]
+extend-exclude = []
+indent-width = 4
+line-length = 120
+
+[tool.ruff.format]
+preview = true
+indent-style = "tab"
+line-ending = "auto"
+quote-style = "double"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+preview = true
+dummy-variable-rgx = "^_+$"
+extend-select = [
+	"A",
+	"ANN",
+	"ARG",
+	"B",
+	"BLE",
+	"C4",
+	"C901",
+	"COM",
+	"DTZ",
+	"EM",
+	"FA",
+	"FBT",
+	"FLY",
+	"FURB",
+	"G",
+	"I",
+	"ICN",
+	"INT",
+	"ISC",
+	"LOG",
+	"N",
+	"PERF",
+	"PGH",
+	"PIE",
+	"PL",
+	"PT",
+	"PTH",
+	"PYI",
+	"Q",
+	"RET",
+	"RSE",
+	"RUF",
+	"S",
+	"SIM",
+	"SLF",
+	"T20",
+	"TCH",
+	"TD",
+	"TID",
+	"TRY",
+	"UP",
+]
+
+ignore = [
+	"ANN101",  # Deprecated
+	"E501",    # Duplicate of B950 line-too-long
+	"E722",    # Duplicate of B001 bare-except
+	"F403",    # undefined-local-with-import-star
+	"F405",    # undefined-local-with-import-star-usage
+	"PLR0904", # too-many-public-methods
+	"PLR0912", # too-many-branches
+	"PLR0915", # too-many-statements
+	"S606",    # start-process-with-no-shell
+	"UP027",   # Deprecated
+
+	"C901",   # complex-structure
+	"PGH003", # blanket-type-ignore
+	"PYI021", # docstring-in-stub
+	"S101",   # assert
+	"T201",   # print
+]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+reportUnusedImport = false              # Redundant with Ruff F401 unused-import
+reportCallIssue = false
+reportUnknownMemberType = false
+reportWildcardImportFromLibrary = false
