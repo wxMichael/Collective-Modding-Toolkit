@@ -1,4 +1,5 @@
 import queue
+import stat
 from pathlib import Path
 from shutil import copy2
 from threading import Thread
@@ -253,6 +254,8 @@ class Downgrader(ModalWindow):
 		backup_file_path_current = file_path.with_name(backup_file_name_current)
 
 		try:
+			if file_path.stat().st_file_attributes & stat.FILE_ATTRIBUTE_READONLY:
+				file_path.chmod(stat.S_IWRITE)
 			if backup_file_path_current.is_file():
 				print("Backup of current version exists.")
 				if get_crc32(backup_file_path_current) == get_crc32(file_path):
