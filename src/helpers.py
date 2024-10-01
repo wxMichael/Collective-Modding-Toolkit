@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum, IntFlag, StrEnum
 from pathlib import Path
-from tkinter import PhotoImage, Tk
-from typing import NotRequired, TypedDict, final
+from tkinter import PhotoImage, Tk, ttk
+from typing import TYPE_CHECKING, NotRequired, TypedDict, final
+
+if TYPE_CHECKING:
+	from tkinter import StringVar
 
 
 class InstallType(StrEnum):
@@ -20,16 +23,31 @@ class Magic(bytes, Enum):
 	HEDR = b"HEDR"
 
 
+class Tab(StrEnum):
+	Overview = "Overview"
+	F4SE = "F4SE"
+	Errors = "Errors"
+	Conflicts = "Conflicts"
+	Suggestions = "Suggestions"
+	Tools = "Tools"
+	About = "About"
+
+
 class CMCheckerInterface(ABC):
 	def __init__(self) -> None:
 		self.window: Tk
 		self.data_path: Path | None
+		self.f4se_path: Path | None
 		self.archives_og: set[Path]
 		self.archives_ng: set[Path]
+		self.archives_invalid: set[Path]
+		self.modules_invalid: set[Path]
 		self.modules_v95: set[Path]
 		self.FONT: tuple[str, int]
 		self.FONT_SMALL: tuple[str, int]
 		self.FONT_LARGE: tuple[str, int]
+		self.install_type_sv: StringVar
+		self.game_path_sv: StringVar
 
 	@property
 	@abstractmethod
@@ -40,10 +58,13 @@ class CMCheckerInterface(ABC):
 	def game_path(self) -> Path: ...
 
 	@abstractmethod
-	def refresh_overview(self) -> None: ...
+	def refresh_tab(self, tab: Tab) -> None: ...
 
 	@abstractmethod
 	def get_image(self, relative_path: str) -> PhotoImage: ...
+
+	@abstractmethod
+	def find_game_paths(self) -> None: ...
 
 	@final
 	def is_foog(self) -> bool:
@@ -58,14 +79,30 @@ class CMCheckerInterface(ABC):
 		return self.install_type == InstallType.DG
 
 
-class Tab(StrEnum):
-	Overview = "Overview"
-	F4SE_DLLs = "F4SE_DLLs"
-	Errors = "Errors"
-	Conflicts = "Conflicts"
-	Suggestions = "Suggestions"
-	Tools = "Tools"
-	About = "About"
+class CMCTabFrame(ttk.Frame, ABC):
+	def __init__(self, cmc: CMCheckerInterface, notebook: ttk.Notebook, tab_title: str) -> None:
+		super().__init__(notebook)
+		notebook.add(self, text=tab_title)
+		self.cmc = cmc
+		self._loaded = False
+
+	@abstractmethod
+	def _load(self) -> None: ...
+
+	def refresh(self) -> None:
+		raise NotImplementedError
+
+	@final
+	def load(self) -> None:
+		if self._loaded:
+			return
+		self._load()
+		self._loaded = True
+
+	@final
+	@property
+	def is_loaded(self) -> bool:
+		return self._loaded
 
 
 class LogType(StrEnum):

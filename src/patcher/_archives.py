@@ -6,7 +6,8 @@ from typing import final
 
 from globals import *
 from helpers import ArchiveVersion, CMCheckerInterface, LogType, Magic
-from patcher_base import PatcherBase
+
+from ._base import PatcherBase
 
 
 @final

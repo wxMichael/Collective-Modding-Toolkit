@@ -14,6 +14,7 @@ from globals import *
 from helpers import (
 	CMCheckerInterface,
 	LogType,
+	Tab,
 )
 from logger import Logger
 from modal_window import ModalWindow
@@ -298,7 +299,7 @@ class Downgrader(ModalWindow):
 			next_download = self.download_queue.get_nowait()
 		except queue.Empty:
 			print("Queue empty...")
-			self.parent.refresh_overview()
+			self.parent.refresh_tab(Tab.Overview)
 			self.get_info()
 			self.draw_versions()
 			self.button_patch.configure(state=NORMAL)

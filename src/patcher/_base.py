@@ -5,7 +5,7 @@ from tkinter import messagebox, ttk
 from typing import final
 
 from globals import *
-from helpers import CMCheckerInterface, LogType
+from helpers import CMCheckerInterface, LogType, Tab
 from logger import Logger
 from modal_window import ModalWindow
 
@@ -85,7 +85,7 @@ class PatcherBase(ModalWindow):
 
 		self.patch_files()
 
-		self.parent.refresh_overview()
+		self.parent.refresh_tab(Tab.Overview)
 		self.populate_tree()
 
 	@final

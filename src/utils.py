@@ -1,12 +1,14 @@
+import io
 import os
+import struct
 import sys
 import winreg
 import zlib
 from ctypes import WinDLL, byref, c_int, sizeof, windll
 from pathlib import Path
 from tkinter import *
-from tkinter import filedialog, messagebox, ttk
-from typing import Literal
+from tkinter import ttk
+from typing import Literal, overload
 
 import requests
 import sv_ttk
@@ -20,60 +22,6 @@ from helpers import DLLInfo
 DONT_RESOLVE_DLL_REFERENCES = 0x00000001
 HTTP_OK = 200
 KEY_CTRL = 12
-
-
-def find_game_paths() -> tuple[Path, Path | None, Path | None]:
-	game_path_as_path = Path.cwd()
-	if not is_fo4_dir(game_path_as_path):
-		game_path = get_registry_value(
-			winreg.HKEY_LOCAL_MACHINE,
-			R"SOFTWARE\WOW6432Node\Bethesda Softworks\Fallout4",
-			"Installed Path",
-		) or get_registry_value(
-			winreg.HKEY_LOCAL_MACHINE,
-			R"SOFTWARE\WOW6432Node\GOG.com\Games\1998527297",
-			"path",
-		)
-
-		assert isinstance(game_path, str) or game_path is None
-
-		if isinstance(game_path, str):
-			game_path_as_path = Path(game_path)
-			if not is_fo4_dir(game_path_as_path):
-				game_path = None
-
-		if game_path is None:
-			game_path = filedialog.askopenfilename(
-				title="Select Fallout4.exe",
-				filetypes=[("Fallout 4", "Fallout4.exe")],
-			)
-
-		if not game_path:
-			# None, or Empty string if filedialog cancelled
-			messagebox.showerror(  # type: ignore
-				"Game not found",
-				"A Fallout 4 installation could not be found.",
-			)
-			sys.exit()
-
-		assert isinstance(game_path, str)
-
-		game_path_as_path = Path(game_path)
-		if game_path_as_path.is_file():
-			game_path_as_path = game_path_as_path.parent
-
-	data_path: Path | None = game_path_as_path / "Data"
-	assert data_path is not None
-	if data_path.is_dir():
-		f4se_path: Path | None = data_path / "F4SE/Plugins"
-		assert f4se_path is not None
-		if not f4se_path.is_dir():
-			f4se_path = None
-	else:
-		data_path = None
-		f4se_path = None
-
-	return (game_path_as_path, data_path, f4se_path)
 
 
 def find_mod_manager() -> str | None:
@@ -109,10 +57,6 @@ def block_text_input(event: "Event[Text]") -> str | None:
 	if event.state == KEY_CTRL and event.keysym in "AC":
 		return None
 	return "break"
-
-
-def is_fo4_dir(path: Path) -> bool:
-	return path.is_dir() and (path / "Fallout4.exe").is_file()
 
 
 def get_file_version(path: Path) -> tuple[int, int, int, int]:
@@ -279,3 +223,18 @@ def check_for_update_github() -> str | None:
 		except (requests.JSONDecodeError, InvalidVersion):
 			pass
 	return None
+
+
+@overload
+def read_uint(source: io.BufferedIOBase) -> int: ...
+@overload
+def read_uint(source: io.BufferedIOBase, count: int) -> tuple[int, ...]: ...
+def read_uint(source: io.BufferedIOBase, count: int = 1) -> int | tuple[int, ...]:
+	if count < 1:
+		raise ValueError
+	uints: tuple[int, ...] = struct.unpack(f"<{count}I", source.read(count * 4))
+	if len(uints) != count:
+		raise SyntaxError
+	if count == 1:
+		return uints[0]
+	return uints
