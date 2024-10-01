@@ -1,11 +1,8 @@
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum, IntFlag, StrEnum
 from pathlib import Path
-from tkinter import PhotoImage, Tk, ttk
-from typing import TYPE_CHECKING, NotRequired, TypedDict, final
-
-if TYPE_CHECKING:
-	from tkinter import StringVar
+from tkinter import PhotoImage, StringVar, Tk, ttk
+from typing import NotRequired, TypedDict, final
 
 
 class InstallType(StrEnum):
@@ -53,9 +50,17 @@ class CMCheckerInterface(ABC):
 	@abstractmethod
 	def install_type(self) -> InstallType: ...
 
+	@install_type.setter
+	@abstractmethod
+	def install_type(self, value: InstallType) -> None: ...
+
 	@property
 	@abstractmethod
 	def game_path(self) -> Path: ...
+
+	@game_path.setter
+	@abstractmethod
+	def game_path(self, value: Path) -> None: ...
 
 	@abstractmethod
 	def refresh_tab(self, tab: Tab) -> None: ...

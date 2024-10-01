@@ -28,7 +28,7 @@ def find_mod_manager() -> str | None:
 	pid = os.getppid()
 	proc: Process | None = Process(pid)
 
-	managers = ("ModOrganizer.exe", "Vortex.exe")
+	managers = {"ModOrganizer.exe", "Vortex.exe"}
 	manager = None
 
 	for _ in range(4):

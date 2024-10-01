@@ -24,6 +24,10 @@ class OverviewTab(CMCTabFrame):
 	def __init__(self, cmc: CMCheckerInterface, notebook: ttk.Notebook) -> None:
 		super().__init__(cmc, notebook, "Overview")
 
+		self.ba2_count_gnrl = 0
+		self.ba2_count_dx10 = 0
+		self.module_count_full = 0
+		self.module_count_light = 0
 		self.file_info: dict[str, FileInfo] = {}
 		self.address_library: Path | None = None
 		self.ckpe_loader_found = False
@@ -122,7 +126,7 @@ class OverviewTab(CMCTabFrame):
 
 		for i, file_name in enumerate(self.file_info.keys()):
 			match self.file_info[file_name]["InstallType"]:
-				case self.install_type:
+				case self.cmc.install_type:
 					color = COLOR_GOOD
 
 				case InstallType.OG:
@@ -330,7 +334,7 @@ class OverviewTab(CMCTabFrame):
 		)
 
 	def get_info_binaries(self) -> None:
-		self.install_type = InstallType.Unknown
+		self.cmc.install_type = InstallType.Unknown
 		self.file_info.clear()
 
 		self.address_library = None
@@ -358,7 +362,7 @@ class OverviewTab(CMCTabFrame):
 			}
 
 			if file_path.name == "Fallout4.exe":
-				self.install_type = self.file_info[file_path.name]["InstallType"] or InstallType.Unknown
+				self.cmc.install_type = self.file_info[file_path.name]["InstallType"] or InstallType.Unknown
 
 				if self.cmc.f4se_path is not None:
 					address_library_path = self.cmc.f4se_path / f'version-{version.replace(".", "-")}.bin'
@@ -370,7 +374,7 @@ class OverviewTab(CMCTabFrame):
 					if startup_ba2.is_file():
 						startup_crc = get_crc32(startup_ba2, skip_ba2_header=True)
 						if startup_crc == NG_STARTUP_BA2_CRC:
-							self.install_type = InstallType.DG
+							self.cmc.install_type = InstallType.DG
 
 	def get_info_archives(self) -> None:
 		self.ba2_count_gnrl = 0

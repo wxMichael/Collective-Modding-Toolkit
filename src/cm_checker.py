@@ -32,14 +32,10 @@ class CMChecker(CMCheckerInterface):
 		self.FONT_SMALL = (self.cascadia.name, 10)
 		self.FONT_LARGE = (self.cascadia.name, 20)
 
-		self.ba2_count_gnrl = 0
-		self.ba2_count_dx10 = 0
 		self.archives_og: set[Path] = set()
 		self.archives_ng: set[Path] = set()
 		self.archives_invalid: set[Path] = set()
 
-		self.module_count_full = 0
-		self.module_count_light = 0
 		self.modules_invalid: set[Path] = set()
 		self.modules_v95: set[Path] = set()
 
@@ -228,7 +224,7 @@ class CMChecker(CMCheckerInterface):
 			data_path = None
 			f4se_path = None
 
-		self._game_path = game_path_as_path
+		self.game_path = game_path_as_path
 		self.data_path = data_path
 		self.f4se_path = f4se_path
 
