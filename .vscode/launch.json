@@ -5,9 +5,18 @@
 			"name": "Run CMT",
 			"type": "debugpy",
 			"request": "launch",
+			"noDebug": true,
 			"cwd": "${workspaceFolder}/src",
 			"program": "main.py",
 			"console": "integratedTerminal"
-		}
+		},
+		{
+			"name": "[D] Run CMT",
+			"type": "debugpy",
+			"request": "launch",
+			"cwd": "${workspaceFolder}/src",
+			"program": "main.py",
+			"console": "integratedTerminal"
+		},
 	]
 }
