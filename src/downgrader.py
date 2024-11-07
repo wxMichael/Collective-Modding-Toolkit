@@ -67,7 +67,7 @@ class Downgrader(ModalWindow):
 	def __init__(self, parent: CMCheckerInterface) -> None:
 		super().__init__(parent, "Downgrader", 550, 334)
 
-		self.current_versions: dict[str, InstallType | None] = {}
+		self.current_versions: dict[str, InstallType] = {}
 		self.unknown_game = False
 		self.unknown_ck = False
 
@@ -80,8 +80,7 @@ class Downgrader(ModalWindow):
 
 		self.get_info()
 
-		self.wants_downgrade_game = BooleanVar(value=self.current_versions["Fallout4.exe"] == InstallType.OG)
-		self.wants_downgrade_ck = BooleanVar(value=self.current_versions["CreationKit.exe"] == InstallType.OG)
+		self.wants_downgrade = BooleanVar(value=self.current_versions["Fallout4.exe"] == InstallType.OG)
 
 		self.build_gui()
 
@@ -94,9 +93,9 @@ class Downgrader(ModalWindow):
 				crc = get_crc32(file_path)
 				self.current_versions[file_name] = file_crcs.get(crc, InstallType.Unknown)
 			else:
-				self.current_versions[file_name] = None
+				self.current_versions[file_name] = InstallType.NotInstalled
 
-			if self.current_versions[file_name] in {InstallType.Unknown, None}:
+			if self.current_versions[file_name] in {InstallType.Unknown, InstallType.NotInstalled}:
 				if file_name in self.CRCs_game:
 					self.unknown_game = True
 				else:
@@ -122,36 +121,20 @@ class Downgrader(ModalWindow):
 
 		self.draw_versions()
 
-		frame_radio_game = ttk.Labelframe(self, text="Desired Version", padding="6")
-		frame_radio_game.grid(column=1, row=0, rowspan=2, sticky=NSEW, padx=5)
-		frame_radio_ck = ttk.Labelframe(self, text="Desired Version", padding="6")
-		frame_radio_ck.grid(column=1, row=2, rowspan=2, sticky=NSEW, padx=5)
+		frame_radio_desired = ttk.Labelframe(self, text="Desired Version", padding="6")
+		frame_radio_desired.grid(column=1, row=1, rowspan=2, sticky=NSEW, padx=5)
 
 		ttk.Radiobutton(
-			frame_radio_game,
+			frame_radio_desired,
 			text="Old-Gen",
-			variable=self.wants_downgrade_game,
+			variable=self.wants_downgrade,
 			value=True,
 		).grid(column=0, row=0, sticky=NSEW)
 
 		ttk.Radiobutton(
-			frame_radio_game,
+			frame_radio_desired,
 			text="Next-Gen",
-			variable=self.wants_downgrade_game,
-			value=False,
-		).grid(column=0, row=1, sticky=NSEW)
-
-		ttk.Radiobutton(
-			frame_radio_ck,
-			text="Old-Gen",
-			variable=self.wants_downgrade_ck,
-			value=True,
-		).grid(column=0, row=0, sticky=NSEW)
-
-		ttk.Radiobutton(
-			frame_radio_ck,
-			text="Next-Gen",
-			variable=self.wants_downgrade_ck,
+			variable=self.wants_downgrade,
 			value=False,
 		).grid(column=0, row=1, sticky=NSEW)
 
@@ -195,7 +178,7 @@ class Downgrader(ModalWindow):
 
 			label = ttk.Label(
 				frame,
-				text=install_type or "Not Found",
+				text=install_type,
 				font=self.parent.FONT,
 				foreground=color,
 				justify=RIGHT,
@@ -208,16 +191,11 @@ class Downgrader(ModalWindow):
 		self.button_patch.configure(state=DISABLED)
 		self.logger.clear()
 
-		desired_version_game = InstallType.OG if self.wants_downgrade_game.get() else InstallType.NG
-		desired_version_ck = InstallType.OG if self.wants_downgrade_ck.get() else InstallType.NG
-		desired_version = desired_version_game
+		desired_version = InstallType.OG if self.wants_downgrade.get() else InstallType.NG
 
 		patch_needed = False
 		for file_name, install_type in self.current_versions.items():
 			file_path = self.parent.game_path / file_name
-
-			if file_name == "CreationKit.exe":
-				desired_version = desired_version_ck
 
 			match install_type:
 				case desired_version.value:
@@ -227,8 +205,8 @@ class Downgrader(ModalWindow):
 					)
 					continue
 
-				case None:
-					self.logger.log_message(LogType.Bad, f"Skipped {file_path.name}: Unknown version.")
+				case InstallType.NotInstalled:
+					self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Not Installed.")
 					continue
 
 				case _:

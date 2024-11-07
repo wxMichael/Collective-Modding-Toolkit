@@ -10,6 +10,7 @@ class InstallType(StrEnum):
 	DG = "Down-Grade"
 	NG = "Next-Gen"
 	Unknown = "Unknown"
+	NotInstalled = "Not Installed"
 
 
 class Magic(bytes, Enum):
