@@ -93,9 +93,9 @@ class Downgrader(ModalWindow):
 				crc = get_crc32(file_path)
 				self.current_versions[file_name] = file_crcs.get(crc, InstallType.Unknown)
 			else:
-				self.current_versions[file_name] = InstallType.NotInstalled
+				self.current_versions[file_name] = InstallType.NotFound
 
-			if self.current_versions[file_name] in {InstallType.Unknown, InstallType.NotInstalled}:
+			if self.current_versions[file_name] in {InstallType.Unknown, InstallType.NotFound}:
 				if file_name in self.CRCs_game:
 					self.unknown_game = True
 				else:
@@ -171,6 +171,8 @@ class Downgrader(ModalWindow):
 
 			if install_type == InstallType.NG:
 				color = COLOR_NG
+			elif install_type == InstallType.NotFound:
+				color = COLOR_NEUTRAL_1
 			elif install_type == InstallType.Unknown:
 				color = COLOR_BAD
 			else:
@@ -205,8 +207,8 @@ class Downgrader(ModalWindow):
 					)
 					continue
 
-				case InstallType.NotInstalled:
-					self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Not Installed.")
+				case InstallType.NotFound:
+					self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Not Found.")
 					continue
 
 				case _:
