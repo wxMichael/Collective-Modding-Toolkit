@@ -365,7 +365,7 @@ class OverviewTab(CMCTabFrame):
 				self.cmc.install_type = self.file_info[file_path.name]["InstallType"] or InstallType.Unknown
 
 				if self.cmc.f4se_path is not None:
-					address_library_path = self.cmc.f4se_path / f'version-{version.replace(".", "-")}.bin'
+					address_library_path = self.cmc.f4se_path / f"version-{version.replace('.', '-')}.bin"
 					if address_library_path.is_file():
 						self.address_library = address_library_path
 
