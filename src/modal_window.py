@@ -20,7 +20,7 @@ class ModalWindow(Toplevel, ABC):
 	@final
 	def setup_window(self) -> None:
 		self.resizable(width=False, height=False)
-		self.wm_attributes("-fullscreen", "false")  # type: ignore
+		self.wm_attributes("-fullscreen", "false")
 		self.protocol("WM_DELETE_WINDOW", self._ungrab_and_destroy)
 		self.transient(self.parent.window)
 

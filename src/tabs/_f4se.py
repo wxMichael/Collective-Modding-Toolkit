@@ -59,7 +59,7 @@ class F4SETab(CMCTabFrame):
 		label_loading_dlls.destroy()
 
 		style = ttk.Style()
-		style.configure("Treeview", font=self.cmc.FONT_SMALL)  # type: ignore
+		style.configure("Treeview", font=self.cmc.FONT_SMALL)
 		tree_dlls = ttk.Treeview(self, columns=("og", "ng", "user"))
 		tree_dlls.heading("#0", text="DLL")
 		tree_dlls.heading("og", text="OG")
@@ -78,7 +78,7 @@ class F4SETab(CMCTabFrame):
 		scroll_tree_y = ttk.Scrollbar(
 			self,
 			orient=VERTICAL,
-			command=tree_dlls.yview,  # type: ignore
+			command=tree_dlls.yview,  # pyright: ignore[reportUnknownArgumentType]
 		)
 
 		tree_dlls.grid(column=0, row=0, sticky=NSEW)

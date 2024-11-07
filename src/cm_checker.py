@@ -166,8 +166,8 @@ class CMChecker(CMCheckerInterface):
 		notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
 
 	def on_tab_changed(self, event: "Event[ttk.Notebook]") -> None:
-		new_tab_index = int(event.widget.index("current"))  # type: ignore
-		new_tab_name = str(event.widget.tab(new_tab_index, "text"))  # type: ignore
+		new_tab_index = int(event.widget.index("current"))  # pyright: ignore[reportUnknownArgumentType]
+		new_tab_name = str(event.widget.tab(new_tab_index, "text"))  # pyright: ignore[reportUnknownArgumentType]
 		new_tab = Tab[new_tab_name.replace(" ", "_")]
 
 		self.tabs[new_tab].load()
@@ -201,7 +201,7 @@ class CMChecker(CMCheckerInterface):
 
 			if not game_path:
 				# None, or Empty string if filedialog cancelled
-				messagebox.showerror(  # type: ignore
+				messagebox.showerror(
 					"Game not found",
 					"A Fallout 4 installation could not be found.",
 				)

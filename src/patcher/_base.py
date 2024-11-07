@@ -68,7 +68,7 @@ class PatcherBase(ModalWindow):
 		style = ttk.Style()
 		style.configure("Treeview", font=self.parent.FONT_SMALL)
 		self._tree_files = ttk.Treeview(frame_middle, show="tree")
-		self._scroll_tree_y = ttk.Scrollbar(frame_middle, orient=VERTICAL, command=self._tree_files.yview)  # type: ignore
+		self._scroll_tree_y = ttk.Scrollbar(frame_middle, orient=VERTICAL, command=self._tree_files.yview)  # pyright: ignore[reportUnknownArgumentType]
 
 		self._tree_files.grid(column=0, row=0, sticky=NSEW)
 		self._scroll_tree_y.grid(column=1, row=0, sticky=NS)

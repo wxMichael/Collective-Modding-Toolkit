@@ -11,7 +11,7 @@ class Logger:
 		self._text = Text(master, wrap=WORD, height=8, font=("Cascadia Mono", 10))
 		self._scroll_text_y = ttk.Scrollbar(
 			master,
-			command=self._text.yview,  # type: ignore
+			command=self._text.yview,  # pyright: ignore[reportUnknownArgumentType]
 			orient=VERTICAL,
 		)
 
