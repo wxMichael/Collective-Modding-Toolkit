@@ -25,6 +25,7 @@
 	"[markdown]": {
 		"files.trimTrailingWhitespace": false,
 	},
+	"todo-tree.tree.scanMode": "workspace only",
 	"todo-tree.general.tags": [
 		"BUG:",
 		"HACK:",
@@ -40,29 +41,29 @@
 	],
 	"todo-tree.highlights.useColourScheme": true,
 	"todo-tree.highlights.foregroundColourScheme": [
-		"Black", // BUG:
-		"Black", // HACK:
-		"Black", // TODO:
-		"White", // GUI:
-		"White", // F4SE:
-		"White", // Overview:
-		"White", // Errors:
-		"White", // Conflicts:
-		"Sienna", // Suggestions:
-		"Thistle", // Tools:
-		"Purple", // About:
+		"Black",	// BUG:
+		"Black",	// HACK:
+		"Black",	// TODO:
+		"White",	// GUI:
+		"White",	// F4SE:
+		"White",	// Overview:
+		"White",	// Errors:
+		"White",	// Conflicts:
+		"Sienna",	// Suggestions:
+		"Thistle",	// Tools:
+		"Purple",	// About:
 	],
 	"todo-tree.highlights.backgroundColourScheme": [
-		"White", // BUG:
-		"White", // HACK:
-		"White", // TODO:
-		"DodgerBlue", // GUI:
-		"Green", // F4SE:
-		"Teal", // Overview:
-		"Red", // Errors:
-		"OrangeRed", // Conflicts:
-		"Gold", // Suggestions:
-		"Indigo", // Tools:
-		"Orchid", // About:
+		"White",	// BUG:
+		"White",	// HACK:
+		"White",	// TODO:
+		"DodgerBlue",// GUI:
+		"Green",	// F4SE:
+		"Teal",		// Overview:
+		"Red",		// Errors:
+		"OrangeRed",// Conflicts:
+		"Gold",		// Suggestions:
+		"Indigo",	// Tools:
+		"Orchid",	// About:
 	],
 }
