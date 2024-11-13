@@ -39,6 +39,7 @@ class GameInfo:
 		self.ba2_count_dx10 = 0
 		self.module_count_full = 0
 		self.module_count_light = 0
+		self.module_count_v1 = 0
 		self.manager = find_mod_manager()
 		self.find_path()
 
