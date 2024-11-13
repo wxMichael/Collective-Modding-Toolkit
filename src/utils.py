@@ -18,13 +18,18 @@ from psutil import Process
 
 from globals import APP_VERSION, NEXUS_LINK
 from helpers import DLLInfo
+from mod_manager_info import ModManagerInfo
 
 DONT_RESOLVE_DLL_REFERENCES = 0x00000001
 HTTP_OK = 200
 KEY_CTRL = 12
 
 
-def find_mod_manager() -> str | None:
+def is_fo4_dir(path: Path) -> bool:
+	return path.is_dir() and (path / "Fallout4.exe").is_file()
+
+
+def find_mod_manager() -> ModManagerInfo | None:
 	pid = os.getppid()
 	proc: Process | None = Process(pid)
 
@@ -35,15 +40,14 @@ def find_mod_manager() -> str | None:
 		if proc is None:
 			break
 
-		if proc.name() in managers:
-			manager = proc.name().rsplit(".")[0]
-			if manager == "ModOrganizer":
-				manager = "Mod Organizer"
-			break
-
-		proc = proc.parent()
-
-	return manager
+		with proc.oneshot():
+			if proc.name() in managers:
+				manager_path = Path(proc.exe())
+				manager = "Mod Organizer" if proc.name() == "ModOrganizer.exe" else "Vortex"
+				manager_version = Version(".".join(str(n) for n in get_file_version(manager_path)[:3]))
+				return ModManagerInfo(manager, manager_path, manager_version)
+			proc = proc.parent()
+	return None
 
 
 def get_asset_path(relative_path: str) -> Path:
@@ -120,9 +124,8 @@ def get_registry_value(key: int, subkey: str, value_name: str) -> str | None:
 		with winreg.OpenKey(key, subkey) as reg_handle:
 			value, value_type = winreg.QueryValueEx(reg_handle, value_name)
 
-		if value and value_type == winreg.REG_SZ:
-			assert isinstance(value, str)
-			return str(value)
+		if value and value_type == winreg.REG_SZ and isinstance(value, str):
+			return value
 
 	except OSError:
 		pass

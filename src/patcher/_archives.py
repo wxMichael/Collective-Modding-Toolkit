@@ -4,8 +4,9 @@ from tkinter import *
 from tkinter import ttk
 from typing import final
 
+from enums import ArchiveVersion, LogType, Magic
 from globals import *
-from helpers import ArchiveVersion, CMCheckerInterface, LogType, Magic
+from helpers import CMCheckerInterface
 
 from ._base import PatcherBase
 
@@ -33,8 +34,8 @@ class ArchivePatcher(PatcherBase):
 	@property
 	def files_to_patch(self) -> set[Path]:
 		if self.desired_version.get() == ArchiveVersion.OG:
-			return self.parent.archives_ng
-		return self.parent.archives_og
+			return self.parent.game.archives_ng
+		return self.parent.game.archives_og
 
 	def build_gui_secondary(self, frame_top: ttk.Frame) -> None:
 		frame_radio = ttk.Labelframe(frame_top, text="Desired Version")
@@ -65,11 +66,11 @@ class ArchivePatcher(PatcherBase):
 		failed = 0
 
 		if self.desired_version.get() == ArchiveVersion.OG:
-			archives_from = self.parent.archives_ng
+			archives_from = self.parent.game.archives_ng
 			old_bytes = [b"\x07", b"\x08"]
 			new_bytes = b"\x01"
 		else:
-			archives_from = self.parent.archives_og
+			archives_from = self.parent.game.archives_og
 			old_bytes = [b"\x01"]
 			new_bytes = b"\x08"
 

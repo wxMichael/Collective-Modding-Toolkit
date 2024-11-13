@@ -1,8 +1,8 @@
 from tkinter import *
 from tkinter import ttk
 
+from enums import LogType
 from globals import *
-from helpers import LogType
 from utils import block_text_input
 
 

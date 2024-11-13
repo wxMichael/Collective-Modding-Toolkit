@@ -1,7 +1,9 @@
-from helpers import BaseGameFile, InstallType
+from typing import NotRequired, TypedDict
+
+from enums import InstallType
 
 APP_TITLE = "Collective Modding Toolkit"
-APP_VERSION = 0.1
+APP_VERSION = 0.2
 
 MAX_MODULES_FULL = 254
 MAX_MODULES_LIGHT = 4096
@@ -34,6 +36,13 @@ WINDOW_HEIGHT_PATCHER = 600
 PADDING_SEPARATOR_ENDS = 10
 PADDING_SEPARATOR_SIDES = 10
 SEPARATOR_WIDTH = 1
+
+
+class BaseGameFile(TypedDict):
+	OnlyOG: NotRequired[bool]
+	UseHash: NotRequired[bool]
+	Versions: dict[str, InstallType]
+
 
 BASE_FILES: dict[str, BaseGameFile] = {
 	"Fallout4.exe": {
@@ -83,15 +92,15 @@ BASE_FILES: dict[str, BaseGameFile] = {
 }
 
 GAME_MASTERS = (
-	"Fallout4.esm",
-	"Fallout4_VR.esm",
-	"DLCRobot.esm",
-	"DLCworkshop01.esm",
-	"DLCworkshop02.esm",
-	"DLCworkshop03.esm",
-	"DLCCoast.esm",
-	"DLCNukaWorld.esm",
-	"DLCUltraHighResolution.esm",
+	"fallout4.esm",
+	"fallout4_vr.esm",
+	"dlcrobot.esm",
+	"dlcworkshop01.esm",
+	"dlcworkshop02.esm",
+	"dlcworkshop03.esm",
+	"dlccoast.esm",
+	"dlcnukaworld.esm",
+	"dlcultrahighresolution.esm",
 )
 
 ABOUT_ARCHIVES = """Bethesda Archive (BA2) Formats & Versions
@@ -111,3 +120,7 @@ Why Patch Versions?
 Patching is only needed if you use tools that require it.
 Most tools check the version to ensure compatiblity but v7/8 didn't exist when these tools were made, so they assume it's a different format and show errors.
 Because they're actually identical, you can just patch the version number in the file header so the tools will allow reading them."""
+
+ABOUT_F4SE_DLLS = """This tab loads all DLLs in Data/F4SE/Plugins/ and checks if they have F4SE functions specific to OG/NG to determine which game versions they support.
+
+\N{BLACK QUESTION MARK ORNAMENT} means not an F4SE DLL, but may still be loaded by other DLLs."""

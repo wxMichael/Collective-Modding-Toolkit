@@ -4,8 +4,9 @@ from tkinter import *
 from tkinter import messagebox, ttk
 from typing import final
 
+from enums import LogType, Tab
 from globals import *
-from helpers import CMCheckerInterface, LogType, Tab
+from helpers import CMCheckerInterface
 from logger import Logger
 from modal_window import ModalWindow
 
@@ -81,7 +82,7 @@ class PatcherBase(ModalWindow):
 
 	@final
 	def _patch_wrapper(self) -> None:
-		assert self.parent.data_path is not None
+		assert self.parent.game.data_path is not None
 
 		self.patch_files()
 
@@ -90,7 +91,7 @@ class PatcherBase(ModalWindow):
 
 	@final
 	def populate_tree(self) -> None:
-		assert self.parent.data_path is not None
+		assert self.parent.game.data_path is not None
 
 		self._tree_files.delete(*self._tree_files.get_children())
 		for item in sorted(self.files_to_patch):

@@ -1,67 +1,29 @@
 from abc import ABC, abstractmethod
-from enum import Enum, IntEnum, IntFlag, StrEnum
 from pathlib import Path
-from tkinter import PhotoImage, StringVar, Tk, ttk
-from typing import NotRequired, TypedDict, final
+from tkinter import *
+from tkinter import ttk
+from typing import TYPE_CHECKING, Literal, NotRequired, TypedDict, final
 
+from packaging.version import Version
 
-class InstallType(StrEnum):
-	OG = "Old-Gen"
-	DG = "Down-Grade"
-	NG = "Next-Gen"
-	Unknown = "Unknown"
-	NotFound = "Not Found"
+from enums import InstallType, Tab
 
+if TYPE_CHECKING:
+	from game_info import GameInfo
 
-class Magic(bytes, Enum):
-	BTDX = b"BTDX"
-	GNRL = b"GNRL"
-	DX10 = b"DX10"
-	TES4 = b"TES4"
-	HEDR = b"HEDR"
-
-
-class Tab(StrEnum):
-	Overview = "Overview"
-	F4SE = "F4SE"
-	Errors = "Errors"
-	Conflicts = "Conflicts"
-	Suggestions = "Suggestions"
-	Tools = "Tools"
-	About = "About"
+COLOR_BAD = "firebrick1"
 
 
 class CMCheckerInterface(ABC):
 	def __init__(self) -> None:
 		self.window: Tk
-		self.data_path: Path | None
-		self.f4se_path: Path | None
-		self.archives_og: set[Path]
-		self.archives_ng: set[Path]
-		self.archives_invalid: set[Path]
-		self.modules_invalid: set[Path]
-		self.modules_v95: set[Path]
 		self.FONT: tuple[str, int]
+		self.FONT_SMALLER: tuple[str, int]
 		self.FONT_SMALL: tuple[str, int]
 		self.FONT_LARGE: tuple[str, int]
 		self.install_type_sv: StringVar
 		self.game_path_sv: StringVar
-
-	@property
-	@abstractmethod
-	def install_type(self) -> InstallType: ...
-
-	@install_type.setter
-	@abstractmethod
-	def install_type(self, value: InstallType) -> None: ...
-
-	@property
-	@abstractmethod
-	def game_path(self) -> Path: ...
-
-	@game_path.setter
-	@abstractmethod
-	def game_path(self, value: Path) -> None: ...
+		self.game: GameInfo
 
 	@abstractmethod
 	def refresh_tab(self, tab: Tab) -> None: ...
@@ -69,68 +31,66 @@ class CMCheckerInterface(ABC):
 	@abstractmethod
 	def get_image(self, relative_path: str) -> PhotoImage: ...
 
-	@abstractmethod
-	def find_game_paths(self) -> None: ...
-
-	@final
-	def is_foog(self) -> bool:
-		return self.install_type in {InstallType.OG, InstallType.DG}
-
-	@final
-	def is_fong(self) -> bool:
-		return self.install_type == InstallType.NG
-
-	@final
-	def is_fodg(self) -> bool:
-		return self.install_type == InstallType.DG
-
 
 class CMCTabFrame(ttk.Frame, ABC):
 	def __init__(self, cmc: CMCheckerInterface, notebook: ttk.Notebook, tab_title: str) -> None:
 		super().__init__(notebook)
 		notebook.add(self, text=tab_title)
 		self.cmc = cmc
+		self._loading = False
 		self._loaded = False
+		self.loading_text: str | None = None
+		self.loading_error: str | None = None
+		self.label_loading: ttk.Label | None = None
+
+	def _load(self) -> bool:  # noqa: PLR6301
+		"""Load any data needed for this tab. Return False on failure."""
+		return True
 
 	@abstractmethod
-	def _load(self) -> None: ...
+	def _build_gui(self) -> None: ...
 
 	def refresh(self) -> None:
 		raise NotImplementedError
 
 	@final
 	def load(self) -> None:
-		if self._loaded:
+		if self._loaded or self._loading:
 			return
-		self._load()
-		self._loaded = True
+
+		if self.label_loading is not None:
+			# Previously errored while loading.
+			return
+
+		self._loading = True
+		self.grid_columnconfigure(0, weight=1)
+		self.grid_rowconfigure(0, weight=1)
+		self.label_loading = ttk.Label(
+			self,
+			text=self.loading_text or "",
+			font=self.cmc.FONT_LARGE,
+			justify=CENTER,
+		)
+		self.label_loading.grid()
+		self.update_idletasks()
+
+		if self._load():
+			self.label_loading.destroy()
+			self.label_loading = None
+			self._loaded = True
+		else:
+			self.label_loading.configure(
+				foreground=COLOR_BAD,
+				text=self.loading_error or "Failed to load tab.",
+			)
+
+		self._loading = False
+		self._build_gui()
 
 	@final
 	@property
 	def is_loaded(self) -> bool:
 		return self._loaded
-
-
-class LogType(StrEnum):
-	Info = "info"
-	Good = "good"
-	Bad = "bad"
-
-
-class ArchiveVersion(IntEnum):
-	OG = 1
-	NG7 = 7
-	NG = 8
-
-
-class ModuleFlag(IntFlag):
-	Light = 0x0200
-
-
-class BaseGameFile(TypedDict):
-	OnlyOG: NotRequired[bool]
-	UseHash: NotRequired[bool]
-	Versions: dict[str, InstallType]
 
 
 class FileInfo(TypedDict):

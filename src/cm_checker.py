@@ -1,24 +1,21 @@
-import sys
 import webbrowser
-import winreg
-from pathlib import Path
 from tkinter import *
-from tkinter import filedialog, messagebox, ttk
+from tkinter import ttk
 
 from tkextrafont import Font
 
 import tabs
+from enums import Tab
+from game_info import GameInfo
 from globals import *
 from helpers import (
 	CMCheckerInterface,
 	CMCTabFrame,
-	Tab,
 )
 from utils import (
 	check_for_update_github,
 	# check_for_update_nexus,
 	get_asset_path,
-	get_registry_value,
 )
 
 
@@ -29,21 +26,14 @@ class CMChecker(CMCheckerInterface):
 		self.cascadia = Font(file=get_asset_path("fonts/CascadiaMono.ttf"), name="Cascadia Mono")
 
 		self.FONT = (self.cascadia.name, 12)
+		self.FONT_SMALLER = (self.cascadia.name, 8)
 		self.FONT_SMALL = (self.cascadia.name, 10)
 		self.FONT_LARGE = (self.cascadia.name, 20)
 
-		self.archives_og: set[Path] = set()
-		self.archives_ng: set[Path] = set()
-		self.archives_invalid: set[Path] = set()
-
-		self.modules_invalid: set[Path] = set()
-		self.modules_v95: set[Path] = set()
-
 		self.install_type_sv = StringVar()
 		self.game_path_sv = StringVar()
-		self.install_type = InstallType.Unknown
 		self._images: dict[str, PhotoImage] = {}
-		self.find_game_paths()
+		self.game = GameInfo(self.install_type_sv, self.game_path_sv)
 		self.setup_window()
 
 	def get_image(self, relative_path: str) -> PhotoImage:
@@ -51,24 +41,6 @@ class CMChecker(CMCheckerInterface):
 			self._images[relative_path] = PhotoImage(file=get_asset_path(relative_path))
 
 		return self._images[relative_path]
-
-	@property
-	def game_path(self) -> Path:
-		return self._game_path
-
-	@game_path.setter
-	def game_path(self, value: Path) -> None:
-		self._game_path = value
-		self.game_path_sv.set(str(value))
-
-	@property
-	def install_type(self) -> InstallType:
-		return self._install_type
-
-	@install_type.setter
-	def install_type(self, value: InstallType) -> None:
-		self._install_type = value
-		self.install_type_sv.set(str(value))
 
 	def setup_window(self) -> None:
 		self.window.resizable(width=False, height=False)
@@ -173,64 +145,5 @@ class CMChecker(CMCheckerInterface):
 		self.tabs[new_tab].load()
 		self.window.update()
 
-	def find_game_paths(self) -> None:
-		game_path_as_path = Path.cwd()
-		if not is_fo4_dir(game_path_as_path):
-			game_path = get_registry_value(
-				winreg.HKEY_LOCAL_MACHINE,
-				R"SOFTWARE\WOW6432Node\Bethesda Softworks\Fallout4",
-				"Installed Path",
-			) or get_registry_value(
-				winreg.HKEY_LOCAL_MACHINE,
-				R"SOFTWARE\WOW6432Node\GOG.com\Games\1998527297",
-				"path",
-			)
-
-			assert isinstance(game_path, str) or game_path is None
-
-			if isinstance(game_path, str):
-				game_path_as_path = Path(game_path)
-				if not is_fo4_dir(game_path_as_path):
-					game_path = None
-
-			if game_path is None:
-				game_path = filedialog.askopenfilename(
-					title="Select Fallout4.exe",
-					filetypes=[("Fallout 4", "Fallout4.exe")],
-				)
-
-			if not game_path:
-				# None, or Empty string if filedialog cancelled
-				messagebox.showerror(
-					"Game not found",
-					"A Fallout 4 installation could not be found.",
-				)
-				sys.exit()
-
-			assert isinstance(game_path, str)
-
-			game_path_as_path = Path(game_path)
-			if game_path_as_path.is_file():
-				game_path_as_path = game_path_as_path.parent
-
-		data_path: Path | None = game_path_as_path / "Data"
-		assert data_path is not None
-		if data_path.is_dir():
-			f4se_path: Path | None = data_path / "F4SE/Plugins"
-			assert f4se_path is not None
-			if not f4se_path.is_dir():
-				f4se_path = None
-		else:
-			data_path = None
-			f4se_path = None
-
-		self.game_path = game_path_as_path
-		self.data_path = data_path
-		self.f4se_path = f4se_path
-
 	def refresh_tab(self, tab: Tab) -> None:
 		self.tabs[tab].refresh()
-
-
-def is_fo4_dir(path: Path) -> bool:
-	return path.is_dir() and (path / "Fallout4.exe").is_file()

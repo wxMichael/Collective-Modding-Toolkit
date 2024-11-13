@@ -19,44 +19,30 @@ EMOJI_DLL_BAD = ""
 class F4SETab(CMCTabFrame):
 	def __init__(self, cmc: CMCheckerInterface, notebook: ttk.Notebook) -> None:
 		super().__init__(cmc, notebook, "F4SE")
+		self.loading_text = "Scanning DLLs..."
+
 		self.dll_info: dict[str, DLLInfo | None] = {}
 
-	def _load(self) -> None:
-		self.grid_columnconfigure(0, weight=1)
-		self.grid_rowconfigure(0, weight=1)
+	def _load(self) -> bool:
+		if self.cmc.game.data_path is None:
+			self.loading_error = "Data folder not found"
+			return False
 
-		error_message = None
-		if self.cmc.data_path is None:
-			error_message = "Data folder not found"
-		elif self.cmc.f4se_path is None:
-			error_message = "Data/F4SE/Plugins folder not found"
-
-		if error_message is not None:
-			ttk.Label(
-				self,
-				text=error_message,
-				font=self.cmc.FONT_LARGE,
-				foreground=COLOR_BAD,
-				justify=CENTER,
-			).grid(column=0, row=0)
-			return
-
-		assert self.cmc.f4se_path is not None
-
-		label_loading_dlls = ttk.Label(
-			self,
-			text="Scanning DLLs...",
-			font=self.cmc.FONT_LARGE,
-			justify=CENTER,
-		)
-		label_loading_dlls.grid(column=0, row=0)
-		self.update_idletasks()
+		if self.cmc.game.f4se_path is None:
+			self.loading_error = "Data/F4SE/Plugins folder not found"
+			return False
 
 		self.dll_info.clear()
-		for dll_file in self.cmc.f4se_path.glob("*.dll"):
+		for dll_file in self.cmc.game.f4se_path.glob("*.dll"):
 			self.dll_info[dll_file.name] = parse_dll(dll_file)
 
-		label_loading_dlls.destroy()
+		return True
+
+	def _build_gui(self) -> None:
+		self.grid_columnconfigure(0, weight=0)
+		self.grid_columnconfigure(2, weight=1)
+		self.grid_rowconfigure(0, weight=0)
+		self.grid_rowconfigure(1, weight=1)
 
 		style = ttk.Style()
 		style.configure("Treeview", font=self.cmc.FONT_SMALL)
@@ -81,9 +67,24 @@ class F4SETab(CMCTabFrame):
 			command=tree_dlls.yview,  # pyright: ignore[reportUnknownArgumentType]
 		)
 
-		tree_dlls.grid(column=0, row=0, sticky=NSEW)
-		scroll_tree_y.grid(column=1, row=0, sticky=NS)
+		tree_dlls.grid(column=0, row=0, rowspan=2, sticky="NSEW")
+		scroll_tree_y.grid(column=1, row=0, rowspan=2, sticky="NSEW")
 		tree_dlls.configure(yscrollcommand=scroll_tree_y.set)
+
+		ttk.Label(
+			self,
+			text="F4SE DLLs",
+			font=self.cmc.FONT,
+			anchor=N,
+		).grid(column=2, row=0, padx=5, pady=5)
+
+		Message(
+			self,
+			text=ABOUT_F4SE_DLLS,
+			font=self.cmc.FONT_SMALL,
+			anchor=N,
+			aspect=100,
+		).grid(column=2, row=1, sticky=NSEW, padx=5)
 
 		for dll, info in self.dll_info.items():
 			values: list[str] = []
@@ -102,7 +103,9 @@ class F4SETab(CMCTabFrame):
 				else:
 					values.append(EMOJI_DLL_BAD)
 
-				if (self.cmc.is_foog() and info.get("SupportsOG")) or (self.cmc.is_fong() and info.get("SupportsNG")):
+				if (self.cmc.game.is_foog() and info.get("SupportsOG")) or (
+					self.cmc.game.is_fong() and info.get("SupportsNG")
+				):
 					tags.append(TAG_GOOD)
 					values.append(EMOJI_DLL_GOOD)
 				else:

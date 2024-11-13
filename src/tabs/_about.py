@@ -14,7 +14,7 @@ class AboutTab(CMCTabFrame):
 	def __init__(self, cmc: CMCheckerInterface, notebook: ttk.Notebook) -> None:
 		super().__init__(cmc, notebook, "About")
 
-	def _load(self) -> None:
+	def _build_gui(self) -> None:
 		ttk.Label(
 			self,
 			text="\n".join(APP_TITLE.rsplit(maxsplit=1)),

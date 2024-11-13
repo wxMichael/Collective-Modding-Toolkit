@@ -10,11 +10,10 @@ from types import MappingProxyType
 import pyxdelta
 import requests
 
+from enums import LogType, Tab
 from globals import *
 from helpers import (
 	CMCheckerInterface,
-	LogType,
-	Tab,
 )
 from logger import Logger
 from modal_window import ModalWindow
@@ -88,7 +87,7 @@ class Downgrader(ModalWindow):
 		self.unknown_game = False
 		self.unknown_ck = False
 		for file_name, file_crcs in list(Downgrader.CRCs_game.items()) + list(Downgrader.CRCs_ck.items()):
-			file_path = self.parent.game_path / file_name
+			file_path = self.parent.game.game_path / file_name
 			if file_path.is_file():
 				crc = get_crc32(file_path)
 				self.current_versions[file_name] = file_crcs.get(crc, InstallType.Unknown)
@@ -197,7 +196,7 @@ class Downgrader(ModalWindow):
 
 		patch_needed = False
 		for file_name, install_type in self.current_versions.items():
-			file_path = self.parent.game_path / file_name
+			file_path = self.parent.game.game_path / file_name
 
 			match install_type:
 				case desired_version.value:
