@@ -2,9 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from tkinter import *
 from tkinter import ttk
-from typing import TYPE_CHECKING, Literal, NotRequired, TypedDict, final
-
-from packaging.version import Version
+from typing import TYPE_CHECKING, NotRequired, TypedDict, final
 
 from enums import InstallType, Tab
 
