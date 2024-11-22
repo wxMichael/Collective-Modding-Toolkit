@@ -18,14 +18,14 @@ class ToolsTab(CMCTabFrame):
 		ttk.Button(
 			self,
 			text="Downgrade Manager",
-			padding=(10, 0),
+			padding=(10, 5),
 			command=lambda: Downgrader(self.cmc),
 		).grid(column=0, row=0, sticky=EW, padx=15, pady=(15, 0))
 
 		ttk.Button(
 			self,
 			text="Archive Patcher",
-			padding=(10, 0),
+			padding=(10, 5),
 			command=lambda: ArchivePatcher(self.cmc),
 		).grid(column=0, row=1, sticky=EW, padx=15, pady=(10, 0))
 
@@ -38,7 +38,7 @@ class ToolsTab(CMCTabFrame):
 		ttk.Button(
 			self,
 			text="(WIP) File Inspector",
-			padding=(10, 0),
+			padding=(10, 5),
 			# command=lambda: FileInspector(self.cmc),
 			state="disabled",
 		).grid(column=0, row=3, sticky=EW, padx=15, pady=(10, 0))
@@ -46,7 +46,7 @@ class ToolsTab(CMCTabFrame):
 		ttk.Button(
 			self,
 			text="(WIP) Papyrus Script Compiler",
-			padding=(10, 0),
+			padding=(10, 5),
 			# command=lambda: PapyrusCompiler(self.cmc),
 			state="disabled",
 		).grid(column=0, row=4, sticky=EW, padx=15, pady=(10, 0))

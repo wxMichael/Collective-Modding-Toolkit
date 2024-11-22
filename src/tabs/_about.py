@@ -15,6 +15,9 @@ class AboutTab(CMCTabFrame):
 		super().__init__(cmc, notebook, "About")
 
 	def _build_gui(self) -> None:
+		self.grid_columnconfigure(0, weight=1)
+		self.grid_rowconfigure(1, weight=1)
+
 		ttk.Label(
 			self,
 			text="\n".join(APP_TITLE.rsplit(maxsplit=1)),
@@ -26,8 +29,7 @@ class AboutTab(CMCTabFrame):
 			self,
 			compound="image",
 			image=self.cmc.get_image("images/icon-256.png"),
-		).grid(column=0, row=1)
-		self.grid_columnconfigure(0, weight=1)
+		).grid(column=0, row=1, sticky=NS, pady=(0, 20))
 
 		frame_about_text = ttk.Frame(self)
 		frame_about_text.grid(column=1, row=0, rowspan=2, padx=(0, 20))
@@ -37,7 +39,7 @@ class AboutTab(CMCTabFrame):
 			text=f"v{APP_VERSION}\n\nCreated by wxMichael for the\nCollective Modding Community",
 			font=self.cmc.FONT,
 			justify=CENTER,
-		).grid(column=0, row=1, rowspan=2, pady=(20, 10))
+		).grid(column=0, row=1, rowspan=2, pady=10)
 
 		frame_nexus = ttk.Frame(frame_about_text)
 		frame_nexus.grid(column=0, row=3, pady=(10, 0), sticky=E)
