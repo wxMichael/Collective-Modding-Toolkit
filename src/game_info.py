@@ -52,6 +52,7 @@ class GameInfo:
 	def reset_modules(self) -> None:
 		self.module_count_full = 0
 		self.module_count_light = 0
+		self.module_count_v1 = 0
 		self.modules_v95.clear()
 		self.modules_invalid.clear()
 
