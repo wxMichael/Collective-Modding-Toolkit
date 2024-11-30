@@ -134,13 +134,14 @@ class ProblemInfo:
 
 
 class Stderr:
-	def __init__(self) -> None:
+	def __init__(self, root: Tk) -> None:
+		self.root = root
 		self.error_window: Toplevel | None = None
 		self.txt: Text
 
 	def create_window(self) -> None:
 		if not self.error_window:
-			self.error_window = Toplevel(root, width=900, height=700)
+			self.error_window = Toplevel(self.root, width=900, height=700)
 			self.error_window.wm_title("An Error Occurred")
 			self.error_window.wm_protocol("WM_DELETE_WINDOW", self.on_close)
 			self.txt = Text(self.error_window)

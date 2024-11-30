@@ -10,7 +10,7 @@ root = Tk()
 root.wm_withdraw()
 root.update_idletasks()
 
-sys.stderr = Stderr()
+sys.stderr = Stderr(root)
 CMChecker(root)
 set_theme(root)
 root.update_idletasks()
