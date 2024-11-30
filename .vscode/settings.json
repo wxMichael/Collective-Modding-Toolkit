@@ -32,11 +32,13 @@
 		"TODO:",
 		"GUI:",
 		"F4SE:",
+		"Scanner:",
 		"Overview:",
 		"Errors:",
 		"Conflicts:",
 		"Suggestions:",
 		"Tools:",
+		"Settings:",
 		"About:",
 	],
 	"todo-tree.highlights.useColourScheme": true,
@@ -46,11 +48,13 @@
 		"Black",	// TODO:
 		"White",	// GUI:
 		"White",	// F4SE:
+		"White",	// Scanner:
 		"White",	// Overview:
 		"White",	// Errors:
 		"White",	// Conflicts:
 		"Sienna",	// Suggestions:
 		"Thistle",	// Tools:
+		"Black",	// Settings:
 		"Purple",	// About:
 	],
 	"todo-tree.highlights.backgroundColourScheme": [
@@ -59,11 +63,13 @@
 		"White",	// TODO:
 		"DodgerBlue",// GUI:
 		"Green",	// F4SE:
+		"Maroon",	// Scanner:
 		"Teal",		// Overview:
 		"Red",		// Errors:
 		"OrangeRed",// Conflicts:
 		"Gold",		// Suggestions:
 		"Indigo",	// Tools:
+		"PeachPuff",// Settings:
 		"Orchid",	// About:
 	],
 }

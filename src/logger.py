@@ -8,7 +8,7 @@ from utils import block_text_input
 
 class Logger:
 	def __init__(self, master: Misc) -> None:
-		self._text = Text(master, wrap=WORD, height=8, font=("Cascadia Mono", 10))
+		self._text = Text(master, wrap=WORD, height=8, font=FONT_SMALL)
 		self._scroll_text_y = ttk.Scrollbar(
 			master,
 			command=self._text.yview,  # pyright: ignore[reportUnknownArgumentType]

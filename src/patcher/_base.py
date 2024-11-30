@@ -1,19 +1,19 @@
 from abc import abstractmethod
 from pathlib import Path
 from tkinter import *
-from tkinter import messagebox, ttk
+from tkinter import ttk
 from typing import final
 
 from enums import LogType, Tab
 from globals import *
 from helpers import CMCheckerInterface
 from logger import Logger
-from modal_window import ModalWindow
+from modal_window import AboutWindow, ModalWindow
 
 
 class PatcherBase(ModalWindow):
-	def __init__(self, parent: CMCheckerInterface, window_title: str) -> None:
-		super().__init__(parent, window_title, WINDOW_WIDTH_PATCHER, WINDOW_HEIGHT_PATCHER)
+	def __init__(self, parent: Wm, cmc: CMCheckerInterface, window_title: str) -> None:
+		super().__init__(parent, cmc, window_title, WINDOW_WIDTH_PATCHER, WINDOW_HEIGHT_PATCHER)
 
 		self._build_gui_primary()
 		self.populate_tree()
@@ -60,14 +60,12 @@ class PatcherBase(ModalWindow):
 		self.label_filter = ttk.Label(frame_top, text=self.filter_text, foreground=COLOR_NEUTRAL_2)
 		button_patch_all = ttk.Button(frame_top, text="Patch All", padding=(6, 2), command=self._patch_wrapper)
 		button_patcher_info = ttk.Button(frame_top, text=self.about_title, padding=(6, 2))
-		button_patcher_info.config(command=lambda: messagebox.showinfo(self.about_title, self.about_text, parent=self))
+		button_patcher_info.config(command=lambda: AboutWindow(self, self.cmc, 500, 460, self.about_title, self.about_text))
 
 		button_patcher_info.pack(side=RIGHT, padx=24, pady=5)
 		button_patch_all.pack(side=RIGHT, padx=5, pady=5)
 
 		# frame_middle
-		style = ttk.Style()
-		style.configure("Treeview", font=self.parent.FONT_SMALL)
 		self._tree_files = ttk.Treeview(frame_middle, show="tree")
 		self._scroll_tree_y = ttk.Scrollbar(frame_middle, orient=VERTICAL, command=self._tree_files.yview)  # pyright: ignore[reportUnknownArgumentType]
 
@@ -82,19 +80,19 @@ class PatcherBase(ModalWindow):
 
 	@final
 	def _patch_wrapper(self) -> None:
-		assert self.parent.game.data_path is not None
+		assert self.cmc.game.data_path is not None
 
 		self.patch_files()
 
-		self.parent.refresh_tab(Tab.Overview)
+		self.cmc.refresh_tab(Tab.Overview)
 		self.populate_tree()
 
 	@final
 	def populate_tree(self) -> None:
-		assert self.parent.game.data_path is not None
+		assert self.cmc.game.data_path is not None
 
 		self._tree_files.delete(*self._tree_files.get_children())
 		for item in sorted(self.files_to_patch):
 			self._tree_files.insert("", END, text=item.name)
 
-		self.logger.log_message(LogType.Info, f"Showing {len(self.files_to_patch)} matching files.")
+		self.logger.log_message(LogType.Info, f"Showing {len(self.files_to_patch)} files to be patched.")

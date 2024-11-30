@@ -13,13 +13,13 @@ from ._base import PatcherBase
 
 @final
 class ArchivePatcher(PatcherBase):
-	def __init__(self, parent: CMCheckerInterface) -> None:
+	def __init__(self, parent: Wm, cmc: CMCheckerInterface) -> None:
 		self.desired_version = IntVar(value=ArchiveVersion.OG)
-		super().__init__(parent, "Archive Patcher")
+		super().__init__(parent, cmc, "Archive Patcher")
 
 	@property
 	def about_title(self) -> str:
-		return "About Archive Versions"
+		return "About Archives"
 
 	@property
 	def about_text(self) -> str:
@@ -34,8 +34,8 @@ class ArchivePatcher(PatcherBase):
 	@property
 	def files_to_patch(self) -> set[Path]:
 		if self.desired_version.get() == ArchiveVersion.OG:
-			return self.parent.game.archives_ng
-		return self.parent.game.archives_og
+			return self.cmc.game.archives_ng
+		return self.cmc.game.archives_og
 
 	def build_gui_secondary(self, frame_top: ttk.Frame) -> None:
 		frame_radio = ttk.Labelframe(frame_top, text="Desired Version")
@@ -66,11 +66,11 @@ class ArchivePatcher(PatcherBase):
 		failed = 0
 
 		if self.desired_version.get() == ArchiveVersion.OG:
-			archives_from = self.parent.game.archives_ng
+			archives_from = self.cmc.game.archives_ng
 			old_bytes = [b"\x07", b"\x08"]
 			new_bytes = b"\x01"
 		else:
-			archives_from = self.parent.game.archives_og
+			archives_from = self.cmc.game.archives_og
 			old_bytes = [b"\x01"]
 			new_bytes = b"\x08"
 

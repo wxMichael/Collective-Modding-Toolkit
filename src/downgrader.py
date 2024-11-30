@@ -4,7 +4,7 @@ from pathlib import Path
 from shutil import copy2
 from threading import Thread
 from tkinter import *
-from tkinter import messagebox, ttk
+from tkinter import ttk
 from types import MappingProxyType
 
 import pyxdelta
@@ -16,7 +16,7 @@ from helpers import (
 	CMCheckerInterface,
 )
 from logger import Logger
-from modal_window import ModalWindow
+from modal_window import AboutWindow, ModalWindow
 from utils import (
 	get_crc32,
 )
@@ -63,8 +63,8 @@ class Downgrader(ModalWindow):
 		for crc, install_type in CRCs.items():
 			CRCs_by_type[install_type].append(crc)
 
-	def __init__(self, parent: CMCheckerInterface) -> None:
-		super().__init__(parent, "Downgrader", 550, 334)
+	def __init__(self, parent: Wm, cmc: CMCheckerInterface) -> None:
+		super().__init__(parent, cmc, "Downgrader", 550, 334)
 
 		self.current_versions: dict[str, InstallType] = {}
 		self.unknown_game = False
@@ -87,7 +87,7 @@ class Downgrader(ModalWindow):
 		self.unknown_game = False
 		self.unknown_ck = False
 		for file_name, file_crcs in list(Downgrader.CRCs_game.items()) + list(Downgrader.CRCs_ck.items()):
-			file_path = self.parent.game.game_path / file_name
+			file_path = self.cmc.game.game_path / file_name
 			if file_path.is_file():
 				crc = get_crc32(file_path)
 				self.current_versions[file_name] = file_crcs.get(crc, InstallType.Unknown)
@@ -112,10 +112,10 @@ class Downgrader(ModalWindow):
 		file_names_game = "\n".join([f"{Path(f).name}:" for f in self.CRCs_game])
 		file_names_ck = "\n".join([f"{Path(f).name}:" for f in self.CRCs_ck])
 
-		label_file_names_game = ttk.Label(self.frame_game, text=file_names_game, font=self.parent.FONT, justify=RIGHT)
+		label_file_names_game = ttk.Label(self.frame_game, text=file_names_game, font=FONT, justify=RIGHT)
 		label_file_names_game.grid(column=0, row=0, rowspan=len(self.CRCs_game), sticky=E, padx=5)
 
-		label_file_names_ck = ttk.Label(self.frame_ck, text=file_names_ck, font=self.parent.FONT, justify=RIGHT)
+		label_file_names_ck = ttk.Label(self.frame_ck, text=file_names_ck, font=FONT, justify=RIGHT)
 		label_file_names_ck.grid(column=0, row=0, rowspan=len(self.CRCs_ck), sticky=E, padx=5)
 
 		self.draw_versions()
@@ -137,14 +137,14 @@ class Downgrader(ModalWindow):
 			value=False,
 		).grid(column=0, row=1, sticky=NSEW)
 
-		self.button_patch = ttk.Button(self, text="Patch All", command=self.patch_files)
-		self.button_patch.grid(column=2, row=1, rowspan=2, sticky=NSEW, padx=(5, 10))  # , pady=10)
+		self.button_patch = ttk.Button(self, text="Patch\n All", command=self.patch_files)
+		self.button_patch.grid(column=2, row=1, rowspan=2, sticky=NSEW, padx=(0, 10))
 
 		ttk.Button(
 			self,
 			text="About",
-			command=lambda: messagebox.showinfo("About Downgrading", "WIP", parent=self),
-		).grid(column=2, row=3, sticky=EW, padx=(5, 10))
+			command=lambda: AboutWindow(self, self.cmc, 500, 300, "About", ABOUT_DOWNGRADING),
+		).grid(column=2, row=3, sticky=EW, padx=(0, 5))
 
 		frame_bottom = ttk.Frame(self)
 		frame_bottom.grid(column=0, row=4, columnspan=3, sticky=EW, pady=(5, 0))
@@ -180,7 +180,7 @@ class Downgrader(ModalWindow):
 			label = ttk.Label(
 				frame,
 				text=install_type,
-				font=self.parent.FONT,
+				font=FONT,
 				foreground=color,
 				justify=RIGHT,
 			)
@@ -196,7 +196,7 @@ class Downgrader(ModalWindow):
 
 		patch_needed = False
 		for file_name, install_type in self.current_versions.items():
-			file_path = self.parent.game.game_path / file_name
+			file_path = self.cmc.game.game_path / file_name
 
 			match install_type:
 				case desired_version.value:
@@ -278,7 +278,7 @@ class Downgrader(ModalWindow):
 			next_download = self.download_queue.get_nowait()
 		except queue.Empty:
 			print("Queue empty...")
-			self.parent.refresh_tab(Tab.Overview)
+			self.cmc.refresh_tab(Tab.Overview)
 			self.get_info()
 			self.draw_versions()
 			self.button_patch.configure(state=NORMAL)
@@ -322,7 +322,7 @@ class Downgrader(ModalWindow):
 			print("Download completed. Patching...")
 			self.apply_patch(url, infile, outfile)
 			return
-		self.parent.window.after(100, self.check_download_progress, url, infile, outfile)
+		self.cmc.root.after(100, self.check_download_progress, url, infile, outfile)
 
 	def apply_patch(self, url: str, infile: Path, outfile: Path) -> None:
 		patch_name = Path(url).name

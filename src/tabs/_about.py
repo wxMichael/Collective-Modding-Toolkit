@@ -21,7 +21,7 @@ class AboutTab(CMCTabFrame):
 		ttk.Label(
 			self,
 			text="\n".join(APP_TITLE.rsplit(maxsplit=1)),
-			font=self.cmc.FONT_LARGE,
+			font=FONT_LARGE,
 			justify=CENTER,
 		).grid(column=0, row=0, pady=10)
 
@@ -37,7 +37,7 @@ class AboutTab(CMCTabFrame):
 		ttk.Label(
 			frame_about_text,
 			text=f"v{APP_VERSION}\n\nCreated by wxMichael for the\nCollective Modding Community",
-			font=self.cmc.FONT,
+			font=FONT,
 			justify=CENTER,
 		).grid(column=0, row=1, rowspan=2, pady=10)
 

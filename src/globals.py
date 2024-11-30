@@ -7,8 +7,8 @@ APP_VERSION = 0.2
 
 MAX_MODULES_FULL = 254
 MAX_MODULES_LIGHT = 4096
-MAX_ARCHIVES_GNRL = 255
-MAX_ARCHIVES_DX10 = None
+MAX_ARCHIVES_GNRL = 256
+MAX_ARCHIVES_DX10 = 256
 COLOR_GOOD = "green2"
 COLOR_BAD = "firebrick1"
 COLOR_INFO = "dodger blue"
@@ -36,6 +36,11 @@ WINDOW_HEIGHT_PATCHER = 600
 PADDING_SEPARATOR_ENDS = 10
 PADDING_SEPARATOR_SIDES = 10
 SEPARATOR_WIDTH = 1
+
+FONT_SMALLER = ("Cascadia Mono", 8)
+FONT_SMALL = ("Cascadia Mono", 10)
+FONT = ("Cascadia Mono", 12)
+FONT_LARGE = ("Cascadia Mono", 20)
 
 
 class BaseGameFile(TypedDict):
@@ -105,7 +110,7 @@ GAME_MASTERS = (
 
 ABOUT_ARCHIVES = """Bethesda Archive (BA2) Formats & Versions
 
-There are 2 types and 3 versions for Fallout 4 BA2 files:
+There are 2 formats and 3 versions for Fallout 4 BA2 files:
 • General (GNRL)
 • Textures (DX10)
 
@@ -121,6 +126,77 @@ Patching is only needed if you use tools that require it.
 Most tools check the version to ensure compatiblity but v7/8 didn't exist when these tools were made, so they assume it's a different format and show errors.
 Because they're actually identical, you can just patch the version number in the file header so the tools will allow reading them."""
 
-ABOUT_F4SE_DLLS = """This tab loads all DLLs in Data/F4SE/Plugins/ and checks if they have F4SE functions specific to OG/NG to determine which game versions they support.
+ABOUT_DOWNGRADING = """Downgrading Fallout 4 & Creation Kit
 
-\N{BLACK QUESTION MARK ORNAMENT} means not an F4SE DLL, but may still be loaded by other DLLs."""
+This downgrader makes use of delta patches which are downloaded as-needed from the CMT GitHub page.
+Patches range in size from 23KB to 63MB.
+
+Backups are created prior to patching, and will be used instead of patches if present.
+Simple Downgrader's backups will also be used.
+
+Both Creation Kit and the game require steam_api64.dll to match their version, so they must be patched together (for now)."""
+
+ABOUT_F4SE_DLLS = """This checks all DLLs in
+Data/F4SE/Plugins/ for
+version-specific code to
+determine OG/NG support.
+
+\N{HEAVY CHECK MARK} Version is supported
+
+\N{CROSS MARK} Version not supported
+
+\N{BLACK QUESTION MARK ORNAMENT} Not an F4SE DLL.
+May still be loaded by
+other DLLs.
+
+\N{WARNING SIGN} Consult mod page to
+verify version support if
+you see this icon.
+Some DLLs detected as OG+NG
+only actually support both
+enough to tell users if
+they have the wrong DLL."""
+
+TOOLTIP_GAME_PATH = "Click to open folder"
+TOOLTIP_LOCATION = "Click to open location"
+TOOLTIP_REFRESH = "Refresh"
+
+TOOLTIP_ADDRESS_LIBRARY_MISSING = "Address Library is required for many F4SE mods."
+
+TOOLTIP_BA2_FORMATS = """General/GNRL/Main: Used for all non-texture files.
+Hard limit of 255, after which the game will crash at the main menu.
+
+Texture/DX10: Used only for textures. No hard limit.
+Functional limit is *likely* also 255, but testing is needed.
+The total cap may be inaccurate for this reason."""
+TOOLTIP_UNREADABLE = "Files that could not be read due to unexpected format or corruption."
+TOOLTIP_BA2_VERSIONS = """v1 works with all FO4 versions.
+v7/v8 require either BASS or NG.
+Some apps only support v1."""
+TOOLTIP_MODULE_TYPES = """Full modules include all non-Light modules.
+Light modules are ESL-flagged and/or have the .esl extension."""
+TOOLTIP_HEDR100 = """Plugin header v1.00 has a larger Form ID range.
+Any plugins with IDs below 800 MUST be v1.00.
+FO4VR only supports v0.95."""
+TOOLTIP_HEDR95 = """Plugin header v0.95 has a smaller Form ID range.
+Any plugins with IDs below 800 MUST be v1.00.
+FO4VR only supports v0.95."""
+
+TOOLTIP_SCAN_FORMATS = "Check file types against a whitelist per Data folder.\ne.g. MP3 instead of XWM/WAV in Data/Sound/."
+TOOLTIP_SCAN_PREVIS = "Report loose Data/Vis/ and Data/Meshes/Precombined/ folders."
+
+TOOLTIP_SCAN_DDS = "Check dimensions and formats of DDS files for issues."
+TOOLTIP_SCAN_BA2 = "Scan inside BA2 archives.\nNote: Checks may be limited for compressed archives."
+TOOLTIP_SCAN_JUNK = """Report junk files such as desktop.ini, Thumbs.db,
+and leftover fomod folders."""
+TOOLTIP_SCAN_CONFLICTS = "Detect conflicting mods and mod settings."
+TOOLTIP_SCAN_SUGGEST = "Make suggestions for changes to your mod setup."
+TOOLTIP_SCAN_BAD_OVERRIDES = """Detect overrides that typically cause issues
+such as outdated F4SE script files."""
+
+TOOLTIP_SAVE_MODE = """Settings are saved to a JSON file by default.
+If this is disabled or the JSON file is deleted, default
+settings will be used and update checks will be disabled."""
+TOOLTIP_UPDATE_MODE = """GitHub will always have the latest release.
+Nexus Mods releases may be delayed due to
+their review process or to await more testing."""

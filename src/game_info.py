@@ -28,12 +28,15 @@ class GameInfo:
 		self._f4se_path: Path | None = None
 		self.archives_og: set[Path] = set()
 		self.archives_ng: set[Path] = set()
-		self.archives_invalid: set[Path] = set()
-		self.modules_invalid: set[Path] = set()
+		self.archives_unreadable: set[Path] = set()
+		self.modules_unreadable: set[Path] = set()
 		self.modules_v95: set[Path] = set()
+		self.modules_enabled: list[Path] = []
 		self.file_info: dict[str, FileInfo] = {}
 		self.address_library: Path | None = None
 		self.ckfixes_found = False
+		self.game_settings: dict[str, dict[str, str]] = {}
+		self.game_prefs: dict[str, dict[str, str]] = {}
 
 		self.ba2_count_gnrl = 0
 		self.ba2_count_dx10 = 0
@@ -42,6 +45,29 @@ class GameInfo:
 		self.module_count_v1 = 0
 		self.manager = find_mod_manager()
 		self.find_path()
+		self.load_game_inis()
+
+	def load_game_inis(self) -> None:
+		docs_path = Path.home() / R"Documents\My Games\Fallout4"
+		section = "NO-SECTION"
+		for name in ("Fallout4.ini", "Fallout4Prefs.ini", "Fallout4Custom.ini"):
+			ini_path = docs_path / name
+			if not ini_path.is_file():
+				continue
+			ini_dict = self.game_prefs if name == "Fallout4Prefs.ini" else self.game_settings
+			with ini_path.open() as ini_file:
+				ini_lines = ini_file.read().splitlines()
+			for line in ini_lines:
+				if line.startswith("[") and line.endswith("]"):
+					section = line[1:-1].lower()
+					if section not in ini_dict:
+						ini_dict[section] = {}
+					continue
+				try:
+					setting, value = line.split("=", 1)
+				except ValueError:
+					continue
+				ini_dict[section][setting.lower()] = value
 
 	def reset_binaries(self) -> None:
 		self.install_type = InstallType.Unknown
@@ -54,14 +80,15 @@ class GameInfo:
 		self.module_count_light = 0
 		self.module_count_v1 = 0
 		self.modules_v95.clear()
-		self.modules_invalid.clear()
+		self.modules_enabled.clear()
+		self.modules_unreadable.clear()
 
 	def reset_archives(self) -> None:
 		self.ba2_count_gnrl = 0
 		self.ba2_count_dx10 = 0
 		self.archives_og.clear()
 		self.archives_ng.clear()
-		self.archives_invalid.clear()
+		self.archives_unreadable.clear()
 
 	@property
 	def game_path(self) -> Path:
@@ -104,26 +131,34 @@ class GameInfo:
 				portable_ini_path = self.manager.exe_path.parent / "ModOrganizer.ini"
 				portable_ini_exists = portable_ini_path.is_file()
 
-				if (self.manager.exe_path.parent / "portable.txt").is_file():
+				portable_txt_path = self.manager.exe_path.parent / "portable.txt"
+				if portable_txt_path.is_file():
 					if not portable_ini_exists:
-						raise FileNotFoundError
+						msg = "portable.txt found but no ModOrganizer.ini found in MO2 install path"
+						raise FileNotFoundError(msg)
 					self.manager.read_mo2_ini(portable_ini_path)
+					self.manager.portable = True
+					self.manager.portable_txt_path = portable_txt_path
 
-				elif get_registry_value(
-					winreg.HKEY_CURRENT_USER,
-					R"Software\Mod Organizer Team\Mod Organizer",
-					"CurrentInstance",
-				):
-					appdata_local = os.getenv("LOCALAPPDATA")
-					if appdata_local:
-						appdata_ini_path = Path(appdata_local) / "ModOrganizer/ModOrganizer.ini"
-						if appdata_ini_path.is_file():
-							self.manager.read_mo2_ini(appdata_ini_path)
+				else:
+					current_instance = get_registry_value(
+						winreg.HKEY_CURRENT_USER,
+						R"Software\Mod Organizer Team\Mod Organizer",
+						"CurrentInstance",
+					)
+					if current_instance:
+						appdata_local = os.getenv("LOCALAPPDATA")
+						if appdata_local:
+							appdata_ini_path = Path(appdata_local) / "ModOrganizer" / current_instance / "ModOrganizer.ini"
+							if appdata_ini_path.is_file():
+								self.manager.read_mo2_ini(appdata_ini_path)
 
 				if not self.manager.game_path:
 					if not portable_ini_exists:
-						raise FileNotFoundError
+						msg = "Unable to find ModOrganizer.ini. Please report this along with your MO2 instance details."
+						raise FileNotFoundError(msg)
 					self.manager.read_mo2_ini(portable_ini_path)
+					self.manager.portable = True
 
 			elif self.manager.name == "Vortex":
 				pass

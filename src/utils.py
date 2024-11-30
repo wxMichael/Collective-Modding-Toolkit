@@ -4,25 +4,33 @@ import struct
 import sys
 import winreg
 import zlib
-from ctypes import WinDLL, byref, c_int, sizeof, windll
+from ctypes import WinDLL, byref, c_int, create_unicode_buffer, sizeof, windll
 from pathlib import Path
 from tkinter import *
 from tkinter import ttk
 from typing import Literal, overload
 
 import requests
-import sv_ttk
 import win32api
 from packaging.version import InvalidVersion, Version
 from psutil import Process
 
-from globals import APP_VERSION, NEXUS_LINK
+import sv_ttk
+from globals import APP_VERSION, FONT, FONT_SMALL, NEXUS_LINK
 from helpers import DLLInfo
 from mod_manager_info import ModManagerInfo
 
 DONT_RESOLVE_DLL_REFERENCES = 0x00000001
 HTTP_OK = 200
 KEY_CTRL = 12
+
+
+def load_font(font_path: str) -> None:
+	# https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-addfontresourceexw
+	# FR_PRIVATE = 0x10
+	# FR_NOT_ENUM = 0x20
+	buffer = create_unicode_buffer(font_path)
+	windll.gdi32.AddFontResourceExW(byref(buffer), 0x10, 0)
 
 
 def is_fo4_dir(path: Path) -> bool:
@@ -75,13 +83,7 @@ def get_file_version(path: Path) -> tuple[int, int, int, int]:
 	)
 
 
-def get_crc32(
-	file_path: Path,
-	chunk_size: int = 65536,
-	max_chunks: int | None = None,
-	*,
-	skip_ba2_header: bool = False,
-) -> str:
+def get_crc32(file_path: Path, chunk_size: int = 65536, max_chunks: int | None = None, *, skip_ba2_header: bool = False) -> str:
 	with file_path.open("rb") as f:
 		checksum = 0
 		chunks = 0
@@ -104,12 +106,9 @@ def parse_dll(file_path: Path) -> DLLInfo | None:
 			"SupportsOG": hasattr(dll, "F4SEPlugin_Query"),
 			"SupportsNG": hasattr(dll, "F4SEPlugin_Version"),
 		}
-
 	except OSError:
 		return None
-
-	else:
-		return dll_info
+	return dll_info
 
 
 def ver_to_str(version: str | tuple[int, int, int, int]) -> str:
@@ -158,24 +157,34 @@ def set_titlebar_style(window: Misc) -> None:
 
 def set_theme(win: Tk) -> None:
 	set_titlebar_style(win)
-	sv_ttk.set_theme("dark")
+	sv_ttk.apply_dark_theme()
 	style = ttk.Style(win)
 
 	# Remove blue dotted line from focused tab
 	# fmt: off
 	style.layout(
-		"Tab", [( "Notebook.tab", {
+		"Tab", [("Notebook.tab", {
 			"sticky": NSEW,
 			"children": [(
 				"Notebook.padding", {
 					"side": TOP,
 					"sticky": NSEW,
-					"children": [("Notebook.label", {"side": TOP, "sticky": ""})],
+					"children": [("Notebook.label", {
+						"side": TOP,
+						"sticky": "",
+					})],
 				},
 			)]},
 		)],
 	)
 	# fmt: on
+	# style.configure("TNotebook.Tab", padding=padding)
+	style.configure("Tab", font=FONT)
+	style.configure("TButton", font=FONT_SMALL)
+	style.configure("TCheckbutton", font=FONT_SMALL)
+	style.configure("TLabelframe.Label", font=FONT_SMALL)
+	style.configure("Treeview", font=FONT_SMALL)
+	style.configure("Heading", font=FONT_SMALL)
 
 
 def check_for_update_nexus() -> str | None:
@@ -210,7 +219,6 @@ def check_for_update_github() -> str | None:
 	headers = {
 		"Accept": "application/vnd.github+json",
 		"X-GitHub-Api-Version": "2022-11-28",
-		# "Authorization": "Bearer <TOKEN>",
 	}
 	try:
 		response = requests.get(url, headers=headers, timeout=10)

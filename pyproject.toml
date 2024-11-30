@@ -1,11 +1,11 @@
 [project]
 name = "Collective-Modding-Toolkit"
-version = "0.1"
-requires-python = ">=3.12"
+version = "0.2"
+requires-python = ">=3.12,<3.13"
 
 [tool.poetry]
 name = "Collective-Modding-Toolkit"
-version = "0.1"
+version = "0.2"
 description = "A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the Collective Modding Discord Community."
 authors = ["wxMichael"]
 readme = "README.md"
@@ -13,44 +13,65 @@ homepage = "https://www.nexusmods.com/fallout4/mods/87907"
 repository = "https://github.com/wxMichael/Collective-Modding-Toolkit"
 
 [tool.poetry.dependencies]
-python = "^3.12"
-packaging = "^24.1"
-psutil = "^6.0.0"
-pywin32 = "^306"
+python = ">=3.12,<3.13"
+packaging = "^24.2"
+psutil = "^6.1.0"
+pywin32 = "^308"
 pywin32-ctypes = "^0.2.3"
 pyxdelta = "^0.2.0"
 requests = "^2.32.3"
-sv-ttk = "^2.6.0"
-tkextrafont = "^0.6.3"
+tkinter-tooltip = "^3.1.2"
+pillow = "^11.0.0"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.11.2"
-types-psutil = "^6.0.0.20240901"
-types-pywin32 = "^306.0.0.20240822"
-types-requests = "^2.32.0.20240914"
+mypy = "^1.13.0"
+types-psutil = "^6.1.0.20241102"
+types-pywin32 = "^308.0.0.20241128"
+types-requests = "^2.32.0.20241016"
+setuptools = "^75.6.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry-pyinstaller-plugin]
-collect = { data = ["sv_ttk", "tkextrafont"] }
+use-poetry-install = true
+collect = { data = ["sv_ttk"] }
 include = { "src/assets" = "assets" }
 
 [tool.poetry-pyinstaller-plugin.scripts]
-cm-toolkit = { source = "src/main.py", type = "onefile", add_version = true, icon = "src/icon.ico", console = false, windowed = true, bundle = false }
+cm-toolkit = { source = "src/main.py", type = "onedir", icon = "src/icon.ico", windowed = true, console = false }
 
 [tool.mypy]
-disable_error_code = ["call-arg"]
+enable_incomplete_feature = ["NewGenericSyntax"]
+disable_error_code = [
+	"arg-type",         # Redundant with Pyright reportArgumentType
+	"import-untyped",
+	"index",            # Redundant with Pyright reportIndexIssue
+	"name-defined",     # Redundant with Ruff F821
+	"operator",         # Redundant with Pyright reportOperatorIssue
+	"literal-required",
+]
 
 [[tool.mypy.overrides]]
-module = ["pyxdelta", "tkextrafont"]
+module = ["pyxdelta"]
 ignore_missing_imports = true
+
+[tool.pyright]
+typeCheckingMode = "strict"
+reportUnknownMemberType = false
+reportWildcardImportFromLibrary = false
+reportAssignmentType = false            # Redundant with Mypy assignment
+reportMissingParameterType = false      # Redundant with Ruff ANN001
+reportReturnType = false                # Redundant with Mypy return-type
+reportUndefinedVariable = false         # Redundant with Ruff F821
+reportUnusedImport = false              # Redundant with Ruff F401
+reportUnusedVariable = false            # Redundant with Ruff F841
 
 [tool.ruff]
 extend-exclude = []
 indent-width = 4
-line-length = 120
+line-length = 130
 
 [tool.ruff.format]
 preview = true
@@ -61,49 +82,49 @@ skip-magic-trailing-comma = false
 
 [tool.ruff.lint]
 preview = true
-dummy-variable-rgx = "^_+$"
 extend-select = [
-	"A",
-	"ANN",
-	"ARG",
-	"B",
-	"BLE",
-	"C4",
-	"C901",
-	"COM",
-	"DTZ",
-	"EM",
-	"FA",
-	"FBT",
-	"FLY",
-	"FURB",
-	"G",
-	"I",
-	"ICN",
-	"INT",
-	"ISC",
-	"LOG",
-	"N",
-	"PERF",
-	"PGH",
-	"PIE",
-	"PL",
-	"PT",
-	"PTH",
-	"PYI",
-	"Q",
-	"RET",
-	"RSE",
-	"RUF",
-	"S",
-	"SIM",
-	"SLF",
-	"T20",
-	"TCH",
-	"TD",
-	"TID",
-	"TRY",
-	"UP",
+	"A",     # Builtin Shadowing
+	"ANN",   # Type Annotations
+	"ARG",   # Unused Arguments
+	"ASYNC", # Async Suggestions
+	"B",     # Bugs/Design Problems
+	"BLE",   # Blind Except
+	"C4",    # Comprehensions
+	# "C901",  # Complex Structures
+	"COM",   # Commas
+	# "D",     # pydocstyle
+	"DTZ",   # Unsafe/Naive Datetimes
+	"EM",    # Exception Messages
+	"FA",    # Future Annotations
+	"FBT",   # Boolean Traps
+	"FLY",   # F-Strings
+	"FURB",  # Modernization
+	"G",     # Logging Formatting
+	"I",     # Import Sorting
+	"ICN",   # Import Naming Conventions
+	"INT",   # gettext
+	"ISC",   # Implicit String Concatenation
+	"LOG",   # Logging
+	"N",     # PEP8 Naming Conventions
+	"PERF",  # Performance Anti-Patterns
+	"PGH",   # PyGrep Hooks
+	"PIE",   # Misc Lints
+	"PL",    # Pylint
+	"PT",    # PyTest
+	"PTH",   # Prefer Pathlib
+	"PYI",   # Stub Files
+	"Q",     # Quotes
+	"RET",   # Return
+	"RSE",   # Raise
+	"RUF",   # Ruff
+	# "S",     # Security Testing
+	"SIM",   # Simplify
+	"SLF",   # Self
+	# "T20",   # print
+	"TC",    # Type Checking
+	"TID",   # Tidy Imports
+	"TRY",   # Exception Anti-Patterns
+	"UP",    # pyupgrade (New Syntax Suggestions)
 ]
 
 ignore = [
@@ -114,20 +135,14 @@ ignore = [
 	"F405",    # undefined-local-with-import-star-usage
 	"PLR0904", # too-many-public-methods
 	"PLR0912", # too-many-branches
+	"PLR0913", # too-many-arguments
+	"PLR0914", # too-many-locals
 	"PLR0915", # too-many-statements
+	"PLR0917", # too-many-positional-arguments
+	"PLR1702", # too-many-nested-blocks
+	"PLR2004", # magic-value-comparison
+	"PYI021",  # docstring-in-stub
+	"PYI051",  # redundant-literal-union
 	"S606",    # start-process-with-no-shell
 	"UP027",   # Deprecated
-
-	"C901",   # complex-structure
-	"PGH003", # blanket-type-ignore
-	"PYI021", # docstring-in-stub
-	"S101",   # assert
-	"T201",   # print
 ]
-
-[tool.pyright]
-typeCheckingMode = "strict"
-reportUnusedImport = false              # Redundant with Ruff F401 unused-import
-reportCallIssue = false
-reportUnknownMemberType = false
-reportWildcardImportFromLibrary = false

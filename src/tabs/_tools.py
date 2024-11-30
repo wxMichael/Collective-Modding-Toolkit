@@ -18,35 +18,51 @@ class ToolsTab(CMCTabFrame):
 		ttk.Button(
 			self,
 			text="Downgrade Manager",
-			padding=(10, 5),
-			command=lambda: Downgrader(self.cmc),
+			padding=5,
+			command=lambda: Downgrader(self.cmc.root, self.cmc),
 		).grid(column=0, row=0, sticky=EW, padx=15, pady=(15, 0))
 
 		ttk.Button(
 			self,
 			text="Archive Patcher",
-			padding=(10, 5),
-			command=lambda: ArchivePatcher(self.cmc),
+			padding=5,
+			command=lambda: ArchivePatcher(self.cmc.root, self.cmc),
 		).grid(column=0, row=1, sticky=EW, padx=15, pady=(10, 0))
 
 		ttk.Label(
 			self,
 			text="Tentatively-Planned Tools:",
-			font=self.cmc.FONT_SMALL,
+			font=FONT_SMALL,
 		).grid(column=0, row=2, pady=(20, 0))
 
 		ttk.Button(
 			self,
 			text="(WIP) File Inspector",
-			padding=(10, 5),
+			padding=5,
 			# command=lambda: FileInspector(self.cmc),
 			state="disabled",
 		).grid(column=0, row=3, sticky=EW, padx=15, pady=(10, 0))
 
 		ttk.Button(
 			self,
-			text="(WIP) Papyrus Script Compiler",
-			padding=(10, 5),
-			# command=lambda: PapyrusCompiler(self.cmc),
+			text="(WIP) Complex Sorter INI Patcher",
+			padding=5,
+			# command=lambda: ComplexSorterPatcher(self.cmc),
 			state="disabled",
 		).grid(column=0, row=4, sticky=EW, padx=15, pady=(10, 0))
+
+		ttk.Button(
+			self,
+			text="(WIP) Move CC to Mod Manager",
+			padding=5,
+			# command=lambda: CCMover(self.cmc),
+			state="disabled",
+		).grid(column=0, row=5, sticky=EW, padx=15, pady=(10, 0))
+
+		ttk.Button(
+			self,
+			text="(WIP) Papyrus Script Compiler",
+			padding=5,
+			# command=lambda: PapyrusCompiler(self.cmc),
+			state="disabled",
+		).grid(column=0, row=6, sticky=EW, padx=15, pady=(10, 0))

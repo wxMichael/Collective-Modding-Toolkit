@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum, IntFlag, StrEnum
+from enum import Enum, IntEnum, IntFlag, StrEnum, auto
 
 
 class InstallType(StrEnum):
@@ -21,9 +21,7 @@ class Magic(bytes, Enum):
 class Tab(StrEnum):
 	Overview = "Overview"
 	F4SE = "F4SE"
-	Errors = "Errors"
-	Conflicts = "Conflicts"
-	Suggestions = "Suggestions"
+	Scanner = "Scanner"
 	Tools = "Tools"
 	About = "About"
 
@@ -42,3 +40,18 @@ class ArchiveVersion(IntEnum):
 
 class ModuleFlag(IntFlag):
 	Light = 0x0200
+
+
+class ProblemType(IntEnum):
+	JunkFile = auto()
+	UnexpectedFormat = auto()
+	MisplacedDLL = auto()
+	LoosePrevis = auto()
+	AnimTextDataFolder = auto()
+
+
+class SolutionType(Enum):
+	ArchiveOrDelete = auto()
+	DeleteFile = auto()
+	DeleteFolder = auto()
+	DeleteOrIgnoreFile = auto()
