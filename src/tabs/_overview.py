@@ -58,7 +58,7 @@ class OverviewTab(CMCTabFrame):
 		).grid(column=0, row=0, rowspan=3, sticky=E, padx=5)
 
 		manager = self.cmc.game.manager
-		if manager:
+		if manager and manager.name == "Mod Organizer":
 			label_mod_manager_icon = ttk.Label(
 				frame_top,
 				compound="image",
