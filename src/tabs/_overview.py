@@ -75,9 +75,9 @@ class OverviewTab(CMCTabFrame):
 					350,
 					"Detected Mod Manager Settings",
 					(
-						f"EXE: {manager.exe_path}"
-						f"INI: {manager.ini_path}"
-						f"Portable: {manager.portable}{f'\nPortable.txt: {manager.portable_txt_path}' if manager.portable_txt_path else ''}"
+						f"EXE: {manager.exe_path}\n"
+						f"INI: {manager.ini_path}\n"
+						f"Portable: {manager.portable}\n{f'Portable.txt: {manager.portable_txt_path}\n' if manager.portable_txt_path else ''}"
 						f"{'\n'.join([f'{k}: {v}' for k, v in manager.mo2_settings.items()])}"
 					),
 				),
