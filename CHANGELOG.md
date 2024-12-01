@@ -1,6 +1,22 @@
 # Changelog
 
-## [0.2] - 2024-01-27
+## [0.2.1] - 2024-12-01
+
+# Added
+
+#### Tools
+
+- Buttons linking to tools made by other authors
+
+### Fixed
+
+- BA2s listed in Fallout4.ini were not being counted properly.  
+On a clean game install the count is now 19 higher.
+- The error window was failing to open when the app encountered a problem.
+- Mod manager detection details window was failing to open for Vortex users.
+- Text formatting was merging lines in the mod manager detection details window.
+
+## [0.2] - 2024-11-29
 
 ### Changed
 
@@ -27,7 +43,6 @@ A later update may attempt to detect these.
 
 - Merged Game and CK downgrade options since they both require `steam_api64.dll` to match.  
 Supporting version mixing is on the roadmap.
-
 
 ### Added
 
