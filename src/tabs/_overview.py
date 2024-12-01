@@ -63,9 +63,13 @@ class OverviewTab(CMCTabFrame):
 				frame_top,
 				compound="image",
 				image=self.cmc.get_image("images/info-16.png"),
+				cursor="hand2",
 			)
 			label_mod_manager_icon.grid(column=1, row=0, sticky=W, padx=(0, 5), ipady=3)
 			ToolTip(label_mod_manager_icon, "Detection details")
+			max_len = 0
+			for key in manager.mo2_settings:
+				max_len = max(max_len, len(key))
 			label_mod_manager_icon.bind(
 				"<Button-1>",
 				lambda _: AboutWindow(
@@ -78,7 +82,7 @@ class OverviewTab(CMCTabFrame):
 						f"EXE: {manager.exe_path}\n"
 						f"INI: {manager.ini_path}\n"
 						f"Portable: {manager.portable}\n{f'Portable.txt: {manager.portable_txt_path}\n' if manager.portable_txt_path else ''}"
-						f"{'\n'.join([f'{k}: {v}' for k, v in manager.mo2_settings.items()])}"
+						f"{'\n'.join([f'{k.rjust(max_len)}: {v}' for k, v in manager.mo2_settings.items()])}"
 					),
 				),
 			)
