@@ -443,10 +443,10 @@ class OverviewTab(CMCTabFrame):
 			ba2_suffixes = (" - Main", " - Textures", " - Voices_en", f" - Voices_{game_language}")
 
 		settings_archive_lists = (
-			"sResourceIndexFileList",
-			"sResourceStartUpArchiveList",
-			"SResourceArchiveList",
-			"SResourceArchiveList2",
+			"sresourceindexfilelist",
+			"sresourcestartuparchivelist",
+			"sresourcearchivelist",
+			"sresourcearchivelist2",
 		)
 
 		enabled_archives = {
