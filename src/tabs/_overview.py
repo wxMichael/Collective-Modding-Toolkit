@@ -491,7 +491,8 @@ class OverviewTab(CMCTabFrame):
 			try:
 				with ba2_file.open("rb") as f:
 					head = f.read(12)
-			except PermissionError:
+			except (PermissionError, FileNotFoundError):
+				self.cmc.game.archives_unreadable.add(ba2_file)
 				continue
 
 			if len(head) != 12:
