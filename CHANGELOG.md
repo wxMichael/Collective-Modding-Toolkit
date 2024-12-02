@@ -2,7 +2,7 @@
 
 ## [0.2.1] - 2024-12-01
 
-# Added
+### Added
 
 #### Tools
 
@@ -59,5 +59,6 @@ It currently only supports `Data/` and MO2's mods folder with basic checks like 
 
 _Initial release._
 
+[0.2.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.2.1
 [0.2]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.2
 [0.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.1
