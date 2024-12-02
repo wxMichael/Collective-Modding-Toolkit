@@ -48,6 +48,7 @@ class ProblemType(IntEnum):
 	MisplacedDLL = auto()
 	LoosePrevis = auto()
 	AnimTextDataFolder = auto()
+	InvalidArchiveName = auto()
 
 
 class SolutionType(Enum):
@@ -55,3 +56,17 @@ class SolutionType(Enum):
 	DeleteFile = auto()
 	DeleteFolder = auto()
 	DeleteOrIgnoreFile = auto()
+	RenameArchive = auto()
+
+class Language(StrEnum):
+	Chinese = "cn"
+	German = "de"
+	English = "en"
+	Spanish = "es"
+	SpanishLatinAmerica = "esmx"
+	French = "fr"
+	Italian = "it"
+	Japanese = "ja"
+	Polish = "pl"
+	BrazilianPortuguese = "ptbr"
+	Russian = "ru"

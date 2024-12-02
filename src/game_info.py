@@ -6,7 +6,7 @@ from tkinter import *
 from tkinter import filedialog, messagebox
 from typing import TYPE_CHECKING, Literal
 
-from enums import InstallType
+from enums import InstallType, Language
 from utils import (
 	find_mod_manager,
 	get_registry_value,
@@ -26,8 +26,11 @@ class GameInfo:
 		self._game_path: Path
 		self._data_path: Path | None = None
 		self._f4se_path: Path | None = None
+		self.archives_gnrl: set[Path] = set()
+		self.archives_dx10: set[Path] = set()
 		self.archives_og: set[Path] = set()
 		self.archives_ng: set[Path] = set()
+		self.archives_enabled: set[Path] = set()
 		self.archives_unreadable: set[Path] = set()
 		self.modules_unreadable: set[Path] = set()
 		self.modules_v95: set[Path] = set()
@@ -37,6 +40,7 @@ class GameInfo:
 		self.ckfixes_found = False
 		self.game_settings: dict[str, dict[str, str]] = {}
 		self.game_prefs: dict[str, dict[str, str]] = {}
+		self.language = Language.English
 
 		self.ba2_count_gnrl = 0
 		self.ba2_count_dx10 = 0
@@ -48,6 +52,7 @@ class GameInfo:
 		self.load_game_inis()
 
 	def load_game_inis(self) -> None:
+		# TODO: Replace with ini_file code?
 		docs_path = Path.home() / R"Documents\My Games\Fallout4"
 		section = "NO-SECTION"
 		for name in ("Fallout4.ini", "Fallout4Prefs.ini", "Fallout4Custom.ini"):
@@ -69,6 +74,16 @@ class GameInfo:
 					continue
 				ini_dict[section][setting.lower()] = value
 
+		try:
+			self.language = Language(self.game_settings.get("general", {}).get("slanguage", "en").lower())
+		except ValueError:
+			self.language = Language.English
+			# TODO: Warn on invalid language. suggest bethini pie
+		if self.language == Language.English:
+			self.ba2_suffixes: tuple[str, ...] = ("main", "textures", "voices_en")
+		else:
+			self.ba2_suffixes = ("main", "textures", "voices_en", f"voices_{self.language}")
+
 	def reset_binaries(self) -> None:
 		self.install_type = InstallType.Unknown
 		self.file_info.clear()
@@ -86,8 +101,11 @@ class GameInfo:
 	def reset_archives(self) -> None:
 		self.ba2_count_gnrl = 0
 		self.ba2_count_dx10 = 0
+		self.archives_gnrl.clear()
+		self.archives_dx10.clear()
 		self.archives_og.clear()
 		self.archives_ng.clear()
+		self.archives_enabled.clear()
 		self.archives_unreadable.clear()
 
 	@property

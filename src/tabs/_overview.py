@@ -459,12 +459,6 @@ class OverviewTab(CMCTabFrame):
 		if self.cmc.game.data_path is None:
 			return
 
-		game_language = self.cmc.game.game_settings.get("general", {}).get("slanguage", "en").lower()
-		if game_language == "en":
-			ba2_suffixes: tuple[str, ...] = (" - Main", " - Textures", " - Voices_en")
-		else:
-			ba2_suffixes = (" - Main", " - Textures", " - Voices_en", f" - Voices_{game_language}")
-
 		settings_archive_lists = (
 			"sresourceindexfilelist",
 			"sresourcestartuparchivelist",
@@ -472,22 +466,26 @@ class OverviewTab(CMCTabFrame):
 			"sresourcearchivelist2",
 		)
 
-		enabled_archives = {
-			self.cmc.game.data_path / n.strip()
+		self.cmc.game.archives_enabled = {
+			archive_path
 			for archive_list in settings_archive_lists
 			for n in self.cmc.game.game_settings.get("archive", {}).get(archive_list, "").split(",")
+			if (archive_path := self.cmc.game.data_path / n.strip()).is_file()
 		}
 
-		enabled_archives.update({
-			ps for p in self.cmc.game.modules_enabled for s in ba2_suffixes if (ps := p.with_name(f"{p.stem}{s}.ba2")).is_file()
+		self.cmc.game.archives_enabled.update({
+			ps
+			for p in self.cmc.game.modules_enabled
+			for s in self.cmc.game.ba2_suffixes
+			if (ps := p.with_name(f"{p.stem}{s}.ba2")).is_file()
 		})
 
 		if self.cmc.game.game_prefs.get("nvflex", {}).get("bnvflexenable", "0") == "1":
 			flex_ba2_path = self.cmc.game.data_path / "Fallout4 - Nvflex.ba2"
 			if flex_ba2_path.is_file():
-				enabled_archives.add(flex_ba2_path)
+				self.cmc.game.archives_enabled.add(flex_ba2_path)
 
-		for ba2_file in enabled_archives:
+		for ba2_file in self.cmc.game.archives_enabled:
 			try:
 				with ba2_file.open("rb") as f:
 					head = f.read(12)
@@ -517,9 +515,11 @@ class OverviewTab(CMCTabFrame):
 			match head[8:]:
 				case Magic.GNRL:
 					self.cmc.game.ba2_count_gnrl += 1
+					self.cmc.game.archives_gnrl.add(ba2_file)
 
 				case Magic.DX10:
 					self.cmc.game.ba2_count_dx10 += 1
+					self.cmc.game.archives_dx10.add(ba2_file)
 
 				case _:
 					self.cmc.game.archives_unreadable.add(ba2_file)
