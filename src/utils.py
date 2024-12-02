@@ -16,7 +16,7 @@ from packaging.version import InvalidVersion, Version
 from psutil import Process
 
 import sv_ttk
-from globals import APP_VERSION, FONT, FONT_SMALL, NEXUS_LINK
+from globals import APP_VERSION, COLOR_DEFAULT, FONT, FONT_SMALL, NEXUS_LINK
 from helpers import DLLInfo
 from mod_manager_info import ModManagerInfo
 
@@ -179,12 +179,12 @@ def set_theme(win: Tk) -> None:
 	)
 	# fmt: on
 	# style.configure("TNotebook.Tab", padding=padding)
-	style.configure("Tab", font=FONT)
-	style.configure("TButton", font=FONT_SMALL)
-	style.configure("TCheckbutton", font=FONT_SMALL)
-	style.configure("TLabelframe.Label", font=FONT_SMALL)
-	style.configure("Treeview", font=FONT_SMALL)
-	style.configure("Heading", font=FONT_SMALL)
+	style.configure("Tab", font=FONT, foreground=COLOR_DEFAULT)
+	style.configure("TButton", font=FONT_SMALL, foreground=COLOR_DEFAULT)
+	style.configure("TCheckbutton", font=FONT_SMALL, foreground=COLOR_DEFAULT)
+	style.configure("TLabelframe.Label", font=FONT_SMALL, foreground=COLOR_DEFAULT)
+	style.configure("Treeview", font=FONT_SMALL, foreground=COLOR_DEFAULT)
+	style.configure("Heading", font=FONT_SMALL, foreground=COLOR_DEFAULT)
 
 
 def check_for_update_nexus() -> str | None:

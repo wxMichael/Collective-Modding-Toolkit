@@ -9,12 +9,15 @@ MAX_MODULES_FULL = 254
 MAX_MODULES_LIGHT = 4096
 MAX_ARCHIVES_GNRL = 256
 MAX_ARCHIVES_DX10 = 256
+
+COLOR_DEFAULT = "#CACACA"
 COLOR_GOOD = "green2"
 COLOR_BAD = "firebrick1"
 COLOR_INFO = "dodger blue"
 COLOR_NEUTRAL_1 = "gray"
 COLOR_NEUTRAL_2 = "bisque"
 COLOR_WARNING = "orange"
+
 NEXUS_LINK = "https://www.nexusmods.com/fallout4/mods/87907"
 DISCORD_INVITE = "https://discord.gg/pF9U5FmD6w"
 GITHUB_LINK = "https://github.com/wxMichael/Collective-Modding-Toolkit"

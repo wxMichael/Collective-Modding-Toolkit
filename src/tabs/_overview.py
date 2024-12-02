@@ -55,6 +55,7 @@ class OverviewTab(CMCTabFrame):
 			text="Mod Manager:\nGame Path:\nVersion:",
 			font=FONT,
 			justify=RIGHT,
+			foreground=COLOR_DEFAULT,
 		).grid(column=0, row=0, rowspan=3, sticky=E, padx=5)
 
 		manager = self.cmc.game.manager
@@ -135,13 +136,20 @@ class OverviewTab(CMCTabFrame):
 		file_names = "\n".join([f.rsplit(".", 1)[0] + ":" for f in self.cmc.game.file_info])
 		rows = len(self.cmc.game.file_info)
 
-		label_file_names = ttk.Label(self.frame_info_binaries, text=file_names, font=FONT, justify=RIGHT)
+		label_file_names = ttk.Label(
+			self.frame_info_binaries,
+			text=file_names,
+			font=FONT,
+			foreground=COLOR_DEFAULT,
+			justify=RIGHT,
+		)
 		label_file_names.grid(column=0, row=0, rowspan=rows, sticky=E, padx=5)
 
 		ttk.Label(
 			self.frame_info_binaries,
 			text="Address Library:",
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 			justify=RIGHT,
 		).grid(column=0, row=rows, sticky=E, padx=5)
 
@@ -213,6 +221,7 @@ class OverviewTab(CMCTabFrame):
 			self.frame_info_archives,
 			text="General:\nTexture:\nTotal:",
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 			justify=RIGHT,
 		)
 		label_ba2_formats.grid(column=0, row=0, rowspan=3, sticky=E, padx=(5, 0))
@@ -234,6 +243,7 @@ class OverviewTab(CMCTabFrame):
 			self.frame_info_archives,
 			text="v1 (OG):\nv7/8 (NG):",
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 			justify=RIGHT,
 		)
 		label_ba2_versions.grid(column=0, row=5, rowspan=2, sticky=E, padx=(5, 0))
@@ -255,12 +265,14 @@ class OverviewTab(CMCTabFrame):
 			self.frame_info_archives,
 			text=len(self.cmc.game.archives_og),
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 		).grid(column=1, row=5, sticky=E, padx=(5, 0))
 
 		ttk.Label(
 			self.frame_info_archives,
 			text=len(self.cmc.game.archives_ng),
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 		).grid(column=1, row=6, sticky=E, padx=(5, 0))
 
 		# Column 2
@@ -268,6 +280,7 @@ class OverviewTab(CMCTabFrame):
 			self.frame_info_archives,
 			text=f" / {MAX_ARCHIVES_GNRL}\n / {MAX_ARCHIVES_DX10 or '???'}\n / {MAX_ARCHIVES_GNRL + MAX_ARCHIVES_DX10}",
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 		).grid(column=2, row=0, rowspan=3, sticky=EW)
 
 		# Column 0
@@ -290,6 +303,7 @@ class OverviewTab(CMCTabFrame):
 			self.frame_info_modules,
 			text="Full:\nLight:\nTotal:",
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 			justify=RIGHT,
 		)
 		label_module_types.grid(column=0, row=0, rowspan=3, sticky=E, padx=(5, 0))
@@ -311,6 +325,7 @@ class OverviewTab(CMCTabFrame):
 			self.frame_info_modules,
 			text="HEDR v1.00:",
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 		)
 		label_hedr100.grid(column=0, row=5, sticky=E, padx=(5, 0))
 		ToolTip(label_hedr100, TOOLTIP_HEDR100)
@@ -320,6 +335,7 @@ class OverviewTab(CMCTabFrame):
 			self.frame_info_modules,
 			text="HEDR v0.95:",
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 			# foreground=color_95,
 		)
 		label_hedr95.grid(column=0, row=6, sticky=E, padx=(5, 0))
@@ -341,12 +357,14 @@ class OverviewTab(CMCTabFrame):
 			self.frame_info_modules,
 			text=self.cmc.game.module_count_v1,
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 		).grid(column=1, row=5, sticky=E, padx=(5, 0))
 
 		ttk.Label(
 			self.frame_info_modules,
 			text=len(self.cmc.game.modules_v95),
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 			# foreground=color_95,
 		).grid(column=1, row=6, sticky=E, padx=(5, 0))
 
@@ -355,6 +373,7 @@ class OverviewTab(CMCTabFrame):
 			self.frame_info_modules,
 			text=f" /  {MAX_MODULES_FULL}\n / {MAX_MODULES_LIGHT}\n / {MAX_MODULES_FULL + MAX_MODULES_LIGHT}",
 			font=FONT,
+			foreground=COLOR_DEFAULT,
 			justify=RIGHT,
 		).grid(column=2, row=0, rowspan=3, sticky=EW)
 
