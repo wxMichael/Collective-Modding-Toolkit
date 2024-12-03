@@ -31,9 +31,6 @@ class OverviewTab(CMCTabFrame):
 		self.get_info_archives()
 		return True
 
-	def _build_gui(self) -> None:
-		self.build_tab_overview()
-
 	def refresh(self) -> None:
 		self.get_info_binaries()
 		self.get_info_modules()
@@ -41,11 +38,11 @@ class OverviewTab(CMCTabFrame):
 		self.frame_info_binaries.destroy()
 		self.frame_info_archives.destroy()
 		self.frame_info_modules.destroy()
-		self.build_tab_overview_binaries()
-		self.build_tab_overview_archives()
-		self.build_tab_overview_modules()
+		self.build_gui_binaries()
+		self.build_gui_archives()
+		self.build_gui_modules()
 
-	def build_tab_overview(self) -> None:
+	def _build_gui(self) -> None:
 		frame_top = ttk.Frame(self)
 		frame_top.pack(anchor=W, fill=X, pady=5)
 		frame_top.grid_columnconfigure(index=2, weight=1)
@@ -125,11 +122,11 @@ class OverviewTab(CMCTabFrame):
 		button_refresh.grid(column=3, row=0, rowspan=2, sticky=E, padx=10)
 		ToolTip(button_refresh, TOOLTIP_REFRESH)
 
-		self.build_tab_overview_binaries()
-		self.build_tab_overview_archives()
-		self.build_tab_overview_modules()
+		self.build_gui_binaries()
+		self.build_gui_archives()
+		self.build_gui_modules()
 
-	def build_tab_overview_binaries(self) -> None:
+	def build_gui_binaries(self) -> None:
 		self.frame_info_binaries = ttk.Labelframe(self, text="Binaries (EXE/DLL/BIN)")
 		self.frame_info_binaries.pack(anchor=N, fill=BOTH, side=LEFT, expand=True)
 
@@ -195,10 +192,10 @@ class OverviewTab(CMCTabFrame):
 				version = ver_to_str(self.cmc.game.file_info[file_name]["Version"] or "Not Found")
 
 				def on_enter(event: "Event[ttk.Label]", ver: str = version) -> None:
-					event.widget.config(text=ver)
+					event.widget.configure(text=ver)
 
 				def on_leave(event: "Event[ttk.Label]", it: str = install_type or "Not Found") -> None:
-					event.widget.config(text=it)
+					event.widget.configure(text=it)
 
 				version_label.bind("<Enter>", on_enter)
 				version_label.bind("<Leave>", on_leave)
@@ -212,7 +209,7 @@ class OverviewTab(CMCTabFrame):
 		).grid(column=0, row=size[1], columnspan=size[0], sticky=S, pady=10)
 		self.frame_info_binaries.grid_rowconfigure(size[1], weight=2)
 
-	def build_tab_overview_archives(self) -> None:
+	def build_gui_archives(self) -> None:
 		self.frame_info_archives = ttk.Labelframe(self, text="Archives (BA2)")
 		self.frame_info_archives.pack(anchor=N, fill=BOTH, side=LEFT, expand=True)
 
@@ -278,7 +275,7 @@ class OverviewTab(CMCTabFrame):
 		# Column 2
 		ttk.Label(
 			self.frame_info_archives,
-			text=f" / {MAX_ARCHIVES_GNRL}\n / {MAX_ARCHIVES_DX10 or '???'}\n / {MAX_ARCHIVES_GNRL + MAX_ARCHIVES_DX10}",
+			text=f" / {MAX_ARCHIVES_GNRL}\n / {MAX_ARCHIVES_DX10}\n / {MAX_ARCHIVES_GNRL + MAX_ARCHIVES_DX10}",
 			font=FONT,
 			foreground=COLOR_DEFAULT,
 		).grid(column=2, row=0, rowspan=3, sticky=EW)
@@ -294,7 +291,7 @@ class OverviewTab(CMCTabFrame):
 		self.frame_info_archives.grid_rowconfigure(size[1], weight=2)
 		self.frame_info_archives.grid_columnconfigure(2, weight=1)
 
-	def build_tab_overview_modules(self) -> None:
+	def build_gui_modules(self) -> None:
 		self.frame_info_modules = ttk.Labelframe(self, text="Modules (ESM/ESL/ESP)")
 		self.frame_info_modules.pack(anchor=N, fill=BOTH, side=LEFT, expand=True)
 
