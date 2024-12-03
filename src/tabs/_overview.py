@@ -65,9 +65,11 @@ class OverviewTab(CMCTabFrame):
 			)
 			label_mod_manager_icon.grid(column=1, row=0, sticky=W, padx=(0, 5), ipady=3)
 			ToolTip(label_mod_manager_icon, "Detection details")
+
 			max_len = 0
 			for key in manager.mo2_settings:
 				max_len = max(max_len, len(key))
+
 			label_mod_manager_icon.bind(
 				"<Button-1>",
 				lambda _: AboutWindow(
@@ -85,14 +87,16 @@ class OverviewTab(CMCTabFrame):
 				),
 			)
 
-		ttk.Label(
+		label_mod_manager = ttk.Label(
 			frame_top,
 			text=f"{self.cmc.game.manager.name} v{self.cmc.game.manager.version} [Profile: {self.cmc.game.manager.selected_profile or 'Unknown'}]"
 			if self.cmc.game.manager
 			else "Not Found",
 			font=FONT,
 			foreground=COLOR_NEUTRAL_2 if self.cmc.game.manager else COLOR_BAD,
-		).grid(column=2, row=0, sticky=W)
+		)
+		label_mod_manager.grid(column=2, row=0, sticky=W)
+		ToolTip(label_mod_manager, "Your mod manager must launch the app to be detected.")
 
 		label_path = ttk.Label(
 			frame_top,
@@ -273,12 +277,14 @@ class OverviewTab(CMCTabFrame):
 		).grid(column=1, row=6, sticky=E, padx=(5, 0))
 
 		# Column 2
-		ttk.Label(
+		label_archives_max = ttk.Label(
 			self.frame_info_archives,
 			text=f" / {MAX_ARCHIVES_GNRL}\n / {MAX_ARCHIVES_DX10}\n / {MAX_ARCHIVES_GNRL + MAX_ARCHIVES_DX10}",
 			font=FONT,
 			foreground=COLOR_DEFAULT,
-		).grid(column=2, row=0, rowspan=3, sticky=EW)
+		)
+		label_archives_max.grid(column=2, row=0, rowspan=3, sticky=EW)
+		ToolTip(label_archives_max, TOOLTIP_BA2_VERSIONS)
 
 		# Column 0
 		size = self.frame_info_archives.grid_size()
@@ -366,13 +372,15 @@ class OverviewTab(CMCTabFrame):
 		).grid(column=1, row=6, sticky=E, padx=(5, 0))
 
 		# Column 2
-		ttk.Label(
+		label_module_max = ttk.Label(
 			self.frame_info_modules,
 			text=f" /  {MAX_MODULES_FULL}\n / {MAX_MODULES_LIGHT}\n / {MAX_MODULES_FULL + MAX_MODULES_LIGHT}",
 			font=FONT,
 			foreground=COLOR_DEFAULT,
 			justify=RIGHT,
-		).grid(column=2, row=0, rowspan=3, sticky=EW)
+		)
+		label_module_max.grid(column=2, row=0, rowspan=3, sticky=EW)
+		ToolTip(label_module_max, TOOLTIP_MODULE_TYPES)
 
 	def add_count_label(
 		self,
