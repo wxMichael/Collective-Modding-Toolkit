@@ -167,17 +167,20 @@ TOOLTIP_REFRESH = "Refresh"
 TOOLTIP_ADDRESS_LIBRARY_MISSING = "Address Library is required for many F4SE mods."
 
 TOOLTIP_BA2_FORMATS = """General/GNRL/Main: Used for all non-texture files.
-Hard limit of 255, after which the game will crash at the main menu.
+Hard limit of 256, after which the game will crash at the main menu.
 
 Texture/DX10: Used only for textures. No hard limit.
-Functional limit is *likely* also 255, but testing is needed.
+Functional limit is *likely* also 256, but testing is needed.
 The total cap may be inaccurate for this reason."""
-TOOLTIP_UNREADABLE = "Files that could not be read due to unexpected format or corruption."
+TOOLTIP_UNREADABLE = "Files that could not be read due to permissions, unexpected format, or corruption."
 TOOLTIP_BA2_VERSIONS = """v1 works with all FO4 versions.
 v7/v8 require either BASS or NG.
 Some apps only support v1."""
 TOOLTIP_MODULE_TYPES = """Full modules include all non-Light modules.
-Light modules are ESL-flagged and/or have the .esl extension."""
+Light modules are ESL-flagged and/or have the .esl extension.
+
+Light modules give up the capacity to contain more than 4096
+new records in exchange for having a higher plugin limit."""
 TOOLTIP_HEDR100 = """Plugin header v1.00 has a larger Form ID range.
 Any plugins with IDs below 800 MUST be v1.00.
 FO4VR only supports v0.95."""
