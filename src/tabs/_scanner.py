@@ -18,6 +18,7 @@ IGNORE_FOLDERS = {
 	"Robco_Patcher",
 	"Source",
 }
+
 DATA_WHITELIST = {
 	"F4se": None,
 	"Materials": {"bgem", "bgsm", "txt"},
@@ -40,7 +41,7 @@ DATA_WHITELIST = {
 	},
 	"Music": {"wav", "xwm"},
 	"Textures": {"dds"},
-	"Sound": {"fuz", "lip", "wav", "xwm"},
+	"Sound": {"cdf", "fuz", "lip", "wav", "xwm"},
 	"Vis": {"uvd"},
 }
 
