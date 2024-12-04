@@ -20,6 +20,7 @@ DLL_OGNG_WHITELIST = (
 	"AchievementsModsEnablerLoader.dll",
 	"BetterConsole.dll",
 	"Buffout4.dll",
+	"ClockWidget.dll",
 	"FloatingDamage.dll",
 	"GCBugFix.dll",
 	"HUDPlusPlus.dll",
