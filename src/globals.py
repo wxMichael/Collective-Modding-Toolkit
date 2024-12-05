@@ -111,6 +111,31 @@ GAME_MASTERS = (
 	"dlcultrahighresolution.esm",
 )
 
+ARCHIVE_NAME_WHITELIST = (
+	"creationkit - shaders.ba2",
+	"creationkit - textures.ba2",
+	"fallout4 - animations.ba2",
+	"fallout4 - interface.ba2",
+	"fallout4 - materials.ba2",
+	"fallout4 - meshes.ba2",
+	"fallout4 - meshesextra.ba2",
+	"fallout4 - misc.ba2",
+	"fallout4 - nvflex.ba2",
+	"fallout4 - shaders.ba2",
+	"fallout4 - sounds.ba2",
+	"fallout4 - startup.ba2",
+	"fallout4 - textures1.ba2",
+	"fallout4 - textures2.ba2",
+	"fallout4 - textures3.ba2",
+	"fallout4 - textures4.ba2",
+	"fallout4 - textures5.ba2",
+	"fallout4 - textures6.ba2",
+	"fallout4 - textures7.ba2",
+	"fallout4 - textures8.ba2",
+	"fallout4 - textures9.ba2",
+	"fallout4 - voices.ba2",
+)
+
 ABOUT_ARCHIVES = """Bethesda Archive (BA2) Formats & Versions
 
 There are 2 formats and 3 versions for Fallout 4 BA2 files:

@@ -469,41 +469,69 @@ class ScannerTab(CMCTabFrame):
 
 				file_ext = file_split[1]
 
-				if scan_settings.formats and (
-					(whitelist and file_ext not in whitelist)
-					or (file_ext == "dll" and str(root.relative_to(data_path)).lower() != "f4se\\plugins")
-				):
-					solution = None
-					if file_ext in PROPER_FORMATS:
-						msg_delete_or_ignore = f"If {full_path.name} is not referenced by any plugin's {RECORD_TYPES.get(file_ext, '')}records, it can likely be deleted or ignored."
-						proper_found = [
-							p.name for e in PROPER_FORMATS[file_ext] if (p := full_path.with_suffix(f".{e}")).is_file()
-						]
-						if proper_found:
-							msg_found = f"Expected format found ({', '.join(proper_found)})."
+				if scan_settings.formats:
+					if (whitelist and file_ext not in whitelist) or (
+						file_ext == "dll" and str(root.relative_to(data_path)).lower() != "f4se\\plugins"
+					):
+						solution = None
+						if file_ext in PROPER_FORMATS:
+							msg_delete_or_ignore = f"If {full_path.name} is not referenced by any plugin's {RECORD_TYPES.get(file_ext, '')}records, it can likely be deleted or ignored."
+							proper_found = [
+								p.name for e in PROPER_FORMATS[file_ext] if (p := full_path.with_suffix(f".{e}")).is_file()
+							]
+							if proper_found:
+								msg_found = f"Expected format found ({', '.join(proper_found)})."
+							else:
+								msg_found = f"Expected format NOT found ({', '.join(PROPER_FORMATS[file_ext])}).\nThis file may need to be converted and relevant plugins updated for the new file name."
+							solution = SolutionInfo(
+								SolutionType.DeleteOrIgnoreFile,
+								f"{msg_found}\n{msg_delete_or_ignore}",
+							)
 						else:
-							msg_found = f"Expected format NOT found ({', '.join(PROPER_FORMATS[file_ext])}).\nThis file may need to be converted and relevant plugins updated for the new file name."
-						solution = SolutionInfo(
-							SolutionType.DeleteOrIgnoreFile,
-							f"{msg_found}\n{msg_delete_or_ignore}",
-						)
-					else:
-						solution = SolutionInfo(
-							None,
-							"Format not in whitelist. Unable to determine whether the game will use this file.\nIf this file type is expected here, please report it.",
-						)
+							solution = SolutionInfo(
+								None,
+								"Format not in whitelist. Unable to determine whether the game will use this file.\nIf this file type is expected here, please report it.",
+							)
 
-					problems.append(
-						ProblemInfo(
-							ProblemType.UnexpectedFormat,
-							full_path,
-							relative_path,
-							mod_name,
-							f"Unexpected format in {data_root_titlecase}",
-							solution,
-						),
-					)
-					continue
+						problems.append(
+							ProblemInfo(
+								ProblemType.UnexpectedFormat,
+								full_path,
+								relative_path,
+								mod_name,
+								f"Unexpected format in {data_root_titlecase}",
+								solution,
+							),
+						)
+						continue
+
+					if (
+						file_ext == "ba2"
+						and file_lower not in ARCHIVE_NAME_WHITELIST
+						and full_path not in self.cmc.game.archives_enabled
+					):
+						ba2_name_split = file_split[0].rsplit(" - ", 1)
+						no_suffix = len(ba2_name_split) == 1
+						if no_suffix or ba2_name_split[1] not in self.cmc.game.ba2_suffixes:
+							problems.append(
+								ProblemInfo(
+									ProblemType.InvalidArchiveName,
+									full_path,
+									relative_path,
+									mod_name,
+									"Invalid Archive Name",
+									SolutionInfo(
+										SolutionType.RenameArchive,
+										(
+											"This is not a valid archive name and won't be loaded by the game.\n"
+											"Archives must be named the same as a plugin with an added suffix\n\n"
+											f"Valid Suffixes: {', '.join(self.cmc.game.ba2_suffixes)}\n"
+											f"Example: {ba2_name_split if no_suffix else ba2_name_split[0]} - Main.ba2"
+										),
+									),
+								),
+							)
+							continue
 		return problems
 
 
