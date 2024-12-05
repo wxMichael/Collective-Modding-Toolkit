@@ -60,9 +60,7 @@ class GameInfo:
 			if not ini_path.is_file():
 				continue
 			ini_dict = self.game_prefs if name == "Fallout4Prefs.ini" else self.game_settings
-			with ini_path.open() as ini_file:
-				ini_lines = ini_file.read().splitlines()
-			for line in ini_lines:
+			for line in ini_path.read_text(encoding="utf-8").splitlines():
 				if line.startswith("[") and line.endswith("]"):
 					section = line[1:-1].lower()
 					if section not in ini_dict:

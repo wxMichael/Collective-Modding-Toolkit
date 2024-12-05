@@ -226,7 +226,7 @@ class ScannerTab(CMCTabFrame):
 			if not modlist_path.is_file():
 				msg = f"File doesn't exist: {modlist_path}"
 				raise FileNotFoundError(msg)
-			with modlist_path.open() as modlist_file:
+			with modlist_path.open(encoding="utf-8") as modlist_file:
 				modlist = [
 					mod_path
 					for mod in modlist_file.read().splitlines()

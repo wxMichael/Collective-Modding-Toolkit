@@ -77,11 +77,8 @@ class ModManagerInfo:
 			"skip_directories": set(),
 		}
 
-		with ini_path.open() as ini_file:
-			ini_contents = ini_file.read().splitlines()
-
 		section = None
-		for line in ini_contents:
+		for line in ini_path.read_text(encoding="utf-8").splitlines():
 			if line.startswith("["):
 				if line in mo2_setting_list:
 					section = line

@@ -546,7 +546,7 @@ class OverviewTab(CMCTabFrame):
 
 		ccc_path = self.cmc.game.game_path / "Fallout4.ccc"
 		if ccc_path.is_file():
-			with ccc_path.open() as ccc_file:
+			with ccc_path.open(encoding="utf-8") as ccc_file:
 				self.cmc.game.modules_enabled.extend([
 					cc_path for cc in ccc_file.read().splitlines() if (cc_path := data_path / cc).is_file()
 				])
@@ -555,7 +555,7 @@ class OverviewTab(CMCTabFrame):
 
 		plugins_path = Path.home() / "AppData\\Local\\Fallout4\\plugins.txt"
 		if plugins_path.is_file():
-			with plugins_path.open() as plugins_file:
+			with plugins_path.open(encoding="utf-8") as plugins_file:
 				self.cmc.game.modules_enabled.extend([
 					plugin_path
 					for plugin in plugins_file.read().splitlines()
