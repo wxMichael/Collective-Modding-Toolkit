@@ -223,7 +223,7 @@ and leftover fomod folders."""
 TOOLTIP_SCAN_CONFLICTS = "Detect conflicting mods and mod settings."
 TOOLTIP_SCAN_SUGGEST = "Make suggestions for changes to your mod setup."
 TOOLTIP_SCAN_BAD_OVERRIDES = """Detect overrides that typically cause issues
-such as outdated F4SE script files."""
+such as outdated F4SE script files or loose AnimTextData folders."""
 
 TOOLTIP_SAVE_MODE = """Settings are saved to a JSON file by default.
 If this is disabled or the JSON file is deleted, default

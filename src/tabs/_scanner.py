@@ -1,6 +1,7 @@
 import os
 import queue
 import threading
+from enum import Enum
 from pathlib import Path
 from tkinter import *
 from tkinter import ttk
@@ -74,6 +75,34 @@ RECORD_TYPES = {
 }
 
 
+class ScanSetting(Enum):
+	WrongFormat = ("Wrong File Formats", TOOLTIP_SCAN_FORMATS)
+	LoosePrevis = ("Loose Previs", TOOLTIP_SCAN_PREVIS)
+	JunkFiles = ("Junk Files", TOOLTIP_SCAN_JUNK)
+	ProblemOverrides = ("Problem Overrides", TOOLTIP_SCAN_BAD_OVERRIDES)
+
+	DDSChecks = ("DDS Checks", TOOLTIP_SCAN_DDS)
+	BA2Content = ("BA2 Contents", TOOLTIP_SCAN_BA2)
+	ModConflicts = ("Mod Conflicts", TOOLTIP_SCAN_CONFLICTS)
+	Suggestions = ("Suggestions", TOOLTIP_SCAN_SUGGEST)
+
+
+WIP_SETTINGS = (
+	ScanSetting.DDSChecks,
+	ScanSetting.BA2Content,
+	ScanSetting.ModConflicts,
+	ScanSetting.Suggestions,
+)
+
+
+class ScanSettings(dict[ScanSetting, bool]):
+	def __init__(self, side_pane: "SidePane") -> None:
+		super().__init__()
+
+		for setting in ScanSetting:
+			self[setting] = side_pane.bool_vars[setting].get()
+
+
 class ScannerTab(CMCTabFrame):
 	def __init__(self, cmc: CMCheckerInterface, notebook: ttk.Notebook) -> None:
 		super().__init__(cmc, notebook, "Scanner")
@@ -93,16 +122,6 @@ class ScannerTab(CMCTabFrame):
 		self.progress_check_delay = 100
 		self.sv_scanning_text = StringVar()
 		self.label_scanning_text: ttk.Label | None = None
-
-		self.bv_scan_formats = BooleanVar(value=True)
-		self.bv_scan_previs = BooleanVar(value=True)
-		self.bv_scan_junk = BooleanVar(value=True)
-
-		self.bv_scan_dds = BooleanVar(value=False)
-		self.bv_scan_ba2 = BooleanVar(value=False)
-		self.bv_scan_conflicts = BooleanVar(value=False)
-		self.bv_scan_suggest = BooleanVar(value=False)
-		self.bv_scan_bad_overrides = BooleanVar(value=False)
 
 		self.func_id_focus: str
 		self.func_id_config: str
@@ -235,11 +254,11 @@ class ScannerTab(CMCTabFrame):
 			scan_paths.extend(modlist)
 
 		self.scan_path_count = len(scan_paths) + 1
-		self.thread_load = threading.Thread(target=self.threaded_scan, args=(scan_paths, ScanSettings(self)))
+		self.thread_load = threading.Thread(target=self.threaded_scan, args=(scan_paths, ScanSettings(self.side_pane)))
 		self.thread_load.start()
 		self.cmc.root.after(self.progress_check_delay, self.check_scan_progress)
 
-	def threaded_scan(self, scan_paths: list[Path], scan_settings: "ScanSettings") -> None:
+	def threaded_scan(self, scan_paths: list[Path], scan_settings: ScanSettings) -> None:
 		if self.cmc.game.data_path is None:
 			return
 
@@ -314,7 +333,7 @@ class ScannerTab(CMCTabFrame):
 
 	def scan_data_path(
 		self,
-		scan_settings: "ScanSettings",
+		scan_settings: ScanSettings,
 		data_path: Path,
 		scanned_mod_paths: set[Path],
 		*,
@@ -331,7 +350,7 @@ class ScannerTab(CMCTabFrame):
 			if root.parent == data_path:
 				data_root_titlecase = root.name.title()
 
-				if scan_settings.junk and data_root_titlecase in JUNK_FOLDERS_DATA_ROOT:
+				if scan_settings[ScanSetting.JunkFiles] and data_root_titlecase in JUNK_FOLDERS_DATA_ROOT:
 					relative_path = root.relative_to(data_path)
 					if not is_data_folder:
 						scanned_mod_paths.add(relative_path)
@@ -358,7 +377,7 @@ class ScannerTab(CMCTabFrame):
 					folders.clear()
 					continue
 
-				if scan_settings.previs and data_root_titlecase == "Vis":
+				if scan_settings[ScanSetting.LoosePrevis] and data_root_titlecase == "Vis":
 					relative_path = root.relative_to(data_path)
 					if not is_data_folder:
 						scanned_mod_paths.add(relative_path)
@@ -390,7 +409,7 @@ class ScannerTab(CMCTabFrame):
 				if data_root_titlecase == "Meshes":
 					full_path = root / folder
 					relative_path = full_path.relative_to(data_path)
-					if scan_settings.previs and folder_lower == "precombined":
+					if scan_settings[ScanSetting.LoosePrevis] and folder_lower == "precombined":
 						if not is_data_folder:
 							scanned_mod_paths.add(relative_path)
 						elif relative_path in scanned_mod_paths:
@@ -412,7 +431,7 @@ class ScannerTab(CMCTabFrame):
 						del folders[index]
 						continue
 
-					if folder_lower == "animtextdata":
+					if scan_settings[ScanSetting.ProblemOverrides] and folder_lower == "animtextdata":
 						if not is_data_folder:
 							scanned_mod_paths.add(relative_path)
 						elif relative_path in scanned_mod_paths:
@@ -447,7 +466,7 @@ class ScannerTab(CMCTabFrame):
 				elif relative_path in scanned_mod_paths:
 					continue
 
-				if scan_settings.junk and file_lower in JUNK_FILES:
+				if scan_settings[ScanSetting.JunkFiles] and file_lower in JUNK_FILES:
 					problems.append(
 						ProblemInfo(
 							ProblemType.JunkFile,
@@ -469,7 +488,7 @@ class ScannerTab(CMCTabFrame):
 
 				file_ext = file_split[1]
 
-				if scan_settings.formats:
+				if scan_settings[ScanSetting.WrongFormat]:
 					if (whitelist and file_ext not in whitelist) or (
 						file_ext == "dll" and str(root.relative_to(data_path)).lower() != "f4se\\plugins"
 					):
@@ -550,55 +569,23 @@ class SidePane(Toplevel):
 		frame_scan_settings = ttk.Labelframe(self, text="Scan Settings", labelanchor=N, padding=5)
 		frame_scan_settings.pack(expand=True, fill=BOTH, padx=5, pady=5)
 
-		check_scan_formats = ttk.Checkbutton(
-			frame_scan_settings,
-			text="Wrong File Formats",
-			variable=self.scanner_tab.bv_scan_formats,
-		)
-		check_scan_previs = ttk.Checkbutton(
-			frame_scan_settings,
-			text="Loose Previs",
-			variable=self.scanner_tab.bv_scan_previs,
-		)
-		check_scan_junk = ttk.Checkbutton(
-			frame_scan_settings,
-			text="Junk Files",
-			variable=self.scanner_tab.bv_scan_junk,
-		)
-
 		frame_wip_settings = ttk.Labelframe(self, text="WIP Settings", labelanchor=N, padding=5)
-		frame_wip_settings.pack(expand=True, fill=BOTH, padx=5, pady=5)
+		if WIP_SETTINGS:
+			frame_wip_settings.pack(expand=True, fill=BOTH, padx=5, pady=5)
 
-		check_scan_dds = ttk.Checkbutton(
-			frame_wip_settings,
-			text="DDS Checks",
-			variable=self.scanner_tab.bv_scan_dds,
-			state=DISABLED,
-		)
-		check_scan_ba2 = ttk.Checkbutton(
-			frame_wip_settings,
-			text="BA2 Contents",
-			variable=self.scanner_tab.bv_scan_ba2,
-			state=DISABLED,
-		)
-		check_scan_conflicts = ttk.Checkbutton(
-			frame_wip_settings,
-			text="Mod Conflicts",
-			variable=self.scanner_tab.bv_scan_conflicts,
-			state=DISABLED,
-		)
-		check_scan_suggest = ttk.Checkbutton(
-			frame_wip_settings,
-			text="Suggestions",
-			variable=self.scanner_tab.bv_scan_suggest,
-			state=DISABLED,
-		)
-		check_scan_bad_overrides = ttk.Checkbutton(
-			frame_wip_settings,
-			text="Problem Overrides",
-			variable=self.scanner_tab.bv_scan_bad_overrides,
-			state=DISABLED,
-		)
+		self.bool_vars: dict[ScanSetting, BooleanVar] = {}
+		for setting in ScanSetting:
+			wip = bool(WIP_SETTINGS and setting in WIP_SETTINGS)
+			self.bool_vars[setting] = BooleanVar(value=not wip)
+			setting_check = ttk.Checkbutton(
+				frame_wip_settings if wip else frame_scan_settings,
+				text=setting.value[0],
+				variable=self.bool_vars[setting],
+				state=DISABLED if wip else NORMAL,
+				command=self.on_checkbox_toggle,
+			)
+			setting_check.pack(anchor=W, side=TOP)
+			ToolTip(setting_check, setting.value[1])
 
 		self.button_scan = ttk.Button(
 			self,
@@ -607,30 +594,13 @@ class SidePane(Toplevel):
 			command=scanner_tab.start_threaded_scan,
 			style="Accent.TButton",
 		)
-
-		check_scan_formats.pack(anchor=W, side=TOP)
-		check_scan_previs.pack(anchor=W, side=TOP)
-
-		check_scan_dds.pack(anchor=W, side=TOP)
-		check_scan_ba2.pack(anchor=W, side=TOP)
-		check_scan_junk.pack(anchor=W, side=TOP)
-		check_scan_conflicts.pack(anchor=W, side=TOP)
-		check_scan_suggest.pack(anchor=W, side=TOP)
-		check_scan_bad_overrides.pack(anchor=W, side=TOP)
-
 		self.button_scan.pack(side=BOTTOM, padx=10, pady=10)
-
-		ToolTip(check_scan_formats, TOOLTIP_SCAN_FORMATS)
-		ToolTip(check_scan_dds, TOOLTIP_SCAN_DDS)
-		ToolTip(check_scan_ba2, TOOLTIP_SCAN_BA2)
-		ToolTip(check_scan_previs, TOOLTIP_SCAN_PREVIS)
-		ToolTip(check_scan_junk, TOOLTIP_SCAN_JUNK)
-		ToolTip(check_scan_conflicts, TOOLTIP_SCAN_CONFLICTS)
-		ToolTip(check_scan_suggest, TOOLTIP_SCAN_SUGGEST)
-		ToolTip(check_scan_bad_overrides, TOOLTIP_SCAN_BAD_OVERRIDES)
 
 		self.grid_rowconfigure(self.grid_size()[1], weight=1)
 		self.bind("<FocusIn>", self.on_focus)
+
+	def on_checkbox_toggle(self) -> None:
+		self.button_scan.configure(state=NORMAL if any(bv.get() for bv in self.bool_vars.values()) else DISABLED)
 
 	def on_focus(self, _event: "Event[Misc]") -> None:
 		self.scanner_tab.cmc.root.tkraise()
@@ -761,16 +731,3 @@ class ResultDetailsPane(Toplevel):
 	def close(self) -> None:
 		self.scanner_tab.details_pane = None
 		self.destroy()
-
-
-class ScanSettings:
-	def __init__(self, scanner_tab: ScannerTab) -> None:
-		self.formats = scanner_tab.bv_scan_formats.get()
-		self.previs = scanner_tab.bv_scan_previs.get()
-		self.junk = scanner_tab.bv_scan_junk.get()
-
-		self.dds = scanner_tab.bv_scan_dds.get()
-		self.ba2 = scanner_tab.bv_scan_ba2.get()
-		self.conflicts = scanner_tab.bv_scan_conflicts.get()
-		self.suggest = scanner_tab.bv_scan_suggest.get()
-		self.bad_overrides = scanner_tab.bv_scan_bad_overrides.get()
