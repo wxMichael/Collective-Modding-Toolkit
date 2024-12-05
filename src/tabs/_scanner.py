@@ -427,7 +427,7 @@ class ScannerTab(CMCTabFrame):
 								"Loose AnimTextData folder found",
 								SolutionInfo(
 									SolutionType.ArchiveOrDelete,
-									"The existence of unpacked AnimTextData causes the game to crash. The folder should be packed in a BA2 or deleted.",
+									"The existence of unpacked AnimTextData may cause the game to crash.\nThe folder should be packed in a BA2 or deleted.",
 								),
 							),
 						)
