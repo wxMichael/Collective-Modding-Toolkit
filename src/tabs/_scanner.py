@@ -42,6 +42,7 @@ DATA_WHITELIST = {
 	},
 	"Music": {"wav", "xwm"},
 	"Textures": {"dds"},
+	"Scripts": {"pex", "psc", "txt", "zip"},
 	"Sound": {"cdf", "fuz", "lip", "wav", "xwm"},
 	"Vis": {"uvd"},
 }
@@ -482,6 +483,23 @@ class ScannerTab(CMCTabFrame):
 					)
 					continue
 
+				if data_root_titlecase == "Scripts":  # noqa: SIM102
+					if scan_settings[ScanSetting.ProblemOverrides] and file_lower in F4SE_CRC:
+						problems.append(
+							ProblemInfo(
+								ProblemType.F4SEOverride,
+								full_path,
+								relative_path,
+								mod_name,
+								"F4SE Script Override",
+								SolutionInfo(
+									SolutionType.DeleteFile,
+									f"{full_path.name} is an override of an F4SE script. This could break F4SE if their versions differ.\nThis file should be deleted.",
+								),
+							),
+						)
+						continue
+
 				file_split = file_lower.rsplit(".", maxsplit=1)
 				if len(file_split) == 1:
 					continue
@@ -601,6 +619,7 @@ class SidePane(Toplevel):
 
 	def on_checkbox_toggle(self) -> None:
 		self.button_scan.configure(state=NORMAL if any(bv.get() for bv in self.bool_vars.values()) else DISABLED)
+		self.scanner_tab.cmc.root.update()
 
 	def on_focus(self, _event: "Event[Misc]") -> None:
 		self.scanner_tab.cmc.root.tkraise()

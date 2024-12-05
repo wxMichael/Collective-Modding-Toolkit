@@ -49,6 +49,7 @@ class ProblemType(IntEnum):
 	LoosePrevis = auto()
 	AnimTextDataFolder = auto()
 	InvalidArchiveName = auto()
+	F4SEOverride = auto()
 
 
 class SolutionType(Enum):

@@ -231,3 +231,35 @@ settings will be used and update checks will be disabled."""
 TOOLTIP_UPDATE_MODE = """GitHub will always have the latest release.
 Nexus Mods releases may be delayed due to
 their review process or to await more testing."""
+
+F4SE_CRC = {
+	"actor.pex": ("C250936E", "AE6222BE"),
+	"actorbase.pex": ("0681E1F5", "FB9BCDAB"),
+	"armor.pex": ("C145D146", "3F9E535A"),
+	"armoraddon.pex": ("B0D1B057", "4F62262C"),
+	"cell.pex": ("0CB47BBE", "29F5583B"),
+	"component.pex": ("EE3B04A6", "CF50DEA9"),
+	"constructibleobject.pex": ("9CDD93BE", "55489CE6"),
+	"defaultobject.pex": ("9DF10D4B", "D173AE18"),
+	"encounterzone.pex": ("4EC6CE1F", "A70D8729"),
+	"equipslot.pex": ("3ECC3CA5", "73A59F70"),
+	"f4se.pex": ("6EEEE7D9", "13E2A430"),
+	"favoritesmanager.pex": ("AC1694B2", "4933B1C6"),
+	"form.pex": ("57919410", "06E8A822"),
+	"game.pex": ("2B0602CC", "BCF2E430"),
+	"headpart.pex": ("8DC03678", "F6E4A814"),
+	"input.pex": ("92399489", "D5FC1734"),
+	"instancedata.pex": ("73F0FBBC", "C1F7FA69"),
+	"location.pex": ("D35726C4", "F2E89378"),
+	"matswap.pex": ("49F6C1D2", "CC2D9B50"),
+	"math.pex": ("8D97F9D2", "35F956BD"),
+	"miscobject.pex": ("A6DE1C41", "C4EA2902"),
+	"objectmod.pex": ("9161CD93", "97601F72"),
+	"objectreference.pex": ("AD399939", "64FC714E"),
+	"perk.pex": ("F7D88CCC", "D596624D"),
+	"scriptobject.pex": ("E3AF8EC9", "68F24E0F"),
+	"ui.pex": ("00286C67", "749CC3DA"),
+	"utility.pex": ("5FDFAB76", "9B902650"),
+	"watertype.pex": ("6543E221", "946E310A"),
+	"weapon.pex": ("E1E3A63C", "BCA3FD37"),
+}
