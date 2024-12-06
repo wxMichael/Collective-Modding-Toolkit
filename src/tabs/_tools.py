@@ -69,6 +69,11 @@ class ToolsTab(CMCTabFrame):
 					"https://www.nexusmods.com/fallout4/mods/86374",
 					"Automates the process of generating FaceGen models and textures with xEdit/CK.",
 				),
+				(
+					"PJM's Precombine/Previs\n    Patching Scripts",
+					"https://www.nexusmods.com/fallout4/mods/69978",
+					"Scripts to find precombine/previs (flickering/occlusion) errors in your mod list, and optionally generate a patch to fix those problems.",
+				),
 			),
 			"Other Useful Tools": (
 				(
