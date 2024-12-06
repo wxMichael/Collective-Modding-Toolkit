@@ -199,7 +199,18 @@ class GameInfo:
 			"path",
 		)
 
-		if game_path is None:
+		if not game_path:
+			ask_location = messagebox.askyesno(
+				"Fallout 4 Not Found",
+				(
+					"Your Fallout 4 installation could not be detected.\n"
+					"This is usually due to the game being moved or the launcher not being run once from its current location.\n\n"
+					"Manually specify a location? CM Toolkit will close otherwise."
+				),
+			)
+			if not ask_location:
+				sys.exit()
+
 			game_path = filedialog.askopenfilename(
 				title="Select Fallout4.exe",
 				filetypes=(("Fallout 4", "Fallout4.exe"),),
@@ -214,12 +225,15 @@ class GameInfo:
 				sys.exit()
 
 		game_path_as_path = Path(game_path)
-
 		if game_path_as_path.is_file():
 			game_path_as_path = game_path_as_path.parent
 
 		if not is_fo4_dir(game_path_as_path):
-			raise FileNotFoundError
+			messagebox.showerror(
+				"Game not found",
+				"A Fallout 4 installation could not be found.",
+			)
+			sys.exit()
 
 		self.game_path = game_path_as_path
 
