@@ -8,7 +8,7 @@ from tkinter import ttk
 
 from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
-from enums import ProblemType, SolutionType
+from enums import ProblemType, SolutionType, Tab
 from globals import *
 from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SolutionInfo
 
@@ -221,6 +221,8 @@ class ScannerTab(CMCTabFrame):
 				justify=LEFT,
 			)
 			self.label_scanning_text.grid(column=0, row=2, sticky=EW, padx=5, pady=5)
+		self.sv_scanning_text.set("Refreshing Overview...")
+		self.cmc.refresh_tab(Tab.Overview)
 
 		scan_paths: list[Path] = []
 		if self.using_stage:
