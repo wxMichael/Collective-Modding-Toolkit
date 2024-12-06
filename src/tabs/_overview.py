@@ -573,25 +573,28 @@ class OverviewTab(CMCTabFrame):
 
 		plugins_path = Path.home() / "AppData\\Local\\Fallout4\\plugins.txt"
 		if plugins_path.is_file():
-			with plugins_path.open(encoding="utf-8") as plugins_file:
+			try:
+				plugins_content = plugins_path.read_text(encoding="utf-8")
+			except (PermissionError, FileNotFoundError):
+				messagebox.showwarning(
+					"Warning",
+					f"{plugins_path.name} not found.\nEnable state of plugins can't be detected.\nCounts will reflect all plugins in Data.",
+				)
+				current_plugins = self.cmc.game.modules_enabled.copy()
+				self.cmc.game.modules_enabled.extend([p for p in data_path.glob("*.es[mlp]") if p not in current_plugins])
+			else:
 				self.cmc.game.modules_enabled.extend([
 					plugin_path
-					for plugin in plugins_file.read().splitlines()
+					for plugin in plugins_content.splitlines()
 					if plugin.startswith("*") and (plugin_path := data_path / plugin[1:]).is_file()
 				])
-		else:
-			messagebox.showwarning(
-				"Warning",
-				f"{plugins_path.name} not found.\nEnable state of plugins can't be detected.\nCounts will reflect all plugins in Data.",
-			)
-			current_plugins = self.cmc.game.modules_enabled.copy()
-			self.cmc.game.modules_enabled.extend([p for p in data_path.glob("*.es[mlp]") if p not in current_plugins])
 
 		for module_path in self.cmc.game.modules_enabled:
 			try:
 				with module_path.open("rb") as f:
 					head = f.read(34)
 			except PermissionError:
+				self.cmc.game.modules_unreadable.add(module_path)
 				continue
 
 			if len(head) != 34:
