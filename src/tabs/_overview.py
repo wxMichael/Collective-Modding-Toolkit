@@ -426,7 +426,8 @@ class OverviewTab(CMCTabFrame):
 				num = self.cmc.game.module_count_full + self.cmc.game.module_count_light
 				limit = MAX_MODULES_FULL + MAX_MODULES_LIGHT
 
-		color = COLOR_GOOD if num < limit else COLOR_BAD
+		warn_limit = int(0.95 * limit)
+		color = COLOR_GOOD if num < warn_limit else COLOR_WARNING if num < limit else COLOR_BAD
 
 		ttk.Label(frame, text=str(num).rjust(4), font=FONT, foreground=color).grid(
 			column=column,
