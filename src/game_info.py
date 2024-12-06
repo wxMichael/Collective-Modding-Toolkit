@@ -33,7 +33,8 @@ class GameInfo:
 		self.archives_enabled: set[Path] = set()
 		self.archives_unreadable: set[Path] = set()
 		self.modules_unreadable: set[Path] = set()
-		self.modules_v95: set[Path] = set()
+		self.modules_hedr_95: set[Path] = set()
+		self.modules_hedr_unknown: set[Path] = set()
 		self.modules_enabled: list[Path] = []
 		self.file_info: dict[str, FileInfo] = {}
 		self.address_library: Path | None = None
@@ -92,7 +93,8 @@ class GameInfo:
 		self.module_count_full = 0
 		self.module_count_light = 0
 		self.module_count_v1 = 0
-		self.modules_v95.clear()
+		self.modules_hedr_95.clear()
+		self.modules_hedr_unknown.clear()
 		self.modules_enabled.clear()
 		self.modules_unreadable.clear()
 

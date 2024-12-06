@@ -324,25 +324,35 @@ class OverviewTab(CMCTabFrame):
 
 		add_separator(self.frame_info_modules, HORIZONTAL, 0, 4, 3)
 
-		label_hedr100 = ttk.Label(
+		label_hedr_100 = ttk.Label(
 			self.frame_info_modules,
 			text="HEDR v1.00:",
 			font=FONT,
 			foreground=COLOR_DEFAULT,
 		)
-		label_hedr100.grid(column=0, row=5, sticky=E, padx=(5, 0))
-		ToolTip(label_hedr100, TOOLTIP_HEDR100)
+		label_hedr_100.grid(column=0, row=5, sticky=E, padx=(5, 0))
+		ToolTip(label_hedr_100, TOOLTIP_HEDR_100)
 
-		# color_95 = COLOR_WARNING if self.cmc.game.modules_v95 else COLOR_NEUTRAL_1
-		label_hedr95 = ttk.Label(
+		# color_hedr_95 = COLOR_WARNING if self.cmc.game.modules_hedr_95 else COLOR_NEUTRAL_1
+		label_hedr_95 = ttk.Label(
 			self.frame_info_modules,
 			text="HEDR v0.95:",
 			font=FONT,
 			foreground=COLOR_DEFAULT,
-			# foreground=color_95,
+			# foreground=color_hedr_95,
 		)
-		label_hedr95.grid(column=0, row=6, sticky=E, padx=(5, 0))
-		ToolTip(label_hedr95, TOOLTIP_HEDR95)
+		label_hedr_95.grid(column=0, row=6, sticky=E, padx=(5, 0))
+		ToolTip(label_hedr_95, TOOLTIP_HEDR_95)
+
+		color_hedr_unknown = COLOR_BAD if self.cmc.game.modules_hedr_unknown else COLOR_NEUTRAL_1
+		label_hedr_unknown = ttk.Label(
+			self.frame_info_modules,
+			text="HEDR v????:",
+			font=FONT,
+			foreground=color_hedr_unknown,
+		)
+		label_hedr_unknown.grid(column=0, row=7, sticky=E, padx=(5, 0))
+		ToolTip(label_hedr_unknown, TOOLTIP_HEDR_UNKNOWN)
 
 		# Column 1
 		self.add_count_label(self.frame_info_modules, 1, 0, "Full")
@@ -365,11 +375,18 @@ class OverviewTab(CMCTabFrame):
 
 		ttk.Label(
 			self.frame_info_modules,
-			text=len(self.cmc.game.modules_v95),
+			text=len(self.cmc.game.modules_hedr_95),
 			font=FONT,
 			foreground=COLOR_DEFAULT,
-			# foreground=color_95,
+			# foreground=color_hedr_95,
 		).grid(column=1, row=6, sticky=E, padx=(5, 0))
+
+		ttk.Label(
+			self.frame_info_modules,
+			text=len(self.cmc.game.modules_hedr_unknown),
+			font=FONT,
+			foreground=color_hedr_unknown,
+		).grid(column=1, row=7, sticky=E, padx=(5, 0))
 
 		# Column 2
 		label_module_max = ttk.Label(
@@ -569,31 +586,34 @@ class OverviewTab(CMCTabFrame):
 			current_plugins = self.cmc.game.modules_enabled.copy()
 			self.cmc.game.modules_enabled.extend([p for p in data_path.glob("*.es[mlp]") if p not in current_plugins])
 
-		for module_file in self.cmc.game.modules_enabled:
+		for module_path in self.cmc.game.modules_enabled:
 			try:
-				with module_file.open("rb") as f:
+				with module_path.open("rb") as f:
 					head = f.read(34)
 			except PermissionError:
 				continue
 
 			if len(head) != 34:
-				self.cmc.game.modules_unreadable.add(module_file)
+				self.cmc.game.modules_unreadable.add(module_path)
 				continue
 
 			if head[:4] != Magic.TES4:
-				self.cmc.game.modules_unreadable.add(module_file)
+				self.cmc.game.modules_unreadable.add(module_path)
 				continue
 
 			if head[24:28] != Magic.HEDR:
-				self.cmc.game.modules_unreadable.add(module_file)
+				self.cmc.game.modules_unreadable.add(module_path)
 				continue
 
-			name_lower = module_file.name.lower()
+			name_lower = module_path.name.lower()
 			if name_lower not in GAME_MASTERS:
-				if head[30:34] == MODULE_VERSION_95:
-					self.cmc.game.modules_v95.add(module_file)
-				elif head[30:34] == MODULE_VERSION_1:
+				hedr_version = head[30:34]
+				if hedr_version == MODULE_VERSION_95:
+					self.cmc.game.modules_hedr_95.add(module_path)
+				elif hedr_version == MODULE_VERSION_1:
 					self.cmc.game.module_count_v1 += 1
+				else:
+					self.cmc.game.modules_hedr_unknown.add(module_path)
 
 			flags = struct.unpack("<I", head[8:12])[0]
 			if flags & ModuleFlag.Light or name_lower[-4:] == ".esl":

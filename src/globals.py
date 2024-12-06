@@ -206,12 +206,14 @@ Light modules are ESL-flagged and/or have the .esl extension.
 
 Light modules give up the capacity to contain more than 4096
 new records in exchange for having a higher plugin limit."""
-TOOLTIP_HEDR100 = """Plugin header v1.00 has a larger Form ID range.
+TOOLTIP_HEDR_100 = """Plugin header v1.00 has a larger Form ID range.
 Any plugins with IDs below 800 MUST be v1.00.
 FO4VR only supports v0.95."""
-TOOLTIP_HEDR95 = """Plugin header v0.95 has a smaller Form ID range.
+TOOLTIP_HEDR_95 = """Plugin header v0.95 has a smaller Form ID range.
 Any plugins with IDs below 800 MUST be v1.00.
 FO4VR only supports v0.95."""
+TOOLTIP_HEDR_UNKNOWN = """These modules have an unknown header version.
+Fallout 4 OG & NG support only v0.95 and v1.00."""
 
 TOOLTIP_SCAN_FORMATS = "Check file types against a whitelist per Data folder.\ne.g. MP3 instead of XWM/WAV in Data/Sound/."
 TOOLTIP_SCAN_PREVIS = "Report loose Data/Vis/ and Data/Meshes/Precombined/ folders."
