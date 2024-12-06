@@ -609,18 +609,16 @@ class OverviewTab(CMCTabFrame):
 				self.cmc.game.modules_unreadable.add(module_path)
 				continue
 
-			name_lower = module_path.name.lower()
-			if name_lower not in GAME_MASTERS:
-				hedr_version = head[30:34]
-				if hedr_version == MODULE_VERSION_95:
-					self.cmc.game.modules_hedr_95.add(module_path)
-				elif hedr_version == MODULE_VERSION_1:
-					self.cmc.game.module_count_v1 += 1
-				else:
-					self.cmc.game.modules_hedr_unknown.add(module_path)
+			hedr_version = head[30:34]
+			if hedr_version == MODULE_VERSION_95:
+				self.cmc.game.modules_hedr_95.add(module_path)
+			elif hedr_version == MODULE_VERSION_1:
+				self.cmc.game.module_count_v1 += 1
+			else:
+				self.cmc.game.modules_hedr_unknown.add(module_path)
 
 			flags = struct.unpack("<I", head[8:12])[0]
-			if flags & ModuleFlag.Light or name_lower[-4:] == ".esl":
+			if flags & ModuleFlag.Light or module_path.suffix.lower() == ".esl":
 				self.cmc.game.module_count_light += 1
 			else:
 				self.cmc.game.module_count_full += 1
