@@ -284,7 +284,7 @@ class OverviewTab(CMCTabFrame):
 			foreground=COLOR_DEFAULT,
 		)
 		label_archives_max.grid(column=2, row=0, rowspan=3, sticky=EW)
-		ToolTip(label_archives_max, TOOLTIP_BA2_VERSIONS)
+		ToolTip(label_archives_max, TOOLTIP_BA2_FORMATS)
 
 		# Column 0
 		size = self.frame_info_archives.grid_size()
