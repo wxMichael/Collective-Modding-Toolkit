@@ -55,6 +55,7 @@ class AboutWindow(ModalWindow):
 		self.win_text = text
 		self.win_width = width
 		self.build_gui()
+		self.bind("<space>", self._ungrab_and_destroy)
 
 	def build_gui(self) -> None:
 		self.grid_columnconfigure(0, weight=1)
