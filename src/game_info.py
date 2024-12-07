@@ -189,7 +189,7 @@ class GameInfo:
 			self.game_path = Path.cwd()
 			return
 
-		game_path = get_registry_value(
+		registry_path = get_registry_value(
 			winreg.HKEY_LOCAL_MACHINE,
 			R"SOFTWARE\WOW6432Node\Bethesda Softworks\Fallout4",
 			"Installed Path",
@@ -198,6 +198,7 @@ class GameInfo:
 			R"SOFTWARE\WOW6432Node\GOG.com\Games\1998527297",
 			"path",
 		)
+		game_path = registry_path
 
 		if not game_path:
 			ask_location = messagebox.askyesno(
@@ -205,7 +206,9 @@ class GameInfo:
 				(
 					"Your Fallout 4 installation could not be detected.\n"
 					"This is usually due to the game being moved or the launcher not being run once from its current location.\n\n"
-					"Manually specify a location? CM Toolkit will close otherwise."
+
+					"Manually specify a location?\n"
+					"CM Toolkit will close otherwise."
 				),
 			)
 			if not ask_location:
@@ -229,10 +232,18 @@ class GameInfo:
 			game_path_as_path = game_path_as_path.parent
 
 		if not is_fo4_dir(game_path_as_path):
-			messagebox.showerror(
-				"Game not found",
-				"A Fallout 4 installation could not be found.",
-			)
+			if registry_path:
+				msg = (
+					"A Fallout 4 installation could not be found.\n\n"
+
+					"The path set in your registry is:\n"
+					f"{registry_path}\n\n"
+
+					"If this is not correct, please run the Fallout 4 Launcher to correct it."
+				)
+			else:
+				msg = "A Fallout 4 installation could not be found."
+			messagebox.showerror("Game not found", msg)
 			sys.exit()
 
 		self.game_path = game_path_as_path
