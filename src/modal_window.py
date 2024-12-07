@@ -37,10 +37,10 @@ class ModalWindow(Toplevel, ABC):
 		self.update()
 		self.focus_set()
 		self.grab_set()
-		self.bind("<Escape>", lambda _: self._ungrab_and_destroy())
+		self.bind("<Escape>", self._ungrab_and_destroy)
 
 	@final
-	def _ungrab_and_destroy(self) -> None:
+	def _ungrab_and_destroy(self, _: "Event[Misc] | None" = None) -> None:
 		self.grab_release()
 		if self.previous_grabber:
 			self.previous_grabber.grab_set()
