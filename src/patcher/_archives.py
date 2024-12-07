@@ -19,7 +19,7 @@ class ArchivePatcher(PatcherBase):
 
 	@property
 	def about_title(self) -> str:
-		return "About Archives"
+		return ABOUT_ARCHIVES_TITLE
 
 	@property
 	def about_text(self) -> str:

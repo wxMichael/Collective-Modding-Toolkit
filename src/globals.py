@@ -136,9 +136,8 @@ ARCHIVE_NAME_WHITELIST = (
 	"fallout4 - voices.ba2",
 )
 
-ABOUT_ARCHIVES = """Bethesda Archive (BA2) Formats & Versions
-
-There are 2 formats and 3 versions for Fallout 4 BA2 files:
+ABOUT_ARCHIVES_TITLE = "Bethesda Archive (BA2) Formats & Versions"
+ABOUT_ARCHIVES = """There are 2 formats and 3 versions for Fallout 4 BA2 files:
 • General (GNRL)
 • Textures (DX10)
 
@@ -154,13 +153,15 @@ Patching is only needed if you use tools that require it.
 Most tools check the version to ensure compatiblity but v7/8 didn't exist when these tools were made, so they assume it's a different format and show errors.
 Because they're actually identical, you can just patch the version number in the file header so the tools will allow reading them."""
 
-ABOUT_DOWNGRADING = """Downgrading Fallout 4 & Creation Kit
-
-This downgrader makes use of delta patches which are downloaded as-needed from the CMT GitHub page.
+ABOUT_DOWNGRADING_TITLE = "About Downgrading Fallout 4 & Creation Kit"
+ABOUT_DOWNGRADING = """This downgrader makes use of delta patches which are downloaded as-needed from the CMT GitHub page.
 Patches range in size from 23KB to 63MB.
 
 Backups are created prior to patching, and will be used instead of patches if present.
 Simple Downgrader's backups will also be used.
+Backup naming:
+Fallout4_downgradeBackup.exe
+Fallout4_upgradeBackup.exe
 
 Both Creation Kit and the game require steam_api64.dll to match their version, so they must be patched together (for now)."""
 
@@ -233,6 +234,17 @@ settings will be used and update checks will be disabled."""
 TOOLTIP_UPDATE_MODE = """GitHub will always have the latest release.
 Nexus Mods releases may be delayed due to
 their review process or to await more testing."""
+
+TOOLTIP_DOWNGRADER_BACKUPS = """Backups are created prior to patching, and will be used instead of patches if present.
+Simple Downgrader's backups will also be used.
+
+Backups allow quicker switching between versions.
+Uncheck this to delete backups after patching."""
+TOOLTIP_DOWNGRADER_DELTAS = """Delta patches are downloaded as-needed and used to patch from one version to another.
+If backups are present, they will be used instead.
+
+These xdelta files are only needed during the patching process.
+Check this to delete xdeltas after patching."""
 
 F4SE_CRC = {
 	"actor.pex": ("C250936E", "AE6222BE"),

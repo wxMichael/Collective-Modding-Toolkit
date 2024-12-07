@@ -9,6 +9,7 @@ from types import MappingProxyType
 
 import pyxdelta
 import requests
+from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
 from enums import LogType, Tab
 from globals import *
@@ -64,7 +65,7 @@ class Downgrader(ModalWindow):
 			CRCs_by_type[install_type].append(crc)
 
 	def __init__(self, parent: Wm, cmc: CMCheckerInterface) -> None:
-		super().__init__(parent, cmc, "Downgrader", 550, 334)
+		super().__init__(parent, cmc, "Downgrader", 600, 334)
 
 		self.current_versions: dict[str, InstallType] = {}
 		self.unknown_game = False
@@ -79,7 +80,9 @@ class Downgrader(ModalWindow):
 
 		self.get_info()
 
-		self.wants_downgrade = BooleanVar(value=self.current_versions["Fallout4.exe"] == InstallType.OG)
+		self.bv_wants_downgrade = BooleanVar(value=self.current_versions["Fallout4.exe"] == InstallType.OG)
+		self.bv_keep_backups = BooleanVar(value=True)
+		self.bv_delete_deltas = BooleanVar(value=True)
 
 		self.build_gui()
 
@@ -102,10 +105,10 @@ class Downgrader(ModalWindow):
 
 	def build_gui(self) -> None:
 		self.grid_columnconfigure(2, weight=1)
-		self.frame_game = ttk.Labelframe(self, text="Current Game", padding="6")
+		self.frame_game = ttk.Labelframe(self, text="Current Game", padding=5)
 		self.frame_game.grid(column=0, row=0, rowspan=2, sticky=NSEW, padx=10)
 		self.frame_game.grid_columnconfigure(0, weight=1)
-		self.frame_ck = ttk.Labelframe(self, text="Current Creation Kit", padding="6")
+		self.frame_ck = ttk.Labelframe(self, text="Current Creation Kit", padding=5)
 		self.frame_ck.grid(column=0, row=2, rowspan=2, sticky=NSEW, padx=10)
 		self.frame_ck.grid_columnconfigure(0, weight=1)
 
@@ -120,34 +123,54 @@ class Downgrader(ModalWindow):
 
 		self.draw_versions()
 
-		frame_radio_desired = ttk.Labelframe(self, text="Desired Version", padding="6")
-		frame_radio_desired.grid(column=1, row=1, rowspan=2, sticky=NSEW, padx=5)
+		frame_radio_desired = ttk.Labelframe(self, text="Desired Version", padding=5)
+		frame_radio_desired.grid(column=1, row=0, rowspan=2, sticky=NSEW, padx=5)
 
 		ttk.Radiobutton(
 			frame_radio_desired,
 			text="Old-Gen",
-			variable=self.wants_downgrade,
+			variable=self.bv_wants_downgrade,
 			value=True,
 		).grid(column=0, row=0, sticky=NSEW)
 
 		ttk.Radiobutton(
 			frame_radio_desired,
 			text="Next-Gen",
-			variable=self.wants_downgrade,
+			variable=self.bv_wants_downgrade,
 			value=False,
 		).grid(column=0, row=1, sticky=NSEW)
 
+		frame_options = ttk.Labelframe(self, text="Options", padding=5)
+		frame_options.grid(column=1, row=2, rowspan=2, sticky=NSEW, padx=5)
+		self.check_keep_backups = ttk.Checkbutton(
+			frame_options,
+			text="Keep Backups",
+			variable=self.bv_keep_backups,
+			padding=0,
+		)
+		self.check_keep_backups.grid(column=0, row=0, sticky=W, pady=5)
+		ToolTip(self.check_keep_backups, TOOLTIP_DOWNGRADER_BACKUPS)
+
+		self.check_delete_deltas = ttk.Checkbutton(
+			frame_options,
+			text="Delete Patches",
+			variable=self.bv_delete_deltas,
+			padding=0,
+		)
+		self.check_delete_deltas.grid(column=0, row=1, sticky=W, pady=5)
+		ToolTip(self.check_delete_deltas, TOOLTIP_DOWNGRADER_DELTAS)
+
 		self.button_patch = ttk.Button(self, text="Patch\n All", command=self.patch_files)
-		self.button_patch.grid(column=2, row=1, rowspan=2, sticky=NSEW, padx=(0, 10))
+		self.button_patch.grid(column=2, row=0, rowspan=2, sticky=NSEW, padx=(5, 10), pady=(10, 0))
 
 		ttk.Button(
 			self,
 			text="About",
-			command=lambda: AboutWindow(self, self.cmc, 500, 300, "About", ABOUT_DOWNGRADING),
-		).grid(column=2, row=3, sticky=EW, padx=(0, 5))
+			command=lambda: AboutWindow(self, self.cmc, 500, 300, ABOUT_DOWNGRADING_TITLE, ABOUT_DOWNGRADING),
+		).grid(column=2, row=2, sticky=EW, padx=(5, 10), pady=(5, 0))
 
 		frame_bottom = ttk.Frame(self)
-		frame_bottom.grid(column=0, row=4, columnspan=3, sticky=EW, pady=(5, 0))
+		frame_bottom.grid(column=0, row=5, columnspan=3, sticky=EW, pady=(5, 0))
 		frame_bottom.grid_columnconfigure(0, weight=1)
 		self.logger = Logger(frame_bottom)
 
@@ -155,7 +178,7 @@ class Downgrader(ModalWindow):
 
 		self.progress_var = DoubleVar()
 		self.progress_bar = ttk.Progressbar(self, variable=self.progress_var, maximum=100)
-		self.progress_bar.grid(column=0, row=5, columnspan=3, sticky=EW, ipady=1)
+		self.progress_bar.grid(column=0, row=6, columnspan=3, sticky=EW, ipady=1)
 
 	def draw_versions(self) -> None:
 		for label in self.version_labels:
@@ -192,7 +215,7 @@ class Downgrader(ModalWindow):
 		self.button_patch.configure(state=DISABLED)
 		self.logger.clear()
 
-		desired_version = InstallType.OG if self.wants_downgrade.get() else InstallType.NG
+		desired_version = InstallType.OG if self.bv_wants_downgrade.get() else InstallType.NG
 
 		patch_needed = False
 		for file_name, install_type in self.current_versions.items():
@@ -253,7 +276,10 @@ class Downgrader(ModalWindow):
 				print(f"{backup_file_path_desired.name} exists.")
 				if get_crc32(backup_file_path_desired) in self.CRCs_by_type[desired_version]:
 					print(f"Backup CRC good. Restoring to {file_path.name}")
-					copy2(backup_file_path_desired, file_path)
+					if self.bv_keep_backups.get():
+						copy2(backup_file_path_desired, file_path)
+					else:
+						backup_file_path_desired.replace(file_path)
 					self.logger.log_message(LogType.Good, f"Patched {file_path.name}")
 
 				else:
@@ -264,6 +290,8 @@ class Downgrader(ModalWindow):
 				print("Restore from backup not possible. Patch download needed.")
 				url = f"{PATCH_URL_BASE}{patch_direction}{file_path.name}.xdelta"
 				self.download_queue.put((url, backup_file_path_current, file_path))
+			elif not self.bv_keep_backups.get():
+				backup_file_path_current.unlink()
 
 		except OSError as e:
 			print("Restore failed due to exception.", e)
@@ -337,5 +365,11 @@ class Downgrader(ModalWindow):
 			self.logger.log_message(LogType.Good, f"Patched {outfile.name}")
 		else:
 			self.logger.log_message(LogType.Bad, f"Failed patching {outfile.name}")
+
+		if not self.bv_keep_backups.get():
+			infile.unlink()
+
+		if self.bv_delete_deltas.get():
+			Path(patch_name).unlink()
 
 		self.check_download_queue()

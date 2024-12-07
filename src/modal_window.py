@@ -69,7 +69,7 @@ class AboutWindow(ModalWindow):
 			anchor=N,
 			wraplength=self.win_width,
 		)
-		label_about.grid(sticky=NSEW, padx=10, pady=10)
+		label_about.grid(sticky=NSEW, padx=10, pady=(10, 0))
 		self.button_close = ttk.Button(
 			self,
 			text="Close",
