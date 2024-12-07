@@ -53,7 +53,6 @@ class GameInfo:
 		self.load_game_inis()
 
 	def load_game_inis(self) -> None:
-		# TODO: Replace with ini_file code?
 		docs_path = Path.home() / R"Documents\My Games\Fallout4"
 		section = "NO-SECTION"
 		for name in ("Fallout4.ini", "Fallout4Prefs.ini", "Fallout4Custom.ini"):
@@ -77,7 +76,6 @@ class GameInfo:
 			self.language = Language(self.game_settings.get("general", {}).get("slanguage", "en").lower())
 		except ValueError:
 			self.language = Language.English
-			# TODO: Warn on invalid language. suggest bethini pie
 		if self.language == Language.English:
 			self.ba2_suffixes: tuple[str, ...] = ("main", "textures", "voices_en")
 		else:
