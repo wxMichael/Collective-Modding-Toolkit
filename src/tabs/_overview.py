@@ -56,47 +56,64 @@ class OverviewTab(CMCTabFrame):
 		).grid(column=0, row=0, rowspan=3, sticky=E, padx=5)
 
 		manager = self.cmc.game.manager
-		if manager and manager.name == "Mod Organizer":
-			label_mod_manager_icon = ttk.Label(
-				frame_top,
-				compound="image",
-				image=self.cmc.get_image("images/info-16.png"),
-				cursor="hand2",
-			)
-			label_mod_manager_icon.grid(column=1, row=0, sticky=W, padx=(0, 5), ipady=3)
-			ToolTip(label_mod_manager_icon, "Detection details")
+		if manager:
+			if manager.name == "Mod Organizer":
+				label_mod_manager_icon = ttk.Label(
+					frame_top,
+					compound="image",
+					image=self.cmc.get_image("images/info-16.png"),
+					cursor="hand2",
+				)
+				tooltip = "Detection details"
 
-			max_len = 0
-			for key in manager.mo2_settings:
-				max_len = max(max_len, len(key))
+				max_len = 0
+				for key in manager.mo2_settings:
+					max_len = max(max_len, len(key))
 
-			label_mod_manager_icon.bind(
-				"<Button-1>",
-				lambda _: AboutWindow(
-					self.cmc.root,
-					self.cmc,
-					750,
-					350,
-					"Detected Mod Manager Settings",
-					(
-						f"EXE: {manager.exe_path}\n"
-						f"INI: {manager.ini_path}\n"
-						f"Portable: {manager.portable}\n{f'Portable.txt: {manager.portable_txt_path}\n' if manager.portable_txt_path else ''}"
-						f"{'\n'.join([f'{k.rjust(max_len)}: {v}' for k, v in manager.mo2_settings.items()])}"
+				label_mod_manager_icon.bind(
+					"<Button-1>",
+					lambda _: AboutWindow(
+						self.cmc.root,
+						self.cmc,
+						750,
+						350,
+						"Detected Mod Manager Settings",
+						(
+							f"EXE: {manager.exe_path}\n"
+							f"INI: {manager.ini_path}\n"
+							f"Portable: {manager.portable}\n{f'Portable.txt: {manager.portable_txt_path}\n' if manager.portable_txt_path else ''}"
+							f"{'\n'.join([f'{k.rjust(max_len)}: {v}' for k, v in manager.mo2_settings.items()])}"
+						),
 					),
-				),
-			)
+				)
+
+			# elif manager.name == "Vortex":
+			else:
+				label_mod_manager_icon = ttk.Label(
+					frame_top,
+					compound="image",
+					image=self.cmc.get_image("images/warning-16.png"),
+				)
+				tooltip = (
+					"Note: Vortex is not yet fully supported.\n"
+					"Overview should be accurate, but Scanner"
+					"will only look in Data and not your staging folders, "
+					"so it cannot yet identify the source mod for each issue."
+				)
+			label_mod_manager_icon.grid(column=1, row=0, sticky=W, padx=(0, 5), ipady=3)
+			ToolTip(label_mod_manager_icon, tooltip)
 
 		label_mod_manager = ttk.Label(
 			frame_top,
-			text=f"{self.cmc.game.manager.name} v{self.cmc.game.manager.version} [Profile: {self.cmc.game.manager.selected_profile or 'Unknown'}]"
-			if self.cmc.game.manager
+			text=f"{manager.name} v{manager.version} [Profile: {manager.selected_profile or 'Unknown'}]"
+			if manager
 			else "Not Found",
 			font=FONT,
-			foreground=COLOR_NEUTRAL_2 if self.cmc.game.manager else COLOR_BAD,
+			foreground=COLOR_NEUTRAL_2 if manager else COLOR_BAD,
 		)
 		label_mod_manager.grid(column=2, row=0, sticky=W)
-		ToolTip(label_mod_manager, "Your mod manager must launch the app to be detected.")
+		if not manager:
+			ToolTip(label_mod_manager, "Your mod manager must launch the app to be detected.")
 
 		label_path = ttk.Label(
 			frame_top,
