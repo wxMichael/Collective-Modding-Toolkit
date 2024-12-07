@@ -128,7 +128,6 @@ extend-select = [
 ]
 
 ignore = [
-	"ANN101",  # Deprecated
 	"E501",    # Duplicate of B950 line-too-long
 	"E722",    # Duplicate of B001 bare-except
 	"F403",    # undefined-local-with-import-star
@@ -144,5 +143,4 @@ ignore = [
 	"PYI021",  # docstring-in-stub
 	"PYI051",  # redundant-literal-union
 	"S606",    # start-process-with-no-shell
-	"UP027",   # Deprecated
 ]
