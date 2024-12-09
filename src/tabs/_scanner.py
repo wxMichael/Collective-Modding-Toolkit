@@ -103,8 +103,14 @@ class ScanSettings(dict[ScanSetting, bool]):
 	def __init__(self, side_pane: "SidePane") -> None:
 		super().__init__()
 
+		self.overview_only = True
+
 		for setting in ScanSetting:
 			self[setting] = side_pane.bool_vars[setting].get()
+			if setting == ScanSetting.OverviewIssues:
+				self.overview_only = self.overview_only and self[ScanSetting.OverviewIssues]
+			else:
+				self.overview_only = self.overview_only and not self[setting]
 
 
 class ScannerTab(CMCTabFrame):
@@ -120,7 +126,7 @@ class ScannerTab(CMCTabFrame):
 		self.scan_results: list[ProblemInfo | SimpleProblemInfo] = []
 		self.scanned_mod_paths: set[Path] = set()
 		self.queue_progress: queue.Queue[tuple[int, str, list[ProblemInfo] | None]] = queue.Queue()
-		self.thread_load: threading.Thread | None = None
+		self.thread_scan: threading.Thread | None = None
 		self.dv_progress = DoubleVar()
 		self.scan_path_count = 1
 		self.progress_check_delay = 100
@@ -227,45 +233,53 @@ class ScannerTab(CMCTabFrame):
 		self.sv_scanning_text.set("Refreshing Overview...")
 		self.cmc.refresh_tab(Tab.Overview)
 
-		if self.side_pane.bool_vars[ScanSetting.OverviewIssues] and self.cmc.overview_problems:
+		scan_settings = ScanSettings(self.side_pane)
+		if scan_settings[ScanSetting.OverviewIssues] and self.cmc.overview_problems:
 			self.scan_results.extend(self.cmc.overview_problems)
-
-		scan_paths: list[Path] = []
-		if self.using_stage:
-			manager = self.cmc.game.manager
-			if not (
-				manager and manager.stage_path and manager.profiles_path and manager.selected_profile and manager.overwrite_path
-			):
-				msg = (
-					(
-						f"Missing MO2 settings\n"
-						f"Manager: {manager}\n"
-						f"mods: {manager.stage_path}\n"
-						f"profiles: {manager.profiles_path}\n"
-						f"profile: {manager.selected_profile}\n"
-						f"overwrite: {manager.overwrite_path}"
+		if scan_settings.overview_only:
+			self.dv_progress.set(100)
+			self.populate_results()
+		else:
+			scan_paths: list[Path] = []
+			if self.using_stage:
+				manager = self.cmc.game.manager
+				if not (
+					manager
+					and manager.stage_path
+					and manager.profiles_path
+					and manager.selected_profile
+					and manager.overwrite_path
+				):
+					msg = (
+						(
+							f"Missing MO2 settings\n"
+							f"Manager: {manager}\n"
+							f"mods: {manager.stage_path}\n"
+							f"profiles: {manager.profiles_path}\n"
+							f"profile: {manager.selected_profile}\n"
+							f"overwrite: {manager.overwrite_path}"
+						)
+						if manager
+						else "Manager: None"
 					)
-					if manager
-					else "Manager: None"
-				)
-				raise ValueError(msg)
-			scan_paths.append(manager.overwrite_path)
-			modlist_path = manager.profiles_path / manager.selected_profile / "modlist.txt"
-			if not modlist_path.is_file():
-				msg = f"File doesn't exist: {modlist_path}"
-				raise FileNotFoundError(msg)
-			with modlist_path.open(encoding="utf-8") as modlist_file:
-				modlist = [
-					mod_path
-					for mod in modlist_file.read().splitlines()
-					if mod.startswith(("+", "*")) and (mod_path := manager.stage_path / mod[1:]).is_dir()
-				]
-			scan_paths.extend(modlist)
+					raise ValueError(msg)
+				scan_paths.append(manager.overwrite_path)
+				modlist_path = manager.profiles_path / manager.selected_profile / "modlist.txt"
+				if not modlist_path.is_file():
+					msg = f"File doesn't exist: {modlist_path}"
+					raise FileNotFoundError(msg)
+				with modlist_path.open(encoding="utf-8") as modlist_file:
+					modlist = [
+						mod_path
+						for mod in modlist_file.read().splitlines()
+						if mod.startswith(("+", "*")) and (mod_path := manager.stage_path / mod[1:]).is_dir()
+					]
+				scan_paths.extend(modlist)
 
-		self.scan_path_count = len(scan_paths) + 1
-		self.thread_load = threading.Thread(target=self.threaded_scan, args=(scan_paths, ScanSettings(self.side_pane)))
-		self.thread_load.start()
-		self.cmc.root.after(self.progress_check_delay, self.check_scan_progress)
+			self.scan_path_count = len(scan_paths) + 1
+			self.thread_scan = threading.Thread(target=self.threaded_scan, args=(scan_paths, scan_settings))
+			self.thread_scan.start()
+			self.cmc.root.after(self.progress_check_delay, self.check_scan_progress)
 
 	def threaded_scan(self, scan_paths: list[Path], scan_settings: ScanSettings) -> None:
 		if self.cmc.game.data_path is None:
@@ -287,7 +301,7 @@ class ScannerTab(CMCTabFrame):
 			is_data_folder=True,
 		)
 		self.queue_progress.put((loaded_count, "Unmanaged Files", results))
-		self.thread_load = None
+		self.thread_scan = None
 
 	def check_scan_progress(self) -> None:
 		while self.queue_progress.qsize():
@@ -301,7 +315,7 @@ class ScannerTab(CMCTabFrame):
 				if results:
 					self.scan_results.extend(results)
 
-		if self.thread_load is None:
+		if self.thread_scan is None:
 			self.dv_progress.set(100)
 			self.populate_results()
 			return
@@ -521,7 +535,7 @@ class ScannerTab(CMCTabFrame):
 								summary = f"Expected format NOT found ({', '.join(PROPER_FORMATS[file_ext])}).\nThis file may need to be converted and relevant plugins updated for the new file name."
 							solution = SolutionType.DeleteOrIgnoreFile
 						else:
-							summary = "Format not in whitelist.\nUnable to determine whether the game will use this file."
+							summary = f"Format not in whitelist for {data_root_titlecase}.\nUnable to determine whether the game will use this file."
 							solution = SolutionType.UnknownFormat
 
 						problems.append(
