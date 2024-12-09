@@ -33,12 +33,13 @@ class ArchivePatcher(PatcherBase):
 
 	@property
 	def files_to_patch(self) -> set[Path]:
-		if self.desired_version.get() == ArchiveVersion.OG:
-			return self.cmc.game.archives_ng
-		return self.cmc.game.archives_og
+		files = self.cmc.game.archives_ng if self.desired_version.get() == ArchiveVersion.OG else self.cmc.game.archives_og
+		if not self.name_filter:
+			return files
+		return {file for file in files if self.name_filter in file.name.casefold()}
 
-	def build_gui_secondary(self, frame_top: ttk.Frame) -> None:
-		frame_radio = ttk.Labelframe(frame_top, text="Desired Version")
+	def build_gui_secondary(self) -> None:
+		frame_radio = ttk.Labelframe(self.frame_top, text="Desired Version")
 		frame_radio.pack(side=LEFT, ipadx=5, ipady=5, padx=5, pady=5)
 
 		radio_og = ttk.Radiobutton(
@@ -58,27 +59,43 @@ class ArchivePatcher(PatcherBase):
 		radio_og.grid(column=0, row=0, padx=5)
 		radio_ng.grid(column=1, row=0, padx=5)
 
-		self.label_filter = ttk.Label(frame_top, text=PATCHER_FILTER_NG, foreground=COLOR_NEUTRAL_2)
+		self.label_filter = ttk.Label(self.frame_top, text=self.filter_text, foreground=COLOR_NEUTRAL_2)
 		self.label_filter.pack(side=LEFT, padx=10, fill=Y)
+
+		ttk.Label(
+			self.frame_middle,
+			text="Name Filter:",
+			foreground=COLOR_DEFAULT,
+		).grid(column=0, row=0, sticky=NSEW, padx=5, pady=5)
+		self.text_filter = ttk.Entry(self.frame_middle)
+		self.text_filter.grid(column=1, row=0, sticky=NSEW)
+
+		def on_key_release(event: "Event[ttk.Entry]") -> None:
+			text = event.widget.get()
+			self.name_filter = event.widget.get().casefold() if text else None
+			self.logger.clear()
+			self.populate_tree()
+
+		self.text_filter.bind("<KeyRelease>", on_key_release)
 
 	def patch_files(self) -> None:
 		patched = 0
 		failed = 0
 
 		if self.desired_version.get() == ArchiveVersion.OG:
-			archives_from = self.cmc.game.archives_ng
 			old_bytes = [b"\x07", b"\x08"]
 			new_bytes = b"\x01"
 		else:
-			archives_from = self.cmc.game.archives_og
 			old_bytes = [b"\x01"]
 			new_bytes = b"\x08"
 
-		if not archives_from:
+		file_to_patch = list(self.files_to_patch)
+
+		if not file_to_patch:
 			self.logger.log_message(LogType.Info, "Nothing to do!")
 			return
 
-		for ba2_file in list(archives_from):
+		for ba2_file in list(self.files_to_patch):
 			try:
 				if ba2_file.stat().st_file_attributes & stat.FILE_ATTRIBUTE_READONLY:
 					ba2_file.chmod(stat.S_IWRITE)

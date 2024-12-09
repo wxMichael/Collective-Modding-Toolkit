@@ -15,6 +15,7 @@ class PatcherBase(ModalWindow):
 	def __init__(self, parent: Wm, cmc: CMCheckerInterface, window_title: str) -> None:
 		super().__init__(parent, cmc, window_title, WINDOW_WIDTH_PATCHER, WINDOW_HEIGHT_PATCHER)
 
+		self.name_filter: str | None = None
 		self._build_gui_primary()
 		self.populate_tree()
 
@@ -38,45 +39,45 @@ class PatcherBase(ModalWindow):
 	def patch_files(self) -> None: ...
 
 	@abstractmethod
-	def build_gui_secondary(self, frame_top: ttk.Frame) -> None: ...
+	def build_gui_secondary(self) -> None: ...
 
 	@final
 	def _build_gui_primary(self) -> None:
-		frame_top = ttk.Frame(self)
-		frame_middle = ttk.Frame(self)
-		frame_bottom = ttk.Frame(self)
+		self.frame_top = ttk.Frame(self)
+		self.frame_middle = ttk.Frame(self)
+		self.frame_bottom = ttk.Frame(self)
 
-		frame_top.grid(column=0, row=0, sticky=EW)
-		frame_middle.grid(column=0, row=1, sticky=NSEW)
-		frame_bottom.grid(column=0, row=2, sticky=EW)
+		self.frame_top.grid(column=0, row=0, sticky=EW)
+		self.frame_middle.grid(column=0, row=1, sticky=NSEW)
+		self.frame_bottom.grid(column=0, row=2, sticky=EW)
 
 		self.grid_columnconfigure(0, weight=1)
 		self.grid_rowconfigure(1, weight=1)
-		frame_middle.grid_columnconfigure(0, weight=1)
-		frame_middle.grid_rowconfigure(0, weight=1)
-		frame_bottom.grid_columnconfigure(0, weight=1)
+		self.frame_middle.grid_columnconfigure(1, weight=1)
+		self.frame_middle.grid_rowconfigure(1, weight=1)
+		self.frame_bottom.grid_columnconfigure(0, weight=1)
 
 		# frame_top
-		self.label_filter = ttk.Label(frame_top, text=self.filter_text, foreground=COLOR_NEUTRAL_2)
-		button_patch_all = ttk.Button(frame_top, text="Patch All", padding=(6, 2), command=self._patch_wrapper)
-		button_patcher_info = ttk.Button(frame_top, text="About", padding=(6, 2))
+		# self.label_filter = ttk.Label(frame_top, text=self.filter_text, foreground=COLOR_NEUTRAL_2)
+		button_patch_all = ttk.Button(self.frame_top, text="Patch All", padding=(6, 2), command=self._patch_wrapper)
+		button_patcher_info = ttk.Button(self.frame_top, text="About", padding=(6, 2))
 		button_patcher_info.config(command=lambda: AboutWindow(self, self.cmc, 500, 430, self.about_title, self.about_text))
 
 		button_patcher_info.pack(side=RIGHT, padx=24, pady=5)
 		button_patch_all.pack(side=RIGHT, padx=5, pady=5)
 
 		# frame_middle
-		self._tree_files = ttk.Treeview(frame_middle, show="tree")
-		self._scroll_tree_y = ttk.Scrollbar(frame_middle, orient=VERTICAL, command=self._tree_files.yview)  # pyright: ignore[reportUnknownArgumentType]
+		self._tree_files = ttk.Treeview(self.frame_middle, show="tree")
+		self._scroll_tree_y = ttk.Scrollbar(self.frame_middle, orient=VERTICAL, command=self._tree_files.yview)  # pyright: ignore[reportUnknownArgumentType]
 
-		self._tree_files.grid(column=0, row=0, sticky=NSEW)
-		self._scroll_tree_y.grid(column=1, row=0, sticky=NS)
+		self._tree_files.grid(column=0, row=1, columnspan=2, sticky=NSEW)
+		self._scroll_tree_y.grid(column=2, row=1, sticky=NS)
 		self._tree_files.configure(yscrollcommand=self._scroll_tree_y.set)
 
 		# frame_bottom
-		self.logger = Logger(frame_bottom)
+		self.logger = Logger(self.frame_bottom)
 
-		self.build_gui_secondary(frame_top)
+		self.build_gui_secondary()
 
 	@final
 	def _patch_wrapper(self) -> None:
