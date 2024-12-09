@@ -633,7 +633,7 @@ class OverviewTab(CMCTabFrame):
 			ps
 			for p in self.cmc.game.modules_enabled
 			for s in self.cmc.game.ba2_suffixes
-			if (ps := p.with_name(f"{p.stem}{s}.ba2")).is_file()
+			if (ps := p.with_name(f"{p.stem} - {s}.ba2")).is_file()
 		})
 
 		if self.cmc.game.game_prefs.get("nvflex", {}).get("bnvflexenable", "0") == "1":
