@@ -766,7 +766,10 @@ class OverviewTab(CMCTabFrame):
 					SolutionType.VerifyFiles,
 				),
 			)
-			messagebox.showwarning("Warning", f"{ccc_path.name} not found.\nCC files may not be detected. Verifying Steam files or reinstalling should fix this.")
+			messagebox.showwarning(
+				"Warning",
+				f"{ccc_path.name} not found.\nCC files may not be detected. Verifying Steam files or reinstalling should fix this.",
+			)
 
 		plugins_path = Path.home() / "AppData\\Local\\Fallout4\\plugins.txt"
 		try:
