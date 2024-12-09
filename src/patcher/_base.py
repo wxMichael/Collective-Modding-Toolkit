@@ -81,11 +81,13 @@ class PatcherBase(ModalWindow):
 	@final
 	def _patch_wrapper(self) -> None:
 		assert self.cmc.game.data_path is not None
+		self.processing_data = True
 
 		self.patch_files()
 
 		self.cmc.refresh_tab(Tab.Overview)
 		self.populate_tree()
+		self.processing_data = False
 
 	@final
 	def populate_tree(self) -> None:

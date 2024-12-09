@@ -299,6 +299,7 @@ class Downgrader(ModalWindow):
 
 		if not self.download_or_patch_in_progress:
 			self.download_or_patch_in_progress = True
+			self.processing_data = True
 			self.check_download_queue()
 
 	def check_download_queue(self) -> None:
@@ -311,6 +312,7 @@ class Downgrader(ModalWindow):
 			self.draw_versions()
 			self.button_patch.configure(state=NORMAL)
 			self.download_or_patch_in_progress = False
+			self.processing_data = False
 			return
 
 		file_path = Path(Path(next_download[0]).name)

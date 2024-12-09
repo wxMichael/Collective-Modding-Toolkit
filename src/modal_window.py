@@ -17,6 +17,7 @@ class ModalWindow(Toplevel, ABC):
 		self.width = width
 		self.height = height
 		self.previous_grabber: Misc = self.cmc.root.grab_current()
+		self.processing_data = False
 		self.setup_window()
 
 	@final
@@ -41,6 +42,9 @@ class ModalWindow(Toplevel, ABC):
 
 	@final
 	def _ungrab_and_destroy(self, _: "Event[Misc] | None" = None) -> None:
+		if self.processing_data:
+			return
+
 		self.grab_release()
 		if self.previous_grabber:
 			self.previous_grabber.grab_set()

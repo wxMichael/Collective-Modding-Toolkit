@@ -26,6 +26,7 @@ class CMChecker(CMCheckerInterface):
 		self.game = GameInfo(self.install_type_sv, self.game_path_sv)
 		self.current_tab: CMCTabFrame | None = None
 		self.overview_problems = []
+		self.processing_data = False
 		self.setup_window()
 
 	def get_image(self, relative_path: str) -> PhotoImage:
@@ -34,11 +35,17 @@ class CMChecker(CMCheckerInterface):
 
 		return self._images[relative_path]
 
+	def on_close(self) -> None:
+		if self.processing_data:
+			return
+		self.root.destroy()
+
 	def setup_window(self) -> None:
 		self.root.wm_resizable(width=False, height=False)
 		self.root.wm_attributes("-fullscreen", "false")
 		self.root.wm_iconphoto(True, self.get_image("images/icon-32.png"))  # noqa: FBT003
 		self.root.wm_title(f"{APP_TITLE} v{APP_VERSION}")
+		self.root.wm_protocol("WM_DELETE_WINDOW", self.on_close)
 
 		x = (self.root.winfo_screenwidth() // 2) - (WINDOW_WIDTH // 2)
 		y = (self.root.winfo_screenheight() // 2) - (WINDOW_HEIGHT // 2)
