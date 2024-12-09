@@ -481,7 +481,6 @@ class OverviewTab(CMCTabFrame):
 				num = self.cmc.game.module_count_full + self.cmc.game.module_count_light
 				limit = MAX_MODULES_FULL + MAX_MODULES_LIGHT
 
-		num = limit + 1
 		warn_limit = int(0.95 * limit)
 		if num < warn_limit:
 			color = COLOR_GOOD
@@ -653,9 +652,8 @@ class OverviewTab(CMCTabFrame):
 
 		for ba2_file in self.cmc.game.archives_enabled:
 			try:
-				# with ba2_file.open("rb") as f:
-				# 	head = f.read(12)
-				head = b"BTDX\x01\x00\x00\x00GNRA"
+				with ba2_file.open("rb") as f:
+					head = f.read(12)
 			except (PermissionError, FileNotFoundError):
 				self.cmc.game.archives_unreadable.add(ba2_file)
 				# TODO: Find mod source. Scan stage Data/-level files just for esp/ba2 and popular dict in deploy order so last wins
