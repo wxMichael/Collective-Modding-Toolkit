@@ -204,7 +204,6 @@ class GameInfo:
 				(
 					"Your Fallout 4 installation could not be detected.\n"
 					"This is usually due to the game being moved or the launcher not being run once from its current location.\n\n"
-
 					"Manually specify a location?\n"
 					"CM Toolkit will close otherwise."
 				),
@@ -233,10 +232,8 @@ class GameInfo:
 			if registry_path:
 				msg = (
 					"A Fallout 4 installation could not be found.\n\n"
-
 					"The path set in your registry is:\n"
 					f"{registry_path}\n\n"
-
 					"If this is not correct, please run the Fallout 4 Launcher to correct it."
 				)
 			else:

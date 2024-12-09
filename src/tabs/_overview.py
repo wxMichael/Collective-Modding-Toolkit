@@ -1,5 +1,6 @@
 import os
 import struct
+import sys
 from pathlib import Path
 from tkinter import *
 from tkinter import messagebox, ttk
@@ -8,9 +9,9 @@ from typing import Literal
 from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
 from downgrader import Downgrader
-from enums import ArchiveVersion, Magic, ModuleFlag
+from enums import ArchiveVersion, Magic, ModuleFlag, ProblemType, SolutionType
 from globals import *
-from helpers import CMCheckerInterface, CMCTabFrame
+from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SimpleProblemInfo
 from modal_window import AboutWindow
 from patcher import ArchivePatcher
 from utils import (
@@ -26,12 +27,14 @@ class OverviewTab(CMCTabFrame):
 		super().__init__(cmc, notebook, "Overview")
 
 	def _load(self) -> bool:
+		self.cmc.overview_problems.clear()
 		self.get_info_binaries()
 		self.get_info_modules()
 		self.get_info_archives()
 		return True
 
 	def refresh(self) -> None:
+		self.cmc.overview_problems.clear()
 		self.get_info_binaries()
 		self.get_info_modules()
 		self.get_info_archives()
@@ -113,7 +116,7 @@ class OverviewTab(CMCTabFrame):
 		)
 		label_mod_manager.grid(column=2, row=0, sticky=W)
 		if not manager:
-			ToolTip(label_mod_manager, "Your mod manager must launch the app to be detected.")
+			ToolTip(label_mod_manager, TOOLTIP_NO_MOD_MANAGER)
 
 		label_path = ttk.Label(
 			frame_top,
@@ -182,12 +185,27 @@ class OverviewTab(CMCTabFrame):
 			ToolTip(label_address_library, TOOLTIP_ADDRESS_LIBRARY_MISSING)
 
 		for i, file_name in enumerate(self.cmc.game.file_info.keys()):
+			file_path = self.cmc.game.file_info[file_name]["File"] or Path(file_name)
+
 			match self.cmc.game.file_info[file_name]["InstallType"]:
 				case self.cmc.game.install_type:
 					color = COLOR_GOOD
 
 				case InstallType.OG:
-					color = COLOR_GOOD if self.cmc.game.is_fodg() else COLOR_BAD
+					if self.cmc.game.is_fodg():
+						color = COLOR_GOOD
+					else:
+						color = COLOR_BAD
+						self.cmc.overview_problems.append(
+							ProblemInfo(
+								ProblemType.WrongVersion,
+								file_path,
+								file_path.relative_to(file_path.parent, walk_up=True),
+								None,
+								"The version of this binary does not match your installed game version.",
+								None,
+							),
+						)
 
 				case None:
 					if file_name.lower() in {"creationkit.exe", "archive2.exe"} or (
@@ -196,9 +214,29 @@ class OverviewTab(CMCTabFrame):
 						color = COLOR_NEUTRAL_1
 					else:
 						color = COLOR_BAD
+						self.cmc.overview_problems.append(
+							ProblemInfo(
+								ProblemType.FileNotFound,
+								file_path,
+								file_path.relative_to(file_path.parent, walk_up=True),
+								None,
+								"This file is missing from your game installation.",
+								None,
+							),
+						)
 
 				case _:
 					color = COLOR_BAD
+					self.cmc.overview_problems.append(
+						ProblemInfo(
+							ProblemType.WrongVersion,
+							file_path,
+							file_path.relative_to(file_path.parent, walk_up=True),
+							None,
+							"The version of this binary does not match your installed game version.",
+							None,
+						),
+					)
 
 			install_type = self.cmc.game.file_info[file_name]["InstallType"]
 			version_label = ttk.Label(
@@ -443,8 +481,39 @@ class OverviewTab(CMCTabFrame):
 				num = self.cmc.game.module_count_full + self.cmc.game.module_count_light
 				limit = MAX_MODULES_FULL + MAX_MODULES_LIGHT
 
+		num = limit + 1
 		warn_limit = int(0.95 * limit)
-		color = COLOR_GOOD if num < warn_limit else COLOR_WARNING if num < limit else COLOR_BAD
+		if num < warn_limit:
+			color = COLOR_GOOD
+		elif num <= limit:
+			color = COLOR_WARNING
+		else:
+			color = COLOR_BAD
+			if not count.startswith("Total"):
+				file_type = "Archive" if count in {"GNRL", "DX10"} else "Module"
+				file_format = "General" if count == "GNRL" else "Texture" if count == "DX10" else count
+				if file_type == "Archive":
+					solution = "Archives can be unpacked or merged to reduce your total.\nNote: Do not mix texture and non-texture archives when merging.\nUnpacking is only suggested for small non-texture archives for performance reasons.\nYou can use Unpackrr to quickly unpack small archives:"
+					extra_data = ["https://www.nexusmods.com/fallout4/mods/82082"]
+
+				# Modules
+				elif count == "Full":
+					solution = "Many Full modules are eligible to be flagged as Light (ESL).\n\nThis guide walks you through the process in xEdit:"
+					extra_data = ["https://themidnightride.moddinglinked.com/esl.html"]
+				else:
+					# Light
+					solution = "Some plugins will need to be removed or manually merged.\nWarning: Do not use old/outdated tools like zMerge with Fallout 4 unless\nyou understand their issues and how to fix the merged plugins afterward."
+					extra_data = None
+
+				self.cmc.overview_problems.append(
+					SimpleProblemInfo(
+						f"{num} {file_format} {file_type}s",
+						"Limit Exceeded",
+						f"You have {num} {file_format} {file_type}s enabled. The limit is {limit}.",
+						solution,
+						extra_data,
+					),
+				)
 
 		ttk.Label(frame, text=str(num).rjust(4), font=FONT, foreground=color).grid(
 			column=column,
@@ -455,7 +524,19 @@ class OverviewTab(CMCTabFrame):
 
 	def get_info_binaries(self) -> None:
 		self.cmc.game.reset_binaries()
-		self.ckfixes_found = self.cmc.game.game_path.joinpath("F4CKFixes").exists()
+
+		if not self.cmc.game.manager:
+			self.cmc.overview_problems.append(
+				SimpleProblemInfo(
+					sys.argv[0],
+					"No Mod Manager",
+					"No Mod Manager Detected",
+					TOOLTIP_NO_MOD_MANAGER,
+				),
+			)
+
+		# TODO: Report in Scanner
+		# self.ckfixes_found = self.cmc.game.game_path.joinpath("F4CKFixes").exists()
 
 		for file_name in BASE_FILES:
 			file_path = self.cmc.game.game_path / file_name
@@ -480,23 +561,59 @@ class OverviewTab(CMCTabFrame):
 
 			if file_path.name.lower() == "fallout4.exe":
 				self.cmc.game.install_type = self.cmc.game.file_info[file_path.name]["InstallType"] or InstallType.Unknown
+				if self.cmc.game.install_type == InstallType.Unknown:
+					self.cmc.overview_problems.append(
+						SimpleProblemInfo(
+							file_path.name,
+							"Unknown Game Version",
+							f"{version} is an unknown version.\nPossible causes:\n1. The game is an old version and should be updated.\n2. The exe file may be corrupted.\n3. The game is a new version and the Toolkit needs to be updated.",
+							"Either update the game/verify files in Steam, or report this issue.",
+						),
+					)
 
-				if self.cmc.game.f4se_path is not None:
-					address_library_path = self.cmc.game.f4se_path / f"version-{version.replace('.', '-')}.bin"
+				if self.cmc.game.data_path:
+					address_library_name = f"version-{version.replace('.', '-')}.bin"
+					relative_path = Path("F4SE/Plugins", address_library_name)
+					address_library_path = self.cmc.game.data_path / relative_path
 					if address_library_path.is_file():
 						self.cmc.game.address_library = address_library_path
+					else:
+						self.cmc.overview_problems.append(
+							ProblemInfo(
+								ProblemType.FileNotFound,
+								address_library_path,
+								relative_path,
+								None,
+								"Address Library is a requirement for many F4SE mods and playing downgraded,\nand likely needs to be installed.",
+								SolutionType.DownloadMod,
+								["https://www.nexusmods.com/fallout4/mods/47327"],
+							),
+						)
 
 				if self.cmc.game.data_path is not None and self.cmc.game.is_foog():
-					startup_ba2 = self.cmc.game.data_path / "Fallout4 - Startup.ba2"
+					startup_name = Path("Fallout4 - Startupp.ba2")
+					startup_ba2 = self.cmc.game.data_path / startup_name
 					if startup_ba2.is_file():
 						startup_crc = get_crc32(startup_ba2, skip_ba2_header=True)
 						if startup_crc == NG_STARTUP_BA2_CRC:
 							self.cmc.game.install_type = InstallType.DG
+					else:
+						self.cmc.overview_problems.append(
+							ProblemInfo(
+								ProblemType.FileNotFound,
+								startup_ba2,
+								startup_name,
+								None,
+								"This is a base game file, and is used by CM Toolkit to differentiate between\nOld-Gen and Down-Grade.",
+								SolutionType.VerifyFiles,
+							),
+						)
 
 	def get_info_archives(self) -> None:
 		self.cmc.game.reset_archives()
 
 		if self.cmc.game.data_path is None:
+			# Reported to Scanner in get_info_modules.
 			return
 
 		settings_archive_lists = (
@@ -524,21 +641,48 @@ class OverviewTab(CMCTabFrame):
 			flex_ba2_path = self.cmc.game.data_path / "Fallout4 - Nvflex.ba2"
 			if flex_ba2_path.is_file():
 				self.cmc.game.archives_enabled.add(flex_ba2_path)
+			else:
+				self.cmc.overview_problems.append(
+					SimpleProblemInfo(
+						"Fallout4 - Nvflex.ba2",
+						ProblemType.FileNotFound,
+						"Nvidia Flex is enabled in your game INIs (bNVFlexEnable=1) but the Nvflex BA2 is missing.",
+						SolutionType.VerifyFiles,
+					),
+				)
 
 		for ba2_file in self.cmc.game.archives_enabled:
 			try:
-				with ba2_file.open("rb") as f:
-					head = f.read(12)
+				# with ba2_file.open("rb") as f:
+				# 	head = f.read(12)
+				head = b"BTDX\x01\x00\x00\x00GNRA"
 			except (PermissionError, FileNotFoundError):
 				self.cmc.game.archives_unreadable.add(ba2_file)
+				# TODO: Find mod source. Scan stage Data/-level files just for esp/ba2 and popular dict in deploy order so last wins
+				self.cmc.overview_problems.append(
+					ProblemInfo(
+						ProblemType.InvalidArchive,
+						ba2_file,
+						Path(ba2_file.name),
+						"TODO",  # TODO: Mod source
+						"Failed to read archive due to permissions or the file is missing.",
+						None,
+					),
+				)
 				continue
 
-			if len(head) != 12:
+			if len(head) != 12 or head[:4] != Magic.BTDX:
 				self.cmc.game.archives_unreadable.add(ba2_file)
-				continue
-
-			if head[:4] != Magic.BTDX:
-				self.cmc.game.archives_unreadable.add(ba2_file)
+				self.cmc.overview_problems.append(
+					ProblemInfo(
+						ProblemType.InvalidArchive,
+						ba2_file,
+						Path(ba2_file.name),
+						"TODO",  # TODO: Mod source
+						"Archive is either corrupt or not in Bethesda Archive 2 format.",
+						None,
+					),
+				)
 				continue
 
 			match head[4]:
@@ -550,19 +694,40 @@ class OverviewTab(CMCTabFrame):
 
 				case _:
 					self.cmc.game.archives_unreadable.add(ba2_file)
+					# TODO: Report known wrong versions
+					self.cmc.overview_problems.append(
+						ProblemInfo(
+							ProblemType.InvalidArchive,
+							ba2_file,
+							Path(ba2_file.name),
+							"TODO",  # TODO: Mod source
+							f"Archive version ({head[4]}) is not valid for Fallout 4.",
+							None,
+						),
+					)
 					continue
 
 			match head[8:]:
 				case Magic.GNRL:
-					self.cmc.game.ba2_count_gnrl += 1
+					self.cmc.game.ba2_count_gnrl += 1  # TODO: Remove in favor of len()
 					self.cmc.game.archives_gnrl.add(ba2_file)
 
 				case Magic.DX10:
-					self.cmc.game.ba2_count_dx10 += 1
+					self.cmc.game.ba2_count_dx10 += 1  # TODO: Remove in favor of len()
 					self.cmc.game.archives_dx10.add(ba2_file)
 
 				case _:
 					self.cmc.game.archives_unreadable.add(ba2_file)
+					self.cmc.overview_problems.append(
+						ProblemInfo(
+							ProblemType.InvalidArchive,
+							ba2_file,
+							Path(ba2_file.name),
+							"TODO",  # TODO: Mod source
+							f"Archive format ({head[8:].decode('utf-8')}) is not valid for Fallout 4.",
+							None,
+						),
+					)
 					continue
 
 			if is_ng:
@@ -575,51 +740,91 @@ class OverviewTab(CMCTabFrame):
 
 		data_path = self.cmc.game.data_path
 		if data_path is None:
+			self.cmc.overview_problems.append(
+				SimpleProblemInfo(
+					"Data",
+					ProblemType.FileNotFound,
+					"The Data folder was not found in your game install path.",
+					SolutionType.VerifyFiles,
+				),
+			)
 			return
 
 		self.cmc.game.modules_enabled = [master_path for master in GAME_MASTERS if (master_path := data_path / master).is_file()]
 
 		ccc_path = self.cmc.game.game_path / "Fallout4.ccc"
 		if ccc_path.is_file():
+			# TODO: Use Path.read_text()
 			with ccc_path.open(encoding="utf-8") as ccc_file:
 				self.cmc.game.modules_enabled.extend([
 					cc_path for cc in ccc_file.read().splitlines() if (cc_path := data_path / cc).is_file()
 				])
 		else:
-			messagebox.showwarning("Warning", f"{ccc_path.name} not found.\nCC files may not be detected.")
+			self.cmc.overview_problems.append(
+				SimpleProblemInfo(
+					"Fallout4.ccc",
+					ProblemType.FileNotFound,
+					"The CC list file was not found in your game install path.\nThis is used to detect which CC modules/archives may be enabled.",
+					SolutionType.VerifyFiles,
+				),
+			)
+			messagebox.showwarning("Warning", f"{ccc_path.name} not found.\nCC files may not be detected. Verifying Steam files or reinstalling should fix this.")
 
 		plugins_path = Path.home() / "AppData\\Local\\Fallout4\\plugins.txt"
-		if plugins_path.is_file():
-			try:
-				plugins_content = plugins_path.read_text(encoding="utf-8")
-			except (PermissionError, FileNotFoundError):
-				messagebox.showwarning(
-					"Warning",
-					f"{plugins_path.name} not found.\nEnable state of plugins can't be detected.\nCounts will reflect all plugins in Data.",
-				)
-				current_plugins = self.cmc.game.modules_enabled.copy()
-				self.cmc.game.modules_enabled.extend([p for p in data_path.glob("*.es[mlp]") if p not in current_plugins])
-			else:
-				self.cmc.game.modules_enabled.extend([
-					plugin_path
-					for plugin in plugins_content.splitlines()
-					if plugin.startswith("*") and (plugin_path := data_path / plugin[1:]).is_file()
-				])
+		try:
+			plugins_content = plugins_path.read_text(encoding="utf-8")
+		except (PermissionError, FileNotFoundError):
+			self.cmc.overview_problems.append(
+				SimpleProblemInfo(
+					plugins_path.name,
+					ProblemType.FileNotFound,
+					"The plugins list was not found.\nThis is used to detect which modules/archives are enabled.",
+					"----",
+				),
+			)
+			messagebox.showwarning(
+				"Warning",
+				f"{plugins_path.name} not found.\nEnable state of plugins can't be detected.\nCounts will reflect all plugins/modules in Data, which is likely higher than your actual counts.",
+			)
+			current_plugins = self.cmc.game.modules_enabled.copy()
+			self.cmc.game.modules_enabled.extend([p for p in data_path.glob("*.es[mlp]") if p not in current_plugins])
+		else:
+			self.cmc.game.modules_enabled.extend([
+				plugin_path
+				for plugin in plugins_content.splitlines()
+				if plugin.startswith("*") and (plugin_path := data_path / plugin[1:]).is_file()
+			])
 
 		for module_path in self.cmc.game.modules_enabled:
 			try:
 				with module_path.open("rb") as f:
 					head = f.read(34)
-			except PermissionError:
+			except (PermissionError, FileNotFoundError):
 				self.cmc.game.modules_unreadable.add(module_path)
+				self.cmc.overview_problems.append(
+					ProblemInfo(
+						ProblemType.InvalidModule,
+						module_path,
+						Path(module_path.name),
+						"TODO",  # TODO: Mod source
+						"Failed to read module due to permissions or the file is missing.",
+						None,
+					),
+				)
 				continue
 
-			if len(head) != 34:
+			if len(head) != 34 or head[:4] != Magic.TES4:
 				self.cmc.game.modules_unreadable.add(module_path)
-				continue
-
-			if head[:4] != Magic.TES4:
-				self.cmc.game.modules_unreadable.add(module_path)
+				self.cmc.overview_problems.append(
+					ProblemInfo(
+						ProblemType.InvalidModule,
+						module_path,
+						Path(module_path.name),
+						"TODO",  # TODO: Mod source
+						"Module is either corrupt or not in TES4 format.",
+						None,
+					),
+				)
 				continue
 
 			if head[24:28] != Magic.HEDR:
@@ -633,6 +838,16 @@ class OverviewTab(CMCTabFrame):
 				self.cmc.game.module_count_v1 += 1
 			else:
 				self.cmc.game.modules_hedr_unknown.add(module_path)
+				self.cmc.overview_problems.append(
+					ProblemInfo(
+						ProblemType.InvalidModule,
+						module_path,
+						Path(module_path.name),
+						"TODO",  # TODO: Mod source
+						f"Module version ({round(struct.unpack('<f', hedr_version)[0], 2)}) is not valid for Fallout 4.",
+						None,
+					),
+				)
 
 			flags = struct.unpack("<I", head[8:12])[0]
 			if flags & ModuleFlag.Light or module_path.suffix.lower() == ".esl":

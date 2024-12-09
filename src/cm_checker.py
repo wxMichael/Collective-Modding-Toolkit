@@ -25,6 +25,7 @@ class CMChecker(CMCheckerInterface):
 		self._images: dict[str, PhotoImage] = {}
 		self.game = GameInfo(self.install_type_sv, self.game_path_sv)
 		self.current_tab: CMCTabFrame | None = None
+		self.overview_problems = []
 		self.setup_window()
 
 	def get_image(self, relative_path: str) -> PhotoImage:

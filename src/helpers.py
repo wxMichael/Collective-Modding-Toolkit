@@ -19,6 +19,7 @@ class CMCheckerInterface(ABC):
 		self.install_type_sv: StringVar
 		self.game_path_sv: StringVar
 		self.game: GameInfo
+		self.overview_problems: list[ProblemInfo | SimpleProblemInfo]
 
 	@abstractmethod
 	def refresh_tab(self, tab: Tab) -> None: ...
@@ -109,28 +110,36 @@ class DLLInfo(TypedDict):
 	SupportsNG: NotRequired[bool]
 
 
-class SolutionInfo:
-	def __init__(self, stype: SolutionType | None, info: str) -> None:
-		self.type = stype
-		self.info = info
-
-
 class ProblemInfo:
 	def __init__(
 		self,
-		ptype: ProblemType,
+		problem: ProblemType,
 		path: Path,
 		relative_path: Path,
 		mod: str | None,
 		summary: str,
-		solution: SolutionInfo | None,
+		solution: SolutionType | None,
+		extra_data: list[str] | None = None,
 	) -> None:
-		self.type = ptype
+		self.type = problem
 		self.path = path
 		self.relative_path = relative_path
 		self.mod = mod or "<Unmanaged>"
 		self.summary = summary
 		self.solution = solution
+		self.extra_data = extra_data
+
+
+class SimpleProblemInfo:
+	def __init__(self, path: str, problem: str, summary: str, solution: str, extra_data: list[str] | None = None) -> None:
+		self.path = path
+		self.problem = problem
+		self.summary = summary
+		self.solution = solution
+		self.type = problem
+		self.relative_path = path
+		self.mod = ""
+		self.extra_data = extra_data
 
 
 class Stderr:

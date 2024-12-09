@@ -132,6 +132,11 @@ def get_registry_value(key: int, subkey: str, value_name: str) -> str | None:
 	return None
 
 
+def copy_text(widget: ttk.Widget, text: str) -> None:
+	widget.clipboard_clear()
+	widget.clipboard_append(text)
+
+
 def copy_text_button(button: ttk.Button, text: str) -> None:
 	button.master.clipboard_clear()
 	button.master.clipboard_append(text)

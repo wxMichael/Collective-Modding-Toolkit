@@ -186,6 +186,7 @@ only actually support both
 enough to tell users if
 they have the wrong DLL."""
 
+TOOLTIP_NO_MOD_MANAGER = "Your mod manager must launch the app to be detected."
 TOOLTIP_GAME_PATH = "Click to open folder"
 TOOLTIP_LOCATION = "Click to open location"
 TOOLTIP_REFRESH = "Refresh"
@@ -216,17 +217,18 @@ FO4VR only supports v0.95."""
 TOOLTIP_HEDR_UNKNOWN = """These modules have an unknown header version.
 Fallout 4 OG & NG support only v0.95 and v1.00."""
 
+TOOLTIP_SCAN_OVERVIEW = "Report issues from Overview"
 TOOLTIP_SCAN_FORMATS = "Check file types against a whitelist per Data folder.\ne.g. MP3 instead of XWM/WAV in Data/Sound/."
 TOOLTIP_SCAN_PREVIS = "Report loose Data/Vis/ and Data/Meshes/Precombined/ folders."
+TOOLTIP_SCAN_JUNK = """Report junk files such as desktop.ini, Thumbs.db,
+and leftover fomod folders."""
+TOOLTIP_SCAN_BAD_OVERRIDES = """Detect overrides that typically cause issues
+such as outdated F4SE script files or loose AnimTextData folders."""
 
 TOOLTIP_SCAN_DDS = "Check dimensions and formats of DDS files for issues."
 TOOLTIP_SCAN_BA2 = "Scan inside BA2 archives.\nNote: Checks may be limited for compressed archives."
-TOOLTIP_SCAN_JUNK = """Report junk files such as desktop.ini, Thumbs.db,
-and leftover fomod folders."""
 TOOLTIP_SCAN_CONFLICTS = "Detect conflicting mods and mod settings."
 TOOLTIP_SCAN_SUGGEST = "Make suggestions for changes to your mod setup."
-TOOLTIP_SCAN_BAD_OVERRIDES = """Detect overrides that typically cause issues
-such as outdated F4SE script files or loose AnimTextData folders."""
 
 TOOLTIP_SAVE_MODE = """Settings are saved to a JSON file by default.
 If this is disabled or the JSON file is deleted, default

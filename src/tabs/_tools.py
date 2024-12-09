@@ -17,7 +17,11 @@ class ToolsTab(CMCTabFrame):
 		super().__init__(cmc, notebook, "Tools")
 
 	def add_tool_button(
-		self, frame: ttk.Labelframe, text: str, action: str | Callable[[], ModalWindow] | None = None, tooltip: str | None = None
+		self,
+		frame: ttk.Labelframe,
+		text: str,
+		action: str | Callable[[], ModalWindow] | None = None,
+		tooltip: str | None = None,
 	) -> None:
 		row = len(frame.children)
 		new_button = ttk.Button(frame, text=text)

@@ -1,6 +1,7 @@
 import os
 import queue
 import threading
+import webbrowser
 from enum import Enum
 from pathlib import Path
 from tkinter import *
@@ -10,7 +11,8 @@ from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
 from enums import ProblemType, SolutionType, Tab
 from globals import *
-from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SolutionInfo
+from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SimpleProblemInfo
+from utils import copy_text
 
 IGNORE_FOLDERS = {
 	"Bodyslide",
@@ -77,6 +79,7 @@ RECORD_TYPES = {
 
 
 class ScanSetting(Enum):
+	OverviewIssues = ("Overview Issues", TOOLTIP_SCAN_OVERVIEW)
 	WrongFormat = ("Wrong File Formats", TOOLTIP_SCAN_FORMATS)
 	LoosePrevis = ("Loose Previs", TOOLTIP_SCAN_PREVIS)
 	JunkFiles = ("Junk Files", TOOLTIP_SCAN_JUNK)
@@ -109,12 +112,12 @@ class ScannerTab(CMCTabFrame):
 		super().__init__(cmc, notebook, "Scanner")
 		self.using_stage = bool(self.cmc.game.manager and self.cmc.game.manager.stage_path)
 		self.tree_results: ttk.Treeview
-		self.tree_results_data: dict[str, ProblemInfo] = {}
+		self.tree_results_data: dict[str, ProblemInfo | SimpleProblemInfo] = {}
 
 		self.side_pane: SidePane | None = None
 		self.details_pane: ResultDetailsPane | None = None
 
-		self.scan_results: list[ProblemInfo] = []
+		self.scan_results: list[ProblemInfo | SimpleProblemInfo] = []
 		self.scanned_mod_paths: set[Path] = set()
 		self.queue_progress: queue.Queue[tuple[int, str, list[ProblemInfo] | None]] = queue.Queue()
 		self.thread_load: threading.Thread | None = None
@@ -172,19 +175,19 @@ class ScannerTab(CMCTabFrame):
 		style = ttk.Style(self.cmc.root)
 		style.configure("Treeview", font=FONT_SMALL)
 		if self.using_stage:
-			self.tree_results = ttk.Treeview(self, columns=("problem", "info"), selectmode=NONE)
+			self.tree_results = ttk.Treeview(self, columns=("problem", "type"), selectmode=NONE)
 			self.tree_results.heading("#0", text="Mod")
 			self.tree_results.heading("problem", text="Problem")
-			self.tree_results.heading("info", text="Info")
+			self.tree_results.heading("type", text="Type")
 			self.tree_results.column("#0", stretch=True, anchor=W)
 			self.tree_results.column("problem", stretch=True, anchor=W)
-			self.tree_results.column("info", stretch=True, anchor=W)
+			self.tree_results.column("type", minwidth=50, stretch=False, anchor=W)
 		else:
-			self.tree_results = ttk.Treeview(self, columns=("info",), selectmode=NONE)
+			self.tree_results = ttk.Treeview(self, columns=("type",), selectmode=NONE)
 			self.tree_results.heading("#0", text="Problem")
-			self.tree_results.heading("info", text="Info")
-			self.tree_results.column("#0", width=350, stretch=True, anchor=W)
-			self.tree_results.column("info", minwidth=70, stretch=True, anchor=W)
+			self.tree_results.heading("type", text="Type")
+			self.tree_results.column("#0", minwidth=350, stretch=True, anchor=W)
+			self.tree_results.column("type", minwidth=50, stretch=False, anchor=W)
 
 		scroll_results_y = ttk.Scrollbar(
 			self,
@@ -223,6 +226,9 @@ class ScannerTab(CMCTabFrame):
 			self.label_scanning_text.grid(column=0, row=2, sticky=EW, padx=5, pady=5)
 		self.sv_scanning_text.set("Refreshing Overview...")
 		self.cmc.refresh_tab(Tab.Overview)
+
+		if self.side_pane.bool_vars[ScanSetting.OverviewIssues] and self.cmc.overview_problems:
+			self.scan_results.extend(self.cmc.overview_problems)
 
 		scan_paths: list[Path] = []
 		if self.using_stage:
@@ -312,12 +318,22 @@ class ScannerTab(CMCTabFrame):
 		self.sv_scanning_text.set("")
 
 		for problem_info in sorted(self.scan_results, key=lambda p: p.mod):
-			if self.using_stage:
+			if isinstance(problem_info, ProblemInfo):
+				if self.using_stage:
+					item_text = problem_info.mod
+					item_values = [problem_info.path.name, problem_info.type]
+				else:
+					item_text = problem_info.path.name
+					item_values = [problem_info.type]
+
+			# SimpleProblemInfo
+			elif self.using_stage:
 				item_text = problem_info.mod
-				item_values = [problem_info.path.name, problem_info.summary]
+				item_values = [problem_info.path, problem_info.type]
 			else:
-				item_text = problem_info.path.name
-				item_values = [problem_info.summary]
+				item_text = problem_info.path
+				item_values = [problem_info.type]
+
 			item_id = self.tree_results.insert("", END, text=item_text, values=item_values)
 			self.tree_results_data[item_id] = problem_info
 
@@ -366,11 +382,8 @@ class ScannerTab(CMCTabFrame):
 							root,
 							relative_path,
 							mod_name,
-							"Junk Folder",
-							SolutionInfo(
-								SolutionType.DeleteOrIgnoreFile,
-								f"{root.name} is a junk folder not used by the game or mod managers.\nIt can either be deleted or ignored.",
-							),
+							"This is a junk folder not used by the game or mod managers.",
+							SolutionType.DeleteOrIgnoreFolder,
 						),
 					)
 					folders.clear()
@@ -393,11 +406,8 @@ class ScannerTab(CMCTabFrame):
 							root,
 							relative_path,
 							mod_name,
-							"Loose previs folder found",
-							SolutionInfo(
-								None,
-								"Loose previs files should be packed so they only win conflicts according to their plugin's load order, or deleted if unnecessary due to later previs plugins.",
-							),
+							"Loose previs files should be archived so they only win conflicts according to their plugin's load order.\nLoose previs files are also not supported by PJM's Previs Scripts.",
+							SolutionType.ArchiveOrDeleteFolder,
 						),
 					)
 					folders.clear()
@@ -424,11 +434,8 @@ class ScannerTab(CMCTabFrame):
 								full_path,
 								relative_path,
 								mod_name,
-								"Loose previs folder found",
-								SolutionInfo(
-									None,
-									"Loose previs files should be packed so they only win conflicts according to their plugin's load order, or deleted if unnecessary due to later previs plugins.",
-								),
+								"Loose previs files should be archived so they only win conflicts according to their plugin's load order.\nLoose previs files are also not supported by PJM's Previs Scripts.",
+								SolutionType.ArchiveOrDeleteFolder,
 							),
 						)
 						del folders[index]
@@ -446,11 +453,8 @@ class ScannerTab(CMCTabFrame):
 								full_path,
 								relative_path,
 								mod_name,
-								"Loose AnimTextData folder found",
-								SolutionInfo(
-									SolutionType.ArchiveOrDelete,
-									"The existence of unpacked AnimTextData may cause the game to crash.\nThe folder should be packed in a BA2 or deleted.",
-								),
+								"The existence of unpacked AnimTextData may cause the game to crash.",
+								SolutionType.ArchiveOrDeleteFolder,
 							),
 						)
 						del folders[index]
@@ -476,11 +480,8 @@ class ScannerTab(CMCTabFrame):
 							full_path,
 							relative_path,
 							mod_name,
-							"Junk File",
-							SolutionInfo(
-								SolutionType.DeleteOrIgnoreFile,
-								f"{full_path.name} is a junk file not used by the game or mod managers.\nIt can either be deleted or ignored.",
-							),
+							"This is a junk file not used by the game or mod managers.",
+							SolutionType.DeleteOrIgnoreFile,
 						),
 					)
 					continue
@@ -493,11 +494,8 @@ class ScannerTab(CMCTabFrame):
 								full_path,
 								relative_path,
 								mod_name,
-								"F4SE Script Override",
-								SolutionInfo(
-									SolutionType.DeleteFile,
-									f"{full_path.name} is an override of an F4SE script. This could break F4SE if their versions differ.\nThis file should be deleted.",
-								),
+								"This is an override of an F4SE script. This could break F4SE if they aren't the\nsame version.",
+								SolutionType.DeleteFile,
 							),
 						)
 						continue
@@ -514,23 +512,17 @@ class ScannerTab(CMCTabFrame):
 					):
 						solution = None
 						if file_ext in PROPER_FORMATS:
-							msg_delete_or_ignore = f"If {full_path.name} is not referenced by any plugin's {RECORD_TYPES.get(file_ext, '')}records, it can likely be deleted or ignored."
 							proper_found = [
 								p.name for e in PROPER_FORMATS[file_ext] if (p := full_path.with_suffix(f".{e}")).is_file()
 							]
 							if proper_found:
-								msg_found = f"Expected format found ({', '.join(proper_found)})."
+								summary = f"Expected format found ({', '.join(proper_found)}).\nThis file can likely be deleted or ignored."
 							else:
-								msg_found = f"Expected format NOT found ({', '.join(PROPER_FORMATS[file_ext])}).\nThis file may need to be converted and relevant plugins updated for the new file name."
-							solution = SolutionInfo(
-								SolutionType.DeleteOrIgnoreFile,
-								f"{msg_found}\n{msg_delete_or_ignore}",
-							)
+								summary = f"Expected format NOT found ({', '.join(PROPER_FORMATS[file_ext])}).\nThis file may need to be converted and relevant plugins updated for the new file name."
+							solution = SolutionType.DeleteOrIgnoreFile
 						else:
-							solution = SolutionInfo(
-								None,
-								"Format not in whitelist. Unable to determine whether the game will use this file.\nIf this file type is expected here, please report it.",
-							)
+							summary = "Format not in whitelist.\nUnable to determine whether the game will use this file."
+							solution = SolutionType.UnknownFormat
 
 						problems.append(
 							ProblemInfo(
@@ -538,7 +530,7 @@ class ScannerTab(CMCTabFrame):
 								full_path,
 								relative_path,
 								mod_name,
-								f"Unexpected format in {data_root_titlecase}",
+								summary,
 								solution,
 							),
 						)
@@ -558,16 +550,12 @@ class ScannerTab(CMCTabFrame):
 									full_path,
 									relative_path,
 									mod_name,
-									"Invalid Archive Name",
-									SolutionInfo(
-										SolutionType.RenameArchive,
-										(
-											"This is not a valid archive name and won't be loaded by the game.\n"
-											"Archives must be named the same as a plugin with an added suffix\n\n"
-											f"Valid Suffixes: {', '.join(self.cmc.game.ba2_suffixes)}\n"
-											f"Example: {ba2_name_split if no_suffix else ba2_name_split[0]} - Main.ba2"
-										),
-									),
+									"This is not a valid archive name and won't be loaded by the game.",
+									SolutionType.RenameArchive,
+									[
+										f"\nValid Suffixes: {', '.join(self.cmc.game.ba2_suffixes)}",
+										f"Example: {ba2_name_split[0]} - Main.ba2",
+									],
 								),
 							)
 							continue
@@ -652,11 +640,16 @@ class ResultDetailsPane(Toplevel):
 		self.update_geometry()
 		self.wm_protocol("WM_DELETE_WINDOW", self.close)
 
-		self.problem_info: ProblemInfo
+		self.problem_info: ProblemInfo | SimpleProblemInfo
 		self.sv_mod_name = StringVar()
 		self.sv_file_path = StringVar()
 		self.sv_problem = StringVar()
 		self.sv_solution = StringVar()
+
+		self.label_file_path: ttk.Label
+		self.label_solution: ttk.Label
+		self.tooltip_file_path: ToolTip | None = None
+		self.tooltip_solution: ToolTip | None = None
 
 		self.grid_columnconfigure(1, weight=1)
 
@@ -679,13 +672,13 @@ class ResultDetailsPane(Toplevel):
 
 		ttk.Label(
 			self,
-			text="File:",
+			text="Path:",
 			font=FONT_SMALL,
 			justify=RIGHT,
 		).grid(column=0, row=start_row, sticky=NE, padx=5, pady=5)
 		ttk.Label(
 			self,
-			text="Problem:",
+			text="Summary:",
 			font=FONT_SMALL,
 			justify=RIGHT,
 		).grid(column=0, row=start_row + 1, sticky=NE, padx=5, pady=5)
@@ -696,7 +689,7 @@ class ResultDetailsPane(Toplevel):
 			justify=RIGHT,
 		).grid(column=0, row=start_row + 2, sticky=NE, padx=5, pady=5)
 
-		label_file_path = ttk.Label(
+		self.label_file_path = ttk.Label(
 			self,
 			textvariable=self.sv_file_path,
 			cursor="hand2",
@@ -704,10 +697,7 @@ class ResultDetailsPane(Toplevel):
 			foreground=COLOR_NEUTRAL_2,
 			justify=LEFT,
 		)
-		label_file_path.grid(column=1, row=start_row, sticky=NW, padx=0, pady=5)
-
-		label_file_path.bind("<Button-1>", lambda _: os.startfile(self.problem_info.path.parent))
-		ToolTip(label_file_path, TOOLTIP_LOCATION)
+		self.label_file_path.grid(column=1, row=start_row, sticky=NW, padx=0, pady=5)
 
 		ttk.Label(
 			self,
@@ -716,24 +706,70 @@ class ResultDetailsPane(Toplevel):
 			foreground=COLOR_NEUTRAL_2,
 			justify=LEFT,
 		).grid(column=1, row=start_row + 1, sticky=NW, padx=0, pady=5)
-		ttk.Label(
+		self.label_solution = ttk.Label(
 			self,
 			textvariable=self.sv_solution,
 			font=FONT_SMALL,
 			foreground=COLOR_NEUTRAL_2,
 			justify=LEFT,
 			wraplength=WINDOW_WIDTH - 100,
-		).grid(column=1, row=start_row + 2, sticky=NW, padx=0, pady=5)
+		)
+		self.label_solution.grid(column=1, row=start_row + 2, sticky=NW, padx=0, pady=5)
 
 		self.bind("<FocusIn>", self.on_focus)
 
-	def set_info(self, problem_info: ProblemInfo, *, using_stage: bool) -> None:
+	def set_info(self, problem_info: ProblemInfo | SimpleProblemInfo, *, using_stage: bool) -> None:
 		self.problem_info = problem_info
 		if using_stage:
 			self.sv_mod_name.set(problem_info.mod)
-		self.sv_file_path.set(problem_info.relative_path.as_posix())
+
+		self.sv_file_path.set(str(problem_info.relative_path))
+
+		target = self.problem_info.path
+		if isinstance(target, Path) and (target.exists() or target.parent.exists()):
+			if not target.is_dir():
+				target = target.parent
+			self.label_file_path.bind("<Button-1>", lambda _: os.startfile(target))
+			if self.tooltip_file_path:
+				self.tooltip_file_path.msg = TOOLTIP_LOCATION
+			else:
+				self.tooltip_file_path = ToolTip(self.label_file_path, TOOLTIP_LOCATION)
+			self.label_file_path.configure(cursor="hand2")
+		else:
+			self.label_file_path.unbind("<Button-1>")
+			if self.tooltip_file_path:
+				self.tooltip_file_path.destroy()
+				self.tooltip_file_path = None
+			self.label_file_path.configure(cursor="X_cursor")
+
 		self.sv_problem.set(problem_info.summary)
-		self.sv_solution.set(problem_info.solution.info if problem_info.solution else "No solution found.")
+
+		if problem_info.extra_data:
+			self.sv_solution.set((problem_info.solution or "----") + f"\n{'\n'.join(problem_info.extra_data)}")
+			url = problem_info.extra_data[0]
+
+			if url.startswith("http"):
+				self.label_solution.bind("<Button-1>", lambda _: webbrowser.open(url))
+				self.label_solution.bind("<Button-3>", lambda _: copy_text(self.scanner_tab, url))
+
+				tooltip_text = "Left-Click: Open URL\nRight-Click: Copy URL"
+				if self.tooltip_solution:
+					self.tooltip_solution.msg = tooltip_text
+				else:
+					self.tooltip_solution = ToolTip(self.label_solution, tooltip_text)
+			else:
+				self.label_solution.unbind("<Button-1>")
+				self.label_solution.unbind("<Button-3>")
+				if self.tooltip_solution:
+					self.tooltip_solution.destroy()
+					self.tooltip_solution = None
+		else:
+			self.sv_solution.set(problem_info.solution or "----")
+			self.label_solution.unbind("<Button-1>")
+			self.label_solution.unbind("<Button-3>")
+			if self.tooltip_solution:
+				self.tooltip_solution.destroy()
+				self.tooltip_solution = None
 
 	def on_focus(self, _event: "Event[Misc]") -> None:
 		self.scanner_tab.cmc.root.tkraise()

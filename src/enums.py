@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum, IntFlag, StrEnum, auto
+from enum import Enum, IntEnum, IntFlag, StrEnum
 
 
 class InstallType(StrEnum):
@@ -42,22 +42,35 @@ class ModuleFlag(IntFlag):
 	Light = 0x0200
 
 
-class ProblemType(IntEnum):
-	JunkFile = auto()
-	UnexpectedFormat = auto()
-	MisplacedDLL = auto()
-	LoosePrevis = auto()
-	AnimTextDataFolder = auto()
-	InvalidArchiveName = auto()
-	F4SEOverride = auto()
+class ProblemType(StrEnum):
+	JunkFile = "Junk File"
+	UnexpectedFormat = "Unexpected Format"
+	MisplacedDLL = "Misplaced DLL"
+	LoosePrevis = "Loose Previs"
+	AnimTextDataFolder = "Loose AnimTextData"
+	InvalidArchive = "Invalid Archive"
+	InvalidModule = "Invalid Module"
+	InvalidArchiveName = "Invalid Archive Name"
+	F4SEOverride = "F4SE Script Override"
+	FileNotFound = "File Not Found"
+	WrongVersion = "Wrong Version"
 
 
-class SolutionType(Enum):
-	ArchiveOrDelete = auto()
-	DeleteFile = auto()
-	DeleteFolder = auto()
-	DeleteOrIgnoreFile = auto()
-	RenameArchive = auto()
+class SolutionType(StrEnum):
+	ArchiveOrDeleteFile = "These files should either be archived or deleted."
+	ArchiveOrDeleteFolder = "These folders should either be archived or deleted."
+	DeleteFile = "This file should be deleted."
+	# DeleteFolder = "This folder should be deleted."
+	ConvertDeleteOrIgnoreFile = "If this is not referenced by any plugin's records, it can likely be deleted or ignored."
+	DeleteOrIgnoreFile = "It can either be deleted or ignored."
+	DeleteOrIgnoreFolder = "It can either be deleted or ignored."
+	RenameArchive = "Archives must be named the same as a plugin with an added suffix."
+	DownloadMod = "Download the mod here:"
+	VerifyFiles = (
+		"Verify files with Steam or reinstall the game.\nIf you downgraded the game you will need to do so again afterward."
+	)
+	UnknownFormat = "If this file type is expected here, please report it."
+
 
 class Language(StrEnum):
 	Chinese = "cn"
