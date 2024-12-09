@@ -464,9 +464,11 @@ class OverviewTab(CMCTabFrame):
 		match count:
 			case "GNRL":
 				num = self.cmc.game.ba2_count_gnrl
+				# num = len(self.cmc.game.archives_gnrl)
 				limit = MAX_ARCHIVES_GNRL
 			case "DX10":
 				num = self.cmc.game.ba2_count_dx10
+				# num = len(self.cmc.game.archives_dx10)
 				limit = MAX_ARCHIVES_DX10
 			case "Full":
 				num = self.cmc.game.module_count_full
@@ -476,6 +478,7 @@ class OverviewTab(CMCTabFrame):
 				limit = MAX_MODULES_LIGHT
 			case "TotalBA2s":
 				num = self.cmc.game.ba2_count_gnrl + self.cmc.game.ba2_count_dx10
+				# num = len(self.cmc.game.archives_gnrl) + len(self.cmc.game.archives_dx10)
 				limit = MAX_ARCHIVES_GNRL + MAX_ARCHIVES_DX10
 			case "TotalModules":
 				num = self.cmc.game.module_count_full + self.cmc.game.module_count_light
@@ -707,12 +710,12 @@ class OverviewTab(CMCTabFrame):
 
 			match head[8:]:
 				case Magic.GNRL:
-					self.cmc.game.ba2_count_gnrl += 1  # TODO: Remove in favor of len()
-					self.cmc.game.archives_gnrl.add(ba2_file)
+					self.cmc.game.ba2_count_gnrl += 1
+					# self.cmc.game.archives_gnrl.add(ba2_file)
 
 				case Magic.DX10:
-					self.cmc.game.ba2_count_dx10 += 1  # TODO: Remove in favor of len()
-					self.cmc.game.archives_dx10.add(ba2_file)
+					self.cmc.game.ba2_count_dx10 += 1
+					# self.cmc.game.archives_dx10.add(ba2_file)
 
 				case _:
 					self.cmc.game.archives_unreadable.add(ba2_file)
