@@ -92,7 +92,7 @@ class ToolsTab(CMCTabFrame):
 				),
 				(
 					"Cathedral Assets\nOptimizer (CAO)",
-					"https://www.nexusmods.com/fallout4/mods/71588",
+					"https://www.nexusmods.com/skyrimspecialedition/mods/23316",
 					"An automation tool used to optimize BSAs, meshes, textures and animations.",
 				),
 				(
