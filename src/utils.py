@@ -4,7 +4,7 @@ import struct
 import sys
 import winreg
 import zlib
-from ctypes import WinDLL, byref, c_int, create_unicode_buffer, sizeof, windll
+from ctypes import WinDLL, byref, c_int, create_unicode_buffer, sizeof, windll, wintypes
 from pathlib import Path
 from tkinter import *
 from tkinter import ttk
@@ -16,6 +16,7 @@ from packaging.version import InvalidVersion, Version
 from psutil import Process
 
 import sv_ttk
+from enums import CSIDL
 from globals import APP_VERSION, COLOR_DEFAULT, FONT, FONT_SMALL, NEXUS_LINK
 from helpers import DLLInfo
 from mod_manager_info import ModManagerInfo
@@ -31,6 +32,16 @@ def load_font(font_path: str) -> None:
 	# FR_NOT_ENUM = 0x20
 	buffer = create_unicode_buffer(font_path)
 	windll.gdi32.AddFontResourceExW(byref(buffer), 0x10, 0)
+
+
+def get_environment_path(location: CSIDL) -> Path:
+	buf = create_unicode_buffer(wintypes.MAX_PATH)
+	windll.shell32.SHGetFolderPathW(None, location, None, 0, buf)
+	path = Path(buf.value)
+	if not path.is_dir():
+		msg = f"Folder does not exist:\n{path}"
+		raise FileNotFoundError(msg)
+	return path
 
 
 def is_fo4_dir(path: Path) -> bool:
