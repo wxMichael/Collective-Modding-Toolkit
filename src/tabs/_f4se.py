@@ -49,6 +49,8 @@ class F4SETab(CMCTabFrame):
 
 		if self.cmc.game.f4se_path is None:
 			self.loading_error = "Data/F4SE/Plugins folder not found"
+			if not self.cmc.game.manager:
+				self.loading_error += "\nTry launching via your mod manager."
 			return False
 
 		self.dll_info.clear()
