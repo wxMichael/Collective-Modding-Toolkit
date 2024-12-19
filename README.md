@@ -1,5 +1,7 @@
 # Collective Modding Toolkit
 
+Latest Version: [Download](https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest/download/cm-toolkit.zip) – [Release Notes](https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest)
+
 A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the Collective Modding Discord Community.
 
 <img width="381" alt="CMT-01" src="https://github.com/user-attachments/assets/7abb9406-564f-4ae7-b071-fbb161e4c536">
@@ -17,4 +19,3 @@ With more features on the way!
 <img width="351" alt="CMT-03" src="https://github.com/user-attachments/assets/d6c96c61-1085-4dd5-acdb-bdc745673fe8">
 <br>
 <img width="381" alt="CMT-04" src="https://github.com/user-attachments/assets/12d40cab-c7dc-41c3-9f48-bb2f1378d268">
-
