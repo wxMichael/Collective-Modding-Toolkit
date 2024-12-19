@@ -124,7 +124,7 @@ class ProblemInfo:
 		self.type = problem
 		self.path = path
 		self.relative_path = relative_path
-		self.mod = mod or "<Unmanaged>"
+		self.mod = mod or ("<Unmanaged>" if problem != ProblemType.FileNotFound else "")
 		self.summary = summary
 		self.solution = solution
 		self.extra_data = extra_data

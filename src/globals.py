@@ -30,6 +30,20 @@ NG_STARTUP_BA2_CRC = "A5808F5F"
 MODULE_VERSION_95 = b"\x33\x33\x73\x3f"
 MODULE_VERSION_1 = b"\x00\x00\x80\x3f"
 
+MODULE_VERSION_SUPPORT = {
+	"Morrowind": {"1.2", "1.3"},
+	"Oblivion": {"0.8", "1.0"},
+	"Skyrim LE": {"0.94", "1.70"},
+	"Skyrim VR": {"0.94", "1.70"},
+	"Skyrim SE": {"0.94", "1.70", "1.71"},
+	"Fallout 3": {"0.85", "0.94"},
+	"Fallout 4 VR": {"0.95"},
+	"Fallout 4": {"0.95", "1.00"},
+	"Fallout NV": {"0.94", "1.32", "1.33", "1.34"},
+	"Fallout 76": {"68.0", "216.0", "223.0"},
+	"Starfield": {"0.96"},
+}
+
 WINDOW_WIDTH = 760
 WINDOW_HEIGHT = 450
 
@@ -229,7 +243,13 @@ Any plugins with IDs below 800 MUST be v1.00.
 FO4VR only supports v0.95."""
 TOOLTIP_HEDR_95 = """Plugin header v0.95 has a smaller Form ID range.
 Any plugins with IDs below 800 MUST be v1.00.
-FO4VR only supports v0.95."""
+FO4VR only supports v0.95.
+
+In the base game, these 4 modules are v0.95:
+• DLCCoast.esm
+• DLCworkshop02.esm
+• DLCworkshop03.esm
+• DLCNukaWorld.esm"""
 TOOLTIP_HEDR_UNKNOWN = """These modules have an unknown header version.
 Fallout 4 OG & NG support only v0.95 and v1.00."""
 

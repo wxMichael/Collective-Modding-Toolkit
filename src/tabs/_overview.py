@@ -845,6 +845,9 @@ class OverviewTab(CMCTabFrame):
 			elif hedr_version == MODULE_VERSION_1:
 				self.cmc.game.module_count_v1 += 1
 			else:
+				hedr = str(round(struct.unpack("<f", hedr_version)[0], 2))
+				valid_games = [g for g, v in MODULE_VERSION_SUPPORT.items() if hedr in v]
+				valid_games_str = (f"\nGames supporting v{hedr}: " + ", ".join(valid_games)) if valid_games else ""
 				self.cmc.game.modules_hedr_unknown.add(module_path)
 				self.cmc.overview_problems.append(
 					ProblemInfo(
@@ -852,7 +855,7 @@ class OverviewTab(CMCTabFrame):
 						module_path,
 						Path(module_path.name),
 						"OVERVIEW",
-						f"Module version ({round(struct.unpack('<f', hedr_version)[0], 2)}) is not valid for Fallout 4.",
+						f"Module version ({hedr}) is not valid for Fallout 4.{valid_games_str}",
 						None,
 					),
 				)
