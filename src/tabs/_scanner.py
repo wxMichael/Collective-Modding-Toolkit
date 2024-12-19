@@ -542,7 +542,7 @@ class ScannerTab(CMCTabFrame):
 					continue
 
 				if data_root_lower == "scripts":  # noqa: SIM102
-					if scan_settings[ScanSetting.ProblemOverrides] and file_lower in F4SE_CRC:
+					if mod_name_file is not None and scan_settings[ScanSetting.ProblemOverrides] and file_lower in F4SE_CRC:
 						problems.append(
 							ProblemInfo(
 								ProblemType.F4SEOverride,
