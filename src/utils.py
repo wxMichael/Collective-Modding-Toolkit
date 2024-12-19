@@ -40,7 +40,7 @@ def is_file(path: Path) -> bool:
 	except PermissionError:
 		# Probably a folder
 		try:
-			_ = next(path.iterdir())
+			_ = next(path.iterdir(), None)
 		except NotADirectoryError:
 			# Was a file with actual PermissionError
 			return True
@@ -55,7 +55,7 @@ def is_dir(path: Path) -> bool:
 		return path.is_dir()
 
 	try:
-		_ = next(path.iterdir())
+		_ = next(path.iterdir(), None)
 	except (NotADirectoryError, FileNotFoundError):
 		return False
 	return True
@@ -77,7 +77,7 @@ def exists(path: Path) -> bool:
 
 	# Folders
 	try:
-		_ = next(path.iterdir())
+		_ = next(path.iterdir(), None)
 	except (PermissionError, NotADirectoryError):
 		# PermissionError: Actual folder but no permission
 		# NotADirectoryError: Was a file with actual PermissionError
