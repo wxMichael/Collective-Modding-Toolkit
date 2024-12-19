@@ -30,6 +30,12 @@ class ToolsTab(CMCTabFrame):
 			new_button.configure(state=DISABLED)
 		elif isinstance(action, str):
 			new_button.configure(command=lambda: webbrowser.open(action))
+			if "nexusmods" in action:
+				ToolTip(new_button, "View on Nexus Mods")
+			elif "github" in action:
+				ToolTip(new_button, "View on GitHub")
+			else:
+				ToolTip(new_button, "Open website")
 		else:
 			new_button.configure(command=action)
 
@@ -132,4 +138,4 @@ class ToolsTab(CMCTabFrame):
 		self.add_tool_button(frame_toolkit, "File Inspector")
 		self.add_tool_button(frame_toolkit, "Complex Sorter\n  INI Patcher")
 		self.add_tool_button(frame_toolkit, "Move CC to\nMod Manager")
-		self.add_tool_button(frame_toolkit, "Papyrus Script\nCompiler")
+		self.add_tool_button(frame_toolkit, "Papyrus Script\n   Compiler")
