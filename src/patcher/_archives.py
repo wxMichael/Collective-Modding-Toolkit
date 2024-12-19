@@ -59,12 +59,18 @@ class ArchivePatcher(PatcherBase):
 		radio_og.grid(column=0, row=0, padx=5)
 		radio_ng.grid(column=1, row=0, padx=5)
 
-		self.label_filter = ttk.Label(self.frame_top, text=self.filter_text, foreground=COLOR_NEUTRAL_2)
+		self.label_filter = ttk.Label(
+			self.frame_top,
+			text=self.filter_text,
+			font=FONT_SMALL,
+			foreground=COLOR_NEUTRAL_2,
+		)
 		self.label_filter.pack(side=LEFT, padx=10, fill=Y)
 
 		ttk.Label(
 			self.frame_middle,
 			text="Name Filter:",
+			font=FONT_SMALL,
 			foreground=COLOR_DEFAULT,
 		).grid(column=0, row=0, sticky=NSEW, padx=5, pady=5)
 		self.text_filter = ttk.Entry(self.frame_middle)
