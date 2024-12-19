@@ -15,7 +15,7 @@ repository = "https://github.com/wxMichael/Collective-Modding-Toolkit"
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
 packaging = "^24.2"
-psutil = "^6.1.0"
+psutil = "^6.1.1"
 pywin32 = "^308"
 pywin32-ctypes = "^0.2.3"
 pyxdelta = "^0.2.0"
@@ -36,7 +36,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry-pyinstaller-plugin]
 use-poetry-install = true
-collect = { data = ["sv_ttk"] }
 include = { "src/assets" = "assets" }
 
 [tool.poetry-pyinstaller-plugin.scripts]
