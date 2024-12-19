@@ -31,7 +31,9 @@
 
 ### Fixed
 
-- Issues caused by Windows 11 24H2 have been worked around. It seems 24H2 made some of Pythons file-related functions stop working inside MO2's virtual filesystem.
+- Issues caused by Windows 11 24H2 have been worked around.  
+It seems 24H2 made some of Python's file-related functions stop working inside MO2's virtual filesystem.
+- Having a Documents folder in a non-default location works now.
 - UnicodeDecode error with non-English characters in INI files.
 - Wrong link for Cathedral Assets Optimizer
 
@@ -47,7 +49,7 @@
 
 - #### Scanner
 
-  - Reworked how scanning is done to speed it up by only doing checks on Data instead of all staged mods.
+  - Reworked how scanning is done to speed it up by only doing checks on Data instead of all staged mods.  
   As a result, if two mods have identical problem files only the conflict winners are reported.
   - Whitelisted `*.cdf` files for `Data/Sound/`
   - Primary text color is now a light gray instead of white to be easier on the eyes.  
