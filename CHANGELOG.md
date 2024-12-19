@@ -1,12 +1,66 @@
 # Changelog
 
+## [0.3] - 2024-12-19
+
+### Added
+
+- Pressing Space will close About windows.
+
+- #### Overview
+
+  - Count for modules with unknown HEDR versions.
+  - Note on Vortex support if detected. Overview should be accurate but Scanner can't yet identify the source mod for issues.
+
+- #### Scanner
+
+  - Issues from Overview will be reported in the Scanner.
+  - Detect BA2s that won't be loaded due to invalid file names.
+  - Detect loose file overrides of F4SE's `*.pex` files.
+
+- #### Tools
+
+  - Button for PJM's Precombine/Previs Patching Scripts.
+
+  - #### Archive Patcher
+
+    - File name filter to patch only specific archives.
+
+  - #### Downgrader
+
+    - Options to delete backups and delta patches after the patch process.
+
+### Fixed
+
+- Issues caused by Windows 11 24H2 have been worked around. It seems 24H2 made some of Pythons file-related functions stop working inside MO2's virtual filesystem.
+- UnicodeDecode error with non-English characters in INI files.
+- Wrong link for Cathedral Assets Optimizer
+
+### Changed
+
+- #### Overview
+
+  - Counts will now turn orange when within 5% of a limit.
+
+- #### F4SE
+
+  - Whitelisted `ClockWidget.dll` for OG+NG support.
+
+- #### Scanner
+
+  - Reworked how scanning is done to speed it up by only doing checks on Data instead of all staged mods.
+  As a result, if two mods have identical problem files only the conflict winners are reported.
+  - Whitelisted `*.cdf` files for `Data/Sound/`
+  - Primary text color is now a light gray instead of white to be easier on the eyes.  
+  Colors will likely be configurable in a later update.
+  - Scanning disabled when all options are disabled.
+
 ## [0.2.1] - 2024-12-01
 
 ### Added
 
 - #### Tools
 
-  - Buttons linking to tools made by other authors
+  - Buttons linking to tools made by other authors.
 
 ### Fixed
 
@@ -37,11 +91,13 @@ On a clean game install the count is now 19 higher.
 - #### F4SE
 
   - Non-whitelisted DLLs detected as OG+NG will have a ⚠️ as some only support both enough to tell users if they have the wrong DLL.
-  - Filtered out Microsoft Visual C++ DLLs such as `msdia140.dll` from Buffout 4 NG
+  - Filtered out Microsoft Visual C++ DLLs such as `msdia140.dll` from Buffout 4 NG.
 
-- #### Downgrader
+- #### Tools
 
-  - Merged Game and CK downgrade options since they both require `steam_api64.dll` to match.  
+  - #### Downgrader
+
+    - Merged Game and CK downgrade options since they both require `steam_api64.dll` to match.  
 Supporting version mixing is on the roadmap.
 
 ### Added
@@ -59,6 +115,7 @@ It currently only supports `Data/` and MO2's mods folder with basic checks like 
 
 _Initial release._
 
+[0.3]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.3
 [0.2.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.2.1
 [0.2]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.2
 [0.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.1
