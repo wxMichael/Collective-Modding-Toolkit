@@ -784,13 +784,13 @@ class OverviewTab(CMCTabFrame):
 				SimpleProblemInfo(
 					plugins_path.name,
 					ProblemType.FileNotFound,
-					"The plugins list was not found.\nThis is used to detect which modules/archives are enabled.",
+					"plugins.txt was not found.\nThis is used to detect which modules/archives are enabled.",
 					"----",
 				),
 			)
 			messagebox.showwarning(
 				"Warning",
-				f"{plugins_path.name} not found.\nEnable state of plugins can't be detected.\nCounts will reflect all plugins/modules in Data, which is likely higher than your actual counts.",
+				"plugins.txt not found.\nEnable state of plugins can't be detected.\nCounts will reflect all modules/archives in Data, which is likely higher than your actual counts.",
 			)
 			current_plugins = self.cmc.game.modules_enabled.copy()
 			self.cmc.game.modules_enabled.extend([
