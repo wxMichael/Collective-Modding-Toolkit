@@ -242,17 +242,15 @@ def set_theme(win: Tk) -> None:
 	style.layout(
 		"Tab", [("Notebook.tab", {
 			"sticky": NSEW,
-			"children": [(
-				"Notebook.padding", {
+			"children": [("Notebook.padding", {
+				"side": TOP,
+				"sticky": NSEW,
+				"children": [("Notebook.label", {
 					"side": TOP,
-					"sticky": NSEW,
-					"children": [("Notebook.label", {
-						"side": TOP,
-						"sticky": "",
-					})],
-				},
-			)]},
-		)],
+					"sticky": "",
+				})],
+			})],
+		})],
 	)
 	# fmt: on
 	# style.configure("TNotebook.Tab", padding=padding)
