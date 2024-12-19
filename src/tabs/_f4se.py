@@ -52,8 +52,8 @@ class F4SETab(CMCTabFrame):
 			return False
 
 		self.dll_info.clear()
-		for dll_file in self.cmc.game.f4se_path.glob("*.dll"):
-			if not dll_file.name.startswith("msdia"):
+		for dll_file in self.cmc.game.f4se_path.iterdir():
+			if dll_file.suffix.lower() == ".dll" and not dll_file.name.startswith("msdia"):
 				self.dll_info[dll_file.name] = parse_dll(dll_file)
 
 		return True

@@ -11,6 +11,8 @@ from utils import (
 	find_mod_manager,
 	get_environment_path,
 	get_registry_value,
+	is_dir,
+	is_file,
 	is_fo4_dir,
 )
 
@@ -58,7 +60,7 @@ class GameInfo:
 		section = "NO-SECTION"
 		for name in ("Fallout4.ini", "Fallout4Prefs.ini", "Fallout4Custom.ini"):
 			ini_path = docs_path / name
-			if not ini_path.is_file():
+			if not is_file(ini_path):
 				continue
 			ini_dict = self.game_prefs if name == "Fallout4Prefs.ini" else self.game_settings
 			for line in ini_path.read_text(encoding="utf-8").splitlines():
@@ -117,10 +119,10 @@ class GameInfo:
 		self._game_path_sv.set(str(value))
 
 		data_path = value / "Data"
-		if data_path.is_dir():
+		if is_dir(data_path):
 			self._data_path = data_path
 			f4se_path = data_path / "F4SE/Plugins"
-			self._f4se_path = f4se_path if f4se_path.is_dir() else None
+			self._f4se_path = f4se_path if is_dir(f4se_path) else None
 		else:
 			self._data_path = None
 			self._f4se_path = None
@@ -146,10 +148,10 @@ class GameInfo:
 		if self.manager is not None:
 			if self.manager.name == "Mod Organizer":
 				portable_ini_path = self.manager.exe_path.parent / "ModOrganizer.ini"
-				portable_ini_exists = portable_ini_path.is_file()
+				portable_ini_exists = is_file(portable_ini_path)
 
 				portable_txt_path = self.manager.exe_path.parent / "portable.txt"
-				if portable_txt_path.is_file():
+				if is_file(portable_txt_path):
 					if not portable_ini_exists:
 						msg = "portable.txt found but no ModOrganizer.ini found in MO2 install path"
 						raise FileNotFoundError(msg)
@@ -167,7 +169,7 @@ class GameInfo:
 						appdata_local = os.getenv("LOCALAPPDATA")
 						if appdata_local:
 							appdata_ini_path = Path(appdata_local) / "ModOrganizer" / current_instance / "ModOrganizer.ini"
-							if appdata_ini_path.is_file():
+							if is_file(appdata_ini_path):
 								self.manager.read_mo2_ini(appdata_ini_path)
 
 				if not self.manager.game_path:
@@ -226,7 +228,7 @@ class GameInfo:
 				sys.exit()
 
 		game_path_as_path = Path(game_path)
-		if game_path_as_path.is_file():
+		if is_file(game_path_as_path):
 			game_path_as_path = game_path_as_path.parent
 
 		if not is_fo4_dir(game_path_as_path):

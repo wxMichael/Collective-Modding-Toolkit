@@ -25,6 +25,67 @@ DONT_RESOLVE_DLL_REFERENCES = 0x00000001
 HTTP_OK = 200
 KEY_CTRL = 12
 
+win11_24h2 = sys.getwindowsversion().build >= 26100
+
+
+def is_file(path: Path) -> bool:
+	if not win11_24h2:
+		return path.is_file()
+
+	try:
+		with path.open():
+			pass
+	except FileNotFoundError:
+		return False
+	except PermissionError:
+		# Probably a folder
+		try:
+			_ = next(path.iterdir())
+		except NotADirectoryError:
+			# Was a file with actual PermissionError
+			return True
+		except OSError:
+			pass
+		return False
+	return True
+
+
+def is_dir(path: Path) -> bool:
+	if not win11_24h2:
+		return path.is_dir()
+
+	try:
+		_ = next(path.iterdir())
+	except (NotADirectoryError, FileNotFoundError):
+		return False
+	return True
+
+
+def exists(path: Path) -> bool:
+	if not win11_24h2:
+		return path.exists()
+
+	# Files
+	try:
+		with path.open():
+			return True
+	except FileNotFoundError:
+		return False
+	except PermissionError:
+		# Probably a folder, check below
+		pass
+
+	# Folders
+	try:
+		_ = next(path.iterdir())
+	except (PermissionError, NotADirectoryError):
+		# PermissionError: Actual folder but no permission
+		# NotADirectoryError: Was a file with actual PermissionError
+		pass
+	except OSError:
+		return False
+	return True
+
 
 def load_font(font_path: str) -> None:
 	# https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-addfontresourceexw
@@ -38,14 +99,14 @@ def get_environment_path(location: CSIDL) -> Path:
 	buf = create_unicode_buffer(wintypes.MAX_PATH)
 	windll.shell32.SHGetFolderPathW(None, location, None, 0, buf)
 	path = Path(buf.value)
-	if not path.is_dir():
+	if not is_dir(path):
 		msg = f"Folder does not exist:\n{path}"
 		raise FileNotFoundError(msg)
 	return path
 
 
 def is_fo4_dir(path: Path) -> bool:
-	return path.is_dir() and (path / "Fallout4.exe").is_file()
+	return is_dir(path) and is_file(path / "Fallout4.exe")
 
 
 def find_mod_manager() -> ModManagerInfo | None:

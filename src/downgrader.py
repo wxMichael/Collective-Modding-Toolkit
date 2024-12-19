@@ -20,6 +20,7 @@ from logger import Logger
 from modal_window import AboutWindow, ModalWindow
 from utils import (
 	get_crc32,
+	is_file,
 )
 
 COLOR_OG = "dodger blue"
@@ -91,7 +92,7 @@ class Downgrader(ModalWindow):
 		self.unknown_ck = False
 		for file_name, file_crcs in list(Downgrader.CRCs_game.items()) + list(Downgrader.CRCs_ck.items()):
 			file_path = self.cmc.game.game_path / file_name
-			if file_path.is_file():
+			if is_file(file_path):
 				crc = get_crc32(file_path)
 				self.current_versions[file_name] = file_crcs.get(crc, InstallType.Unknown)
 			else:
@@ -259,7 +260,7 @@ class Downgrader(ModalWindow):
 		try:
 			if file_path.stat().st_file_attributes & stat.FILE_ATTRIBUTE_READONLY:
 				file_path.chmod(stat.S_IWRITE)
-			if backup_file_path_current.is_file():
+			if is_file(backup_file_path_current):
 				print("Backup of current version exists.")
 				if get_crc32(backup_file_path_current) == get_crc32(file_path):
 					print(f"Backup CRC good. Deleting {file_path.name}")
@@ -268,11 +269,11 @@ class Downgrader(ModalWindow):
 					print(f"Backup CRC bad. Deleting {backup_file_path_current.name}")
 					backup_file_path_current.unlink()
 
-			if file_path.is_file():
+			if is_file(file_path):
 				print(f"Backing up {file_path.name} to {backup_file_path_current.name}")
 				file_path.rename(backup_file_path_current)
 
-			if backup_file_path_desired.is_file():
+			if is_file(backup_file_path_desired):
 				print(f"{backup_file_path_desired.name} exists.")
 				if get_crc32(backup_file_path_desired) in self.CRCs_by_type[desired_version]:
 					print(f"Backup CRC good. Restoring to {file_path.name}")
@@ -286,7 +287,7 @@ class Downgrader(ModalWindow):
 					print(f"Backup CRC bad. Deleting {backup_file_path_desired.name}")
 					backup_file_path_desired.unlink()
 
-			if not file_path.is_file():
+			if not is_file(file_path):
 				print("Restore from backup not possible. Patch download needed.")
 				url = f"{PATCH_URL_BASE}{patch_direction}{file_path.name}.xdelta"
 				self.download_queue.put((url, backup_file_path_current, file_path))
@@ -316,7 +317,7 @@ class Downgrader(ModalWindow):
 			return
 
 		file_path = Path(Path(next_download[0]).name)
-		if file_path.is_file():
+		if is_file(file_path):
 			self.download_thread = None
 			self.progress_var.set(100)
 		else:
