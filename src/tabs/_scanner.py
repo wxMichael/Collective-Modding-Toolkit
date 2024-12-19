@@ -116,6 +116,7 @@ class ScanSettings(dict[ScanSetting, bool]):
 		super().__init__()
 
 		self.overview_only = True
+		self.mod_files: ModFiles | None = None
 
 		for setting in ScanSetting:
 			self[setting] = side_pane.bool_vars[setting].get()
@@ -145,7 +146,7 @@ class ScannerTab(CMCTabFrame):
 		self.details_pane: ResultDetailsPane | None = None
 
 		self.scan_results: list[ProblemInfo | SimpleProblemInfo] = []
-		self.queue_progress: queue.Queue[str | tuple[str, ...] | list[ProblemInfo] | ModFiles] = queue.Queue()
+		self.queue_progress: queue.Queue[str | tuple[str, ...] | list[ProblemInfo]] = queue.Queue()
 		self.thread_scan: threading.Thread | None = None
 		self.dv_progress = DoubleVar()
 		self.progress_check_delay = 100
@@ -285,7 +286,8 @@ class ScannerTab(CMCTabFrame):
 				else:
 					self.sv_scanning_text.set(f"Scanning... {current_index}/{max(1, len(self.scan_folders))}: {current_folder}")
 					self.dv_progress.set((current_index / len(self.scan_folders)) * 100)
-			elif isinstance(update, list) and update:
+			elif update:
+				# list
 				self.scan_results.extend(update)
 
 		if self.thread_scan is None:
@@ -304,10 +306,14 @@ class ScannerTab(CMCTabFrame):
 			self.label_scanning_text = None
 		self.sv_scanning_text.set("")
 
-		if scan_settings[ScanSetting.OverviewIssues] and self.cmc.overview_problems:
+		if scan_settings[ScanSetting.OverviewIssues] and self.cmc.overview_problems and scan_settings.mod_files:
 			for problem in self.cmc.overview_problems:
 				if problem.mod == "OVERVIEW":
-					pass
+					problem.mod = scan_settings.mod_files.files.get(Path(problem.relative_path), "")
+		else:
+			for problem in self.cmc.overview_problems:
+				if problem.mod == "OVERVIEW":
+					problem.mod = ""
 
 		for problem_info in sorted(self.scan_results, key=lambda p: p.mod):
 			if isinstance(problem_info, ProblemInfo):
@@ -411,6 +417,7 @@ class ScannerTab(CMCTabFrame):
 					else:
 						pass
 
+		scan_settings.mod_files = mod_files
 		return mod_files
 
 	def scan_data_files(self, scan_settings: ScanSettings) -> None:

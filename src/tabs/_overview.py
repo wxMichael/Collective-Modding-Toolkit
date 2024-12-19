@@ -667,7 +667,7 @@ class OverviewTab(CMCTabFrame):
 						ProblemType.InvalidArchive,
 						ba2_file,
 						Path(ba2_file.name),
-						"TODO",  # TODO: Mod source
+						"OVERVIEW",
 						"Failed to read archive due to permissions or the file is missing.",
 						None,
 					),
@@ -681,7 +681,7 @@ class OverviewTab(CMCTabFrame):
 						ProblemType.InvalidArchive,
 						ba2_file,
 						Path(ba2_file.name),
-						"TODO",  # TODO: Mod source
+						"OVERVIEW",
 						"Archive is either corrupt or not in Bethesda Archive 2 format.",
 						None,
 					),
@@ -703,7 +703,7 @@ class OverviewTab(CMCTabFrame):
 							ProblemType.InvalidArchive,
 							ba2_file,
 							Path(ba2_file.name),
-							"TODO",  # TODO: Mod source
+							"OVERVIEW",
 							f"Archive version ({head[4]}) is not valid for Fallout 4.",
 							None,
 						),
@@ -726,7 +726,7 @@ class OverviewTab(CMCTabFrame):
 							ProblemType.InvalidArchive,
 							ba2_file,
 							Path(ba2_file.name),
-							"TODO",  # TODO: Mod source
+							"OVERVIEW",
 							f"Archive format ({head[8:].decode('utf-8')}) is not valid for Fallout 4.",
 							None,
 						),
@@ -810,7 +810,7 @@ class OverviewTab(CMCTabFrame):
 						ProblemType.InvalidModule,
 						module_path,
 						Path(module_path.name),
-						"TODO",  # TODO: Mod source
+						"OVERVIEW",
 						"Failed to read module due to permissions or the file is missing.",
 						None,
 					),
@@ -824,7 +824,7 @@ class OverviewTab(CMCTabFrame):
 						ProblemType.InvalidModule,
 						module_path,
 						Path(module_path.name),
-						"TODO",  # TODO: Mod source
+						"OVERVIEW",
 						"Module is either corrupt or not in TES4 format.",
 						None,
 					),
@@ -847,7 +847,7 @@ class OverviewTab(CMCTabFrame):
 						ProblemType.InvalidModule,
 						module_path,
 						Path(module_path.name),
-						"TODO",  # TODO: Mod source
+						"OVERVIEW",
 						f"Module version ({round(struct.unpack('<f', hedr_version)[0], 2)}) is not valid for Fallout 4.",
 						None,
 					),
