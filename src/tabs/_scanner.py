@@ -12,7 +12,7 @@ from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 from enums import ProblemType, SolutionType, Tab
 from globals import *
 from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SimpleProblemInfo
-from utils import copy_text
+from utils import copy_text, exists, is_dir, is_file
 
 IGNORE_FOLDERS = {
 	"bodyslide",
@@ -366,16 +366,16 @@ class ScannerTab(CMCTabFrame):
 			raise ValueError(msg)
 
 		modlist_path = manager.profiles_path / manager.selected_profile / "modlist.txt"
-		if not modlist_path.is_file():
+		if not is_file(modlist_path):
 			msg = f"File doesn't exist: {modlist_path}"
 			raise FileNotFoundError(msg)
 
 		stage_paths = [
 			mod_path
 			for mod in reversed(modlist_path.read_text("utf-8").splitlines())
-			if mod[:1] == "+" and (mod_path := manager.stage_path / mod[1:]).is_dir()
+			if mod[:1] == "+" and is_dir(mod_path := manager.stage_path / mod[1:])
 		]
-		if manager.overwrite_path.is_dir():
+		if is_dir(manager.overwrite_path):
 			stage_paths.append(manager.overwrite_path)
 
 		return stage_paths
@@ -568,7 +568,7 @@ class ScannerTab(CMCTabFrame):
 						solution = None
 						if file_ext in PROPER_FORMATS:
 							proper_found = [
-								p.name for e in PROPER_FORMATS[file_ext] if (p := file_path_full.with_suffix(f".{e}")).is_file()
+								p.name for e in PROPER_FORMATS[file_ext] if is_file(p := file_path_full.with_suffix(f".{e}"))
 							]
 							if proper_found:
 								summary = f"Format not in whitelist for {data_root_lower}.\nA file with the expected format was found ({', '.join(proper_found)})."
@@ -784,8 +784,8 @@ class ResultDetailsPane(Toplevel):
 		self.sv_file_path.set(str(problem_info.relative_path))
 
 		target = self.problem_info.path
-		if isinstance(target, Path) and (target.exists() or target.parent.exists()):
-			if not target.is_dir():
+		if isinstance(target, Path) and (exists(target) or exists(target.parent)):
+			if not is_dir(target):
 				target = target.parent
 			self.label_file_path.bind("<Button-1>", lambda _: os.startfile(target))
 			if self.tooltip_file_path:

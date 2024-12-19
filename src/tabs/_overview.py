@@ -16,9 +16,11 @@ from modal_window import AboutWindow
 from patcher import ArchivePatcher
 from utils import (
 	add_separator,
+	exists,
 	get_crc32,
 	get_environment_path,
 	get_file_version,
+	is_file,
 	ver_to_str,
 )
 
@@ -540,7 +542,7 @@ class OverviewTab(CMCTabFrame):
 
 		for file_name in BASE_FILES:
 			file_path = self.cmc.game.game_path / file_name
-			if not file_path.is_file():
+			if not is_file(file_path):
 				self.cmc.game.file_info[file_path.name] = {
 					"File": None,
 					"Version": None,
@@ -575,7 +577,7 @@ class OverviewTab(CMCTabFrame):
 					address_library_name = f"version-{version.replace('.', '-')}.bin"
 					relative_path = Path("F4SE/Plugins", address_library_name)
 					address_library_path = self.cmc.game.data_path / relative_path
-					if address_library_path.is_file():
+					if is_file(address_library_path):
 						self.cmc.game.address_library = address_library_path
 					else:
 						self.cmc.overview_problems.append(
@@ -593,7 +595,7 @@ class OverviewTab(CMCTabFrame):
 				if self.cmc.game.data_path is not None and self.cmc.game.is_foog():
 					startup_name = Path("Fallout4 - Startup.ba2")
 					startup_ba2 = self.cmc.game.data_path / startup_name
-					if startup_ba2.is_file():
+					if is_file(startup_ba2) or True:
 						startup_crc = get_crc32(startup_ba2, skip_ba2_header=True)
 						if startup_crc == NG_STARTUP_BA2_CRC:
 							self.cmc.game.install_type = InstallType.DG
@@ -632,19 +634,19 @@ class OverviewTab(CMCTabFrame):
 			archive_path
 			for archive_list in settings_archive_lists
 			for n in ini_archive.get(archive_list, "").split(",")
-			if (archive_path := self.cmc.game.data_path / n.strip()).is_file()
+			if is_file(archive_path := self.cmc.game.data_path / n.strip())
 		}
 
 		self.cmc.game.archives_enabled.update({
 			ps
 			for p in self.cmc.game.modules_enabled
 			for s in self.cmc.game.ba2_suffixes
-			if (ps := p.with_name(f"{p.stem} - {s}.ba2")).is_file()
+			if is_file(ps := p.with_name(f"{p.stem} - {s}.ba2"))
 		})
 
 		if self.cmc.game.game_prefs.get("nvflex", {}).get("bnvflexenable", "0") == "1":
 			flex_ba2_path = self.cmc.game.data_path / "Fallout4 - Nvflex.ba2"
-			if flex_ba2_path.is_file():
+			if is_file(flex_ba2_path):
 				self.cmc.game.archives_enabled.add(flex_ba2_path)
 			else:
 				self.cmc.overview_problems.append(
@@ -753,12 +755,12 @@ class OverviewTab(CMCTabFrame):
 			)
 			return
 
-		self.cmc.game.modules_enabled = [master_path for master in GAME_MASTERS if (master_path := data_path / master).is_file()]
+		self.cmc.game.modules_enabled = [master_path for master in GAME_MASTERS if exists(master_path := data_path / master)]
 
 		ccc_path = self.cmc.game.game_path / "Fallout4.ccc"
-		if ccc_path.is_file():
+		if is_file(ccc_path):
 			self.cmc.game.modules_enabled.extend([
-				cc_path for cc in ccc_path.read_text("utf-8").splitlines() if (cc_path := data_path / cc).is_file()
+				cc_path for cc in ccc_path.read_text("utf-8").splitlines() if is_file(cc_path := data_path / cc)
 			])
 		else:
 			self.cmc.overview_problems.append(
@@ -791,12 +793,14 @@ class OverviewTab(CMCTabFrame):
 				f"{plugins_path.name} not found.\nEnable state of plugins can't be detected.\nCounts will reflect all plugins/modules in Data, which is likely higher than your actual counts.",
 			)
 			current_plugins = self.cmc.game.modules_enabled.copy()
-			self.cmc.game.modules_enabled.extend([p for p in data_path.glob("*.es[mlp]") if p not in current_plugins])
+			self.cmc.game.modules_enabled.extend([
+				p for p in data_path.iterdir() if p.suffix.lower() in {".esp", ".esl", ".esm"} and p not in current_plugins
+			])
 		else:
 			self.cmc.game.modules_enabled.extend([
 				plugin_path
 				for plugin in plugins_content.splitlines()
-				if plugin.startswith("*") and (plugin_path := data_path / plugin[1:]).is_file()
+				if plugin.startswith("*") and is_file(plugin_path := data_path / plugin[1:])
 			])
 
 		for module_path in self.cmc.game.modules_enabled:
