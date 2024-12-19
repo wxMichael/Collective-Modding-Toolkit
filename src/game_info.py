@@ -6,9 +6,10 @@ from tkinter import *
 from tkinter import filedialog, messagebox
 from typing import TYPE_CHECKING, Literal
 
-from enums import InstallType, Language
+from enums import CSIDL, InstallType, Language
 from utils import (
 	find_mod_manager,
+	get_environment_path,
 	get_registry_value,
 	is_fo4_dir,
 )
@@ -53,7 +54,7 @@ class GameInfo:
 		self.load_game_inis()
 
 	def load_game_inis(self) -> None:
-		docs_path = Path.home() / R"Documents\My Games\Fallout4"
+		docs_path = get_environment_path(CSIDL.Documents) / "My Games\\Fallout4"
 		section = "NO-SECTION"
 		for name in ("Fallout4.ini", "Fallout4Prefs.ini", "Fallout4Custom.ini"):
 			ini_path = docs_path / name

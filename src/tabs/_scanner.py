@@ -15,17 +15,18 @@ from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SimpleProblemI
 from utils import copy_text
 
 IGNORE_FOLDERS = {
-	"Bodyslide",
-	"Complex Sorter",
-	"Fo4edit",
-	"Robco_Patcher",
-	"Source",
+	"bodyslide",
+	"complex sorter",
+	"fo4edit",
+	"robco_patcher",
+	"source",
 }
+"""These are always lowercase."""
 
 DATA_WHITELIST = {
-	"F4se": None,
-	"Materials": {"bgem", "bgsm", "txt"},
-	"Meshes": {
+	"f4se": None,
+	"materials": {"bgem", "bgsm", "txt"},
+	"meshes": {
 		"bto",
 		"btr",
 		"hko",
@@ -42,12 +43,13 @@ DATA_WHITELIST = {
 		"txt",
 		"xml",
 	},
-	"Music": {"wav", "xwm"},
-	"Textures": {"dds"},
-	"Scripts": {"pex", "psc", "txt", "zip"},
-	"Sound": {"cdf", "fuz", "lip", "wav", "xwm"},
-	"Vis": {"uvd"},
+	"music": {"wav", "xwm"},
+	"textures": {"dds"},
+	"scripts": {"pex", "psc", "txt", "zip"},
+	"sound": {"cdf", "fuz", "lip", "wav", "xwm"},
+	"vis": {"uvd"},
 }
+"""Keys and values are lowercase with no dot."""
 
 JUNK_FILES = {
 	"thumbs.db",
@@ -55,10 +57,10 @@ JUNK_FILES = {
 	".ds_store",
 }
 
-# These should be in title case
 JUNK_FOLDERS_DATA_ROOT = {
-	"Fomod",
+	"fomod",
 }
+"""These are always lowercase."""
 
 PROPER_FORMATS = {
 	# Textures
@@ -71,11 +73,13 @@ PROPER_FORMATS = {
 	# Sound
 	"mp3": ["wav", "xwm"],
 }
+"Keys and values are always lowercase with no dot."
 
 RECORD_TYPES = {
 	# Sound
 	"mp3": "Sound Descriptor (SNDR) or Music Track (MUST) ",
 }
+"Keys are always lowercase with no dot."
 
 
 class ScanSetting(Enum):
@@ -99,11 +103,20 @@ WIP_SETTINGS = (
 )
 
 
+class ModFiles:
+	def __init__(self) -> None:
+		self.folders: dict[Path, str] = {}
+		self.files: dict[Path, str] = {}
+		self.modules: dict[str, str] = {}
+		self.archives: dict[str, str] = {}
+
+
 class ScanSettings(dict[ScanSetting, bool]):
 	def __init__(self, side_pane: "SidePane") -> None:
 		super().__init__()
 
 		self.overview_only = True
+		self.mod_files: ModFiles | None = None
 
 		for setting in ScanSetting:
 			self[setting] = side_pane.bool_vars[setting].get()
@@ -111,6 +124,15 @@ class ScanSettings(dict[ScanSetting, bool]):
 				self.overview_only = self.overview_only and self[ScanSetting.OverviewIssues]
 			else:
 				self.overview_only = self.overview_only and not self[setting]
+
+		self.manager = side_pane.scanner_tab.cmc.game.manager
+		self.using_stage = side_pane.scanner_tab.using_stage
+		if self.manager:
+			self.skip_file_suffixes = self.manager.skip_file_suffixes
+			self.skip_directories = IGNORE_FOLDERS.union(self.manager.skip_directories)
+		else:
+			self.skip_file_suffixes = ()
+			self.skip_directories = IGNORE_FOLDERS
 
 
 class ScannerTab(CMCTabFrame):
@@ -124,14 +146,13 @@ class ScannerTab(CMCTabFrame):
 		self.details_pane: ResultDetailsPane | None = None
 
 		self.scan_results: list[ProblemInfo | SimpleProblemInfo] = []
-		self.scanned_mod_paths: set[Path] = set()
-		self.queue_progress: queue.Queue[tuple[int, str, list[ProblemInfo] | None]] = queue.Queue()
+		self.queue_progress: queue.Queue[str | tuple[str, ...] | list[ProblemInfo]] = queue.Queue()
 		self.thread_scan: threading.Thread | None = None
 		self.dv_progress = DoubleVar()
-		self.scan_path_count = 1
 		self.progress_check_delay = 100
 		self.sv_scanning_text = StringVar()
 		self.label_scanning_text: ttk.Label | None = None
+		self.scan_folders: tuple[str, ...] = ("",)
 
 		self.func_id_focus: str
 		self.func_id_config: str
@@ -238,90 +259,44 @@ class ScannerTab(CMCTabFrame):
 			self.scan_results.extend(self.cmc.overview_problems)
 		if scan_settings.overview_only:
 			self.dv_progress.set(100)
-			self.populate_results()
+			self.populate_results(scan_settings)
 		else:
-			scan_paths: list[Path] = []
-			if self.using_stage:
-				manager = self.cmc.game.manager
-				if not (
-					manager
-					and manager.stage_path
-					and manager.profiles_path
-					and manager.selected_profile
-					and manager.overwrite_path
-				):
-					msg = (
-						(
-							f"Missing MO2 settings\n"
-							f"Manager: {manager}\n"
-							f"mods: {manager.stage_path}\n"
-							f"profiles: {manager.profiles_path}\n"
-							f"profile: {manager.selected_profile}\n"
-							f"overwrite: {manager.overwrite_path}"
-						)
-						if manager
-						else "Manager: None"
-					)
-					raise ValueError(msg)
-				scan_paths.append(manager.overwrite_path)
-				modlist_path = manager.profiles_path / manager.selected_profile / "modlist.txt"
-				if not modlist_path.is_file():
-					msg = f"File doesn't exist: {modlist_path}"
-					raise FileNotFoundError(msg)
-				with modlist_path.open(encoding="utf-8") as modlist_file:
-					modlist = [
-						mod_path
-						for mod in modlist_file.read().splitlines()
-						if mod.startswith(("+", "*")) and (mod_path := manager.stage_path / mod[1:]).is_dir()
-					]
-				scan_paths.extend(modlist)
-
-			self.scan_path_count = len(scan_paths) + 1
-			self.thread_scan = threading.Thread(target=self.threaded_scan, args=(scan_paths, scan_settings))
+			self.dv_progress.set(1)
+			self.sv_scanning_text.set("Building mod file index...")
+			self.thread_scan = threading.Thread(target=self.scan_data_files, args=(scan_settings,))
 			self.thread_scan.start()
-			self.cmc.root.after(self.progress_check_delay, self.check_scan_progress)
+			self.cmc.root.after(self.progress_check_delay, self.check_scan_progress, scan_settings)
 
-	def threaded_scan(self, scan_paths: list[Path], scan_settings: ScanSettings) -> None:
-		if self.cmc.game.data_path is None:
-			return
-
-		loaded_count = 0
-		if scan_paths:
-			for path in scan_paths:
-				self.queue_progress.put((loaded_count, path.name, None))
-				results = self.scan_data_path(scan_settings, path, self.scanned_mod_paths)
-				loaded_count += 1
-				self.queue_progress.put((loaded_count, path.name, results))
-
-		self.queue_progress.put((loaded_count, "Unmanaged Files", None))
-		results = self.scan_data_path(
-			scan_settings,
-			self.cmc.game.data_path,
-			self.scanned_mod_paths,
-			is_data_folder=True,
-		)
-		self.queue_progress.put((loaded_count, "Unmanaged Files", results))
-		self.thread_scan = None
-
-	def check_scan_progress(self) -> None:
+	def check_scan_progress(self, scan_settings: ScanSettings) -> None:
 		while self.queue_progress.qsize():
 			try:
-				loaded_count, path_name, results = self.queue_progress.get()
+				update = self.queue_progress.get()
 			except queue.Empty:
 				break
-			else:
-				self.sv_scanning_text.set(f"Scanning Data... {loaded_count}/{self.scan_path_count}: {path_name}")
-				self.dv_progress.set((loaded_count / self.scan_path_count) * 100)
-				if results:
-					self.scan_results.extend(results)
+
+			if isinstance(update, tuple):
+				self.scan_folders = update
+				current_folder = "Data"
+			elif isinstance(update, str):
+				current_folder = update
+				try:
+					current_index = self.scan_folders.index(current_folder)
+				except ValueError:
+					current_index = 1
+				else:
+					self.sv_scanning_text.set(f"Scanning... {current_index}/{max(1, len(self.scan_folders))}: {current_folder}")
+					self.dv_progress.set((current_index / len(self.scan_folders)) * 100)
+			elif update:
+				# list
+				self.scan_results.extend(update)
 
 		if self.thread_scan is None:
 			self.dv_progress.set(100)
-			self.populate_results()
+			self.populate_results(scan_settings)
 			return
-		self.cmc.root.after(self.progress_check_delay, self.check_scan_progress)
+		self.cmc.root.after(self.progress_check_delay, self.check_scan_progress, scan_settings)
 
-	def populate_results(self) -> None:
+	def populate_results(self, scan_settings: ScanSettings) -> None:
 		if self.side_pane is None:
 			raise ValueError
 
@@ -330,6 +305,15 @@ class ScannerTab(CMCTabFrame):
 			self.label_scanning_text.destroy()
 			self.label_scanning_text = None
 		self.sv_scanning_text.set("")
+
+		if scan_settings[ScanSetting.OverviewIssues] and self.cmc.overview_problems and scan_settings.mod_files:
+			for problem in self.cmc.overview_problems:
+				if problem.mod == "OVERVIEW":
+					problem.mod = scan_settings.mod_files.files.get(Path(problem.relative_path), "")
+		else:
+			for problem in self.cmc.overview_problems:
+				if problem.mod == "OVERVIEW":
+					problem.mod = ""
 
 		for problem_info in sorted(self.scan_results, key=lambda p: p.mod):
 			if isinstance(problem_info, ProblemInfo):
@@ -364,37 +348,109 @@ class ScannerTab(CMCTabFrame):
 		selection = self.tree_results.selection()[0]
 		self.details_pane.set_info(self.tree_results_data[selection], using_stage=self.using_stage)
 
-	def scan_data_path(
-		self,
-		scan_settings: ScanSettings,
-		data_path: Path,
-		scanned_mod_paths: set[Path],
-		*,
-		is_data_folder: bool = False,
-	) -> list[ProblemInfo]:
-		problems: list[ProblemInfo] = []
-		manager = self.cmc.game.manager
-		skip_file_suffixes = manager.skip_file_suffixes if manager else ()
-		skip_directories = IGNORE_FOLDERS.union(manager.skip_directories) if manager else IGNORE_FOLDERS
+	def get_stage_paths(self, scan_settings: ScanSettings) -> list[Path]:
+		manager = scan_settings.manager
+		if not (manager and manager.stage_path and manager.profiles_path and manager.selected_profile and manager.overwrite_path):
+			msg = (
+				(
+					f"Missing MO2 settings\n"
+					f"Manager: {manager}\n"
+					f"mods: {manager.stage_path}\n"
+					f"profiles: {manager.profiles_path}\n"
+					f"profile: {manager.selected_profile}\n"
+					f"overwrite: {manager.overwrite_path}"
+				)
+				if manager
+				else "Manager: None"
+			)
+			raise ValueError(msg)
 
-		data_root_titlecase = "<Data>"
-		mod_name = None if is_data_folder else data_path.name
-		for root, folders, files in data_path.walk(top_down=True):
-			if root.parent == data_path:
-				data_root_titlecase = root.name.title()
+		modlist_path = manager.profiles_path / manager.selected_profile / "modlist.txt"
+		if not modlist_path.is_file():
+			msg = f"File doesn't exist: {modlist_path}"
+			raise FileNotFoundError(msg)
 
-				if scan_settings[ScanSetting.JunkFiles] and data_root_titlecase in JUNK_FOLDERS_DATA_ROOT:
-					relative_path = root.relative_to(data_path)
-					if not is_data_folder:
-						scanned_mod_paths.add(relative_path)
-					elif relative_path in scanned_mod_paths:
-						folders.clear()
+		stage_paths = [
+			mod_path
+			for mod in reversed(modlist_path.read_text("utf-8").splitlines())
+			if mod[:1] == "+" and (mod_path := manager.stage_path / mod[1:]).is_dir()
+		]
+		if manager.overwrite_path.is_dir():
+			stage_paths.append(manager.overwrite_path)
+
+		return stage_paths
+
+	def build_mod_file_list(self, scan_settings: ScanSettings) -> ModFiles:
+		mod_files = ModFiles()
+		if not scan_settings.using_stage or not scan_settings.manager:
+			return mod_files
+
+		for mod_path in self.get_stage_paths(scan_settings):
+			mod_name = mod_path.name
+			for root, folders, files in mod_path.walk(top_down=True):
+				root_is_mod_path = root is mod_path
+				if folders:
+					last_index = len(folders) - 1
+					for i, folder in enumerate(reversed(folders)):
+						folder_lower = folder.lower()
+						if folder_lower in scan_settings.skip_directories:
+							del folders[last_index - i]
+
+				if root_is_mod_path:
+					root_relative = Path()
+				else:
+					root_relative = root.relative_to(mod_path)
+					mod_files.folders[root_relative] = mod_name
+
+				for file in files:
+					file_lower = file.lower()
+					if file_lower.endswith(scan_settings.skip_file_suffixes):
 						continue
+
+					mod_files.files[root_relative / file] = mod_name
+
+					if root_is_mod_path:
+						if file_lower.endswith((".esp", ".esl", ".esm")):
+							mod_files.modules[file] = mod_name
+						elif file_lower.endswith(".ba2"):
+							mod_files.archives[file] = mod_name
+					else:
+						pass
+
+		scan_settings.mod_files = mod_files
+		return mod_files
+
+	def scan_data_files(self, scan_settings: ScanSettings) -> None:
+		problems: list[ProblemInfo] = []
+
+		data_path = self.cmc.game.data_path
+		if data_path is None:
+			self.thread_scan = None
+			return
+
+		stage_path = data_path
+		if scan_settings.manager and scan_settings.manager.stage_path:
+			stage_path = scan_settings.manager.stage_path
+
+		mod_files = self.build_mod_file_list(scan_settings)
+
+		data_root_lower = "Data"
+		for current_path, folders, files in data_path.walk(top_down=True):
+			current_path_relative = current_path.relative_to(data_path)
+			mod_name = mod_files.folders.get(current_path_relative)
+			if current_path is data_path:
+				self.queue_progress.put(tuple(folders))
+
+			if current_path.parent == data_path:
+				self.queue_progress.put(current_path.name)
+				data_root_lower = current_path.name.lower()
+
+				if scan_settings[ScanSetting.JunkFiles] and data_root_lower == "fomod":
 					problems.append(
 						ProblemInfo(
 							ProblemType.JunkFile,
-							root,
-							relative_path,
+							stage_path / mod_name / current_path_relative if mod_name else current_path,
+							current_path_relative,
 							mod_name,
 							"This is a junk folder not used by the game or mod managers.",
 							SolutionType.DeleteOrIgnoreFolder,
@@ -403,22 +459,16 @@ class ScannerTab(CMCTabFrame):
 					folders.clear()
 					continue
 
-				if data_root_titlecase not in DATA_WHITELIST:
+				if data_root_lower not in DATA_WHITELIST:
 					folders.clear()
 					continue
 
-				if scan_settings[ScanSetting.LoosePrevis] and data_root_titlecase == "Vis":
-					relative_path = root.relative_to(data_path)
-					if not is_data_folder:
-						scanned_mod_paths.add(relative_path)
-					elif relative_path in scanned_mod_paths:
-						folders.clear()
-						continue
+				if scan_settings[ScanSetting.LoosePrevis] and data_root_lower == "vis":
 					problems.append(
 						ProblemInfo(
 							ProblemType.LoosePrevis,
-							root,
-							relative_path,
+							stage_path / mod_name / current_path_relative if mod_name else current_path,
+							current_path_relative,
 							mod_name,
 							"Loose previs files should be archived so they only win conflicts according to their plugin's load order.\nLoose previs files are also not supported by PJM's Previs Scripts.",
 							SolutionType.ArchiveOrDeleteFolder,
@@ -427,87 +477,78 @@ class ScannerTab(CMCTabFrame):
 					folders.clear()
 					continue
 
-			for index, folder in reversed(list(enumerate(folders))):
-				folder_lower = folder.lower()
-				if folder_lower in skip_directories:
-					del folders[index]
-					continue
-
-				if data_root_titlecase == "Meshes":
-					full_path = root / folder
-					relative_path = full_path.relative_to(data_path)
-					if scan_settings[ScanSetting.LoosePrevis] and folder_lower == "precombined":
-						if not is_data_folder:
-							scanned_mod_paths.add(relative_path)
-						elif relative_path in scanned_mod_paths:
-							del folders[index]
-							continue
-						problems.append(
-							ProblemInfo(
-								ProblemType.LoosePrevis,
-								full_path,
-								relative_path,
-								mod_name,
-								"Loose previs files should be archived so they only win conflicts according to their plugin's load order.\nLoose previs files are also not supported by PJM's Previs Scripts.",
-								SolutionType.ArchiveOrDeleteFolder,
-							),
-						)
-						del folders[index]
+			if folders:
+				last_index = len(folders) - 1
+				for i, folder in enumerate(reversed(folders)):
+					folder_lower = folder.lower()
+					if folder_lower in scan_settings.skip_directories:
+						del folders[last_index - i]
 						continue
 
-					if scan_settings[ScanSetting.ProblemOverrides] and folder_lower == "animtextdata":
-						if not is_data_folder:
-							scanned_mod_paths.add(relative_path)
-						elif relative_path in scanned_mod_paths:
-							del folders[index]
-							continue
-						problems.append(
-							ProblemInfo(
-								ProblemType.AnimTextDataFolder,
-								full_path,
-								relative_path,
-								mod_name,
-								"The existence of unpacked AnimTextData may cause the game to crash.",
-								SolutionType.ArchiveOrDeleteFolder,
-							),
-						)
-						del folders[index]
-						continue
+					folder_path_full = current_path / folder
+					folder_path_relative = current_path_relative / folder
+					mod_name_folder = mod_files.folders.get(folder_path_relative)
 
-			whitelist = DATA_WHITELIST.get(data_root_titlecase)
+					if data_root_lower == "meshes":
+						if scan_settings[ScanSetting.LoosePrevis] and folder_lower == "precombined":
+							problems.append(
+								ProblemInfo(
+									ProblemType.LoosePrevis,
+									stage_path / mod_name_folder / folder_path_relative if mod_name_folder else folder_path_full,
+									folder_path_relative,
+									mod_name_folder,
+									"Loose previs files should be archived so they only win conflicts according to their plugin's load order.\nLoose previs files are also not supported by PJM's Previs Scripts.",
+									SolutionType.ArchiveOrDeleteFolder,
+								),
+							)
+							del folders[last_index - i]
+							continue
+
+						if scan_settings[ScanSetting.ProblemOverrides] and folder_lower == "animtextdata":
+							problems.append(
+								ProblemInfo(
+									ProblemType.AnimTextDataFolder,
+									stage_path / mod_name_folder / folder_path_relative if mod_name_folder else folder_path_full,
+									folder_path_relative,
+									mod_name_folder,
+									"The existence of unpacked AnimTextData may cause the game to crash.",
+									SolutionType.ArchiveOrDeleteFolder,
+								),
+							)
+							del folders[last_index - i]
+							continue
+
+			whitelist = DATA_WHITELIST.get(data_root_lower)
 			for file in files:
 				file_lower = file.lower()
-				if skip_file_suffixes and file_lower.endswith(skip_file_suffixes):
+				if scan_settings.skip_file_suffixes and file_lower.endswith(scan_settings.skip_file_suffixes):
 					continue
 
-				full_path = root / file
-				relative_path = full_path.relative_to(data_path)
-				if not is_data_folder:
-					scanned_mod_paths.add(relative_path)
-				elif relative_path in scanned_mod_paths:
-					continue
+				file_path_full = current_path / file
+				file_path_relative = current_path_relative / file
+				mod_name_file = mod_files.files.get(file_path_relative)
 
 				if scan_settings[ScanSetting.JunkFiles] and file_lower in JUNK_FILES:
 					problems.append(
 						ProblemInfo(
 							ProblemType.JunkFile,
-							full_path,
-							relative_path,
-							mod_name,
+							stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
+							file_path_relative,
+							mod_name_file,
 							"This is a junk file not used by the game or mod managers.",
 							SolutionType.DeleteOrIgnoreFile,
 						),
 					)
 					continue
 
-				if data_root_titlecase == "Scripts":  # noqa: SIM102
+				if data_root_lower == "scripts":  # noqa: SIM102
 					if scan_settings[ScanSetting.ProblemOverrides] and file_lower in F4SE_CRC:
 						problems.append(
 							ProblemInfo(
 								ProblemType.F4SEOverride,
-								full_path,
-								relative_path,
-								mod_name,
+								stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
+								file_path_relative,
+								mod_name_file,
 								"This is an override of an F4SE script. This could break F4SE if they aren't the\nsame version.",
 								SolutionType.DeleteFile,
 							),
@@ -522,28 +563,29 @@ class ScannerTab(CMCTabFrame):
 
 				if scan_settings[ScanSetting.WrongFormat]:
 					if (whitelist and file_ext not in whitelist) or (
-						file_ext == "dll" and str(root.relative_to(data_path)).lower() != "f4se\\plugins"
+						file_ext == "dll" and str(current_path_relative).lower() != "f4se\\plugins"
 					):
 						solution = None
 						if file_ext in PROPER_FORMATS:
 							proper_found = [
-								p.name for e in PROPER_FORMATS[file_ext] if (p := full_path.with_suffix(f".{e}")).is_file()
+								p.name for e in PROPER_FORMATS[file_ext] if (p := file_path_full.with_suffix(f".{e}")).is_file()
 							]
 							if proper_found:
-								summary = f"Expected format found ({', '.join(proper_found)}).\nThis file can likely be deleted or ignored."
+								summary = f"Format not in whitelist for {data_root_lower}.\nA file with the expected format was found ({', '.join(proper_found)})."
+								solution = SolutionType.DeleteOrIgnoreFile
 							else:
-								summary = f"Expected format NOT found ({', '.join(PROPER_FORMATS[file_ext])}).\nThis file may need to be converted and relevant plugins updated for the new file name."
-							solution = SolutionType.DeleteOrIgnoreFile
+								summary = f"Format not in whitelist for {data_root_lower}.\nA file with the expected format was NOT found ({', '.join(PROPER_FORMATS[file_ext])})."
+								solution = SolutionType.ConvertDeleteOrIgnoreFile
 						else:
-							summary = f"Format not in whitelist for {data_root_titlecase}.\nUnable to determine whether the game will use this file."
+							summary = f"Format not in whitelist for {data_root_lower}.\nUnable to determine whether the game will use this file."
 							solution = SolutionType.UnknownFormat
 
 						problems.append(
 							ProblemInfo(
 								ProblemType.UnexpectedFormat,
-								full_path,
-								relative_path,
-								mod_name,
+								stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
+								file_path_relative,
+								mod_name_file,
 								summary,
 								solution,
 							),
@@ -553,7 +595,7 @@ class ScannerTab(CMCTabFrame):
 					if (
 						file_ext == "ba2"
 						and file_lower not in ARCHIVE_NAME_WHITELIST
-						and full_path not in self.cmc.game.archives_enabled
+						and file_path_full not in self.cmc.game.archives_enabled
 					):
 						ba2_name_split = file_split[0].rsplit(" - ", 1)
 						no_suffix = len(ba2_name_split) == 1
@@ -561,9 +603,9 @@ class ScannerTab(CMCTabFrame):
 							problems.append(
 								ProblemInfo(
 									ProblemType.InvalidArchiveName,
-									full_path,
-									relative_path,
-									mod_name,
+									stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
+									file_path_relative,
+									mod_name_file,
 									"This is not a valid archive name and won't be loaded by the game.",
 									SolutionType.RenameArchive,
 									[
@@ -573,7 +615,9 @@ class ScannerTab(CMCTabFrame):
 								),
 							)
 							continue
-		return problems
+
+		self.thread_scan = None
+		self.queue_progress.put(problems)
 
 
 class SidePane(Toplevel):

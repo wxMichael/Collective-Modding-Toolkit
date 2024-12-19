@@ -38,7 +38,9 @@ class ModManagerInfo:
 		self.selected_profile: str | None = None
 
 		self.skip_file_suffixes: tuple[str, ...]
+		"""These are always lowercase."""
 		self.skip_directories: set[str]
+		"""These are always lowercase."""
 
 		self.mo2_settings: MO2Settings = {}
 
@@ -120,5 +122,5 @@ class ModManagerInfo:
 		self.stage_path = self.mo2_settings["mod_directory"]
 		self.overwrite_path = self.mo2_settings["overwrite_directory"]
 		self.profiles_path = self.mo2_settings["profiles_directory"]
-		self.skip_file_suffixes = tuple(self.mo2_settings["skip_file_suffixes"])
-		self.skip_directories = set(self.mo2_settings["skip_directories"])
+		self.skip_file_suffixes = tuple(s.lower() for s in self.mo2_settings["skip_file_suffixes"])
+		self.skip_directories = {s.lower() for s in self.mo2_settings["skip_directories"]}

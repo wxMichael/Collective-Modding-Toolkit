@@ -9,7 +9,7 @@ from typing import Literal
 from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
 from downgrader import Downgrader
-from enums import ArchiveVersion, Magic, ModuleFlag, ProblemType, SolutionType
+from enums import CSIDL, ArchiveVersion, Magic, ModuleFlag, ProblemType, SolutionType
 from globals import *
 from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SimpleProblemInfo
 from modal_window import AboutWindow
@@ -17,6 +17,7 @@ from patcher import ArchivePatcher
 from utils import (
 	add_separator,
 	get_crc32,
+	get_environment_path,
 	get_file_version,
 	ver_to_str,
 )
@@ -537,9 +538,6 @@ class OverviewTab(CMCTabFrame):
 				),
 			)
 
-		# TODO: Report in Scanner
-		# self.ckfixes_found = self.cmc.game.game_path.joinpath("F4CKFixes").exists()
-
 		for file_name in BASE_FILES:
 			file_path = self.cmc.game.game_path / file_name
 			if not file_path.is_file():
@@ -593,7 +591,7 @@ class OverviewTab(CMCTabFrame):
 						)
 
 				if self.cmc.game.data_path is not None and self.cmc.game.is_foog():
-					startup_name = Path("Fallout4 - Startupp.ba2")
+					startup_name = Path("Fallout4 - Startup.ba2")
 					startup_ba2 = self.cmc.game.data_path / startup_name
 					if startup_ba2.is_file():
 						startup_crc = get_crc32(startup_ba2, skip_ba2_header=True)
@@ -625,10 +623,15 @@ class OverviewTab(CMCTabFrame):
 			"sresourcearchivelist2",
 		)
 
+		ini_archive = self.cmc.game.game_settings.get("archive")
+		if ini_archive is None:
+			msg = "Archive section missing from INIs"
+			raise ValueError(msg)
+
 		self.cmc.game.archives_enabled = {
 			archive_path
 			for archive_list in settings_archive_lists
-			for n in self.cmc.game.game_settings.get("archive", {}).get(archive_list, "").split(",")
+			for n in ini_archive.get(archive_list, "").split(",")
 			if (archive_path := self.cmc.game.data_path / n.strip()).is_file()
 		}
 
@@ -659,13 +662,12 @@ class OverviewTab(CMCTabFrame):
 					head = f.read(12)
 			except (PermissionError, FileNotFoundError):
 				self.cmc.game.archives_unreadable.add(ba2_file)
-				# TODO: Find mod source. Scan stage Data/-level files just for esp/ba2 and popular dict in deploy order so last wins
 				self.cmc.overview_problems.append(
 					ProblemInfo(
 						ProblemType.InvalidArchive,
 						ba2_file,
 						Path(ba2_file.name),
-						"TODO",  # TODO: Mod source
+						"OVERVIEW",
 						"Failed to read archive due to permissions or the file is missing.",
 						None,
 					),
@@ -679,7 +681,7 @@ class OverviewTab(CMCTabFrame):
 						ProblemType.InvalidArchive,
 						ba2_file,
 						Path(ba2_file.name),
-						"TODO",  # TODO: Mod source
+						"OVERVIEW",
 						"Archive is either corrupt or not in Bethesda Archive 2 format.",
 						None,
 					),
@@ -701,7 +703,7 @@ class OverviewTab(CMCTabFrame):
 							ProblemType.InvalidArchive,
 							ba2_file,
 							Path(ba2_file.name),
-							"TODO",  # TODO: Mod source
+							"OVERVIEW",
 							f"Archive version ({head[4]}) is not valid for Fallout 4.",
 							None,
 						),
@@ -724,7 +726,7 @@ class OverviewTab(CMCTabFrame):
 							ProblemType.InvalidArchive,
 							ba2_file,
 							Path(ba2_file.name),
-							"TODO",  # TODO: Mod source
+							"OVERVIEW",
 							f"Archive format ({head[8:].decode('utf-8')}) is not valid for Fallout 4.",
 							None,
 						),
@@ -755,11 +757,9 @@ class OverviewTab(CMCTabFrame):
 
 		ccc_path = self.cmc.game.game_path / "Fallout4.ccc"
 		if ccc_path.is_file():
-			# TODO: Use Path.read_text()
-			with ccc_path.open(encoding="utf-8") as ccc_file:
-				self.cmc.game.modules_enabled.extend([
-					cc_path for cc in ccc_file.read().splitlines() if (cc_path := data_path / cc).is_file()
-				])
+			self.cmc.game.modules_enabled.extend([
+				cc_path for cc in ccc_path.read_text("utf-8").splitlines() if (cc_path := data_path / cc).is_file()
+			])
 		else:
 			self.cmc.overview_problems.append(
 				SimpleProblemInfo(
@@ -774,9 +774,9 @@ class OverviewTab(CMCTabFrame):
 				f"{ccc_path.name} not found.\nCC files may not be detected. Verifying Steam files or reinstalling should fix this.",
 			)
 
-		plugins_path = Path.home() / "AppData\\Local\\Fallout4\\plugins.txt"
+		plugins_path = get_environment_path(CSIDL.AppDataLocal) / "Fallout4\\plugins.txt"
 		try:
-			plugins_content = plugins_path.read_text(encoding="utf-8")
+			plugins_content = plugins_path.read_text("utf-8")
 		except (PermissionError, FileNotFoundError):
 			self.cmc.overview_problems.append(
 				SimpleProblemInfo(
@@ -810,7 +810,7 @@ class OverviewTab(CMCTabFrame):
 						ProblemType.InvalidModule,
 						module_path,
 						Path(module_path.name),
-						"TODO",  # TODO: Mod source
+						"OVERVIEW",
 						"Failed to read module due to permissions or the file is missing.",
 						None,
 					),
@@ -824,7 +824,7 @@ class OverviewTab(CMCTabFrame):
 						ProblemType.InvalidModule,
 						module_path,
 						Path(module_path.name),
-						"TODO",  # TODO: Mod source
+						"OVERVIEW",
 						"Module is either corrupt or not in TES4 format.",
 						None,
 					),
@@ -847,7 +847,7 @@ class OverviewTab(CMCTabFrame):
 						ProblemType.InvalidModule,
 						module_path,
 						Path(module_path.name),
-						"TODO",  # TODO: Mod source
+						"OVERVIEW",
 						f"Module version ({round(struct.unpack('<f', hedr_version)[0], 2)}) is not valid for Fallout 4.",
 						None,
 					),

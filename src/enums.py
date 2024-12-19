@@ -1,6 +1,13 @@
 from enum import Enum, IntEnum, IntFlag, StrEnum
 
 
+class CSIDL(IntEnum):
+	Desktop = 0
+	Documents = 5
+	AppData = 26
+	AppDataLocal = 28
+
+
 class InstallType(StrEnum):
 	OG = "Old-Gen"
 	DG = "Down-Grade"
@@ -61,10 +68,10 @@ class SolutionType(StrEnum):
 	ArchiveOrDeleteFolder = "These folders should either be archived or deleted."
 	DeleteFile = "This file should be deleted."
 	# DeleteFolder = "This folder should be deleted."
-	ConvertDeleteOrIgnoreFile = "If this is not referenced by any plugin's records, it can likely be deleted or ignored."
+	ConvertDeleteOrIgnoreFile = "This file may need to be converted and relevant files updated for the new name.\nOtherwise it can likely be deleted or ignored."
 	DeleteOrIgnoreFile = "It can either be deleted or ignored."
 	DeleteOrIgnoreFolder = "It can either be deleted or ignored."
-	RenameArchive = "Archives must be named the same as a plugin with an added suffix."
+	RenameArchive = "Archives must be named the same as a plugin with an added suffix or added to an INI."
 	DownloadMod = "Download the mod here:"
 	VerifyFiles = (
 		"Verify files with Steam or reinstall the game.\nIf you downgraded the game you will need to do so again afterward."

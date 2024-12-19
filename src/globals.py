@@ -134,6 +134,22 @@ ARCHIVE_NAME_WHITELIST = (
 	"fallout4 - textures8.ba2",
 	"fallout4 - textures9.ba2",
 	"fallout4 - voices.ba2",
+	"dlcultrahighresolution - textures01.ba2",
+	"dlcultrahighresolution - textures02.ba2",
+	"dlcultrahighresolution - textures03.ba2",
+	"dlcultrahighresolution - textures04.ba2",
+	"dlcultrahighresolution - textures05.ba2",
+	"dlcultrahighresolution - textures06.ba2",
+	"dlcultrahighresolution - textures07.ba2",
+	"dlcultrahighresolution - textures08.ba2",
+	"dlcultrahighresolution - textures09.ba2",
+	"dlcultrahighresolution - textures10.ba2",
+	"dlcultrahighresolution - textures11.ba2",
+	"dlcultrahighresolution - textures12.ba2",
+	"dlcultrahighresolution - textures13.ba2",
+	"dlcultrahighresolution - textures14.ba2",
+	"dlcultrahighresolution - textures15.ba2",
+	"dlcultrahighresolution - textures16.ba2",
 )
 
 ABOUT_ARCHIVES_TITLE = "Bethesda Archive (BA2) Formats & Versions"
