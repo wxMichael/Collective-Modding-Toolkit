@@ -226,9 +226,9 @@ TOOLTIP_ADDRESS_LIBRARY_MISSING = "Address Library is required for many F4SE mod
 TOOLTIP_BA2_FORMATS = """General/GNRL/Main: Used for all non-texture files.
 Hard limit of 256, after which the game will crash at the main menu.
 
-Texture/DX10: Used only for textures. No hard limit.
-Functional limit is *likely* also 256, but testing is needed.
-The total cap may be inaccurate for this reason."""
+Texture/DX10: Used only for textures.
+No hard limit, but functional limit is 256, after which the game fails
+to use correct textures."""
 TOOLTIP_UNREADABLE = "Files that could not be read due to permissions, unexpected format, or corruption."
 TOOLTIP_BA2_VERSIONS = """v1 works with all FO4 versions.
 v7/v8 require either BASS or NG.
