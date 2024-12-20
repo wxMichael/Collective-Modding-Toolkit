@@ -102,7 +102,7 @@ class OverviewTab(CMCTabFrame):
 				)
 				tooltip = (
 					"Note: Vortex is not yet fully supported.\n"
-					"Overview should be accurate, but Scanner"
+					"Overview should be accurate but Scanner "
 					"will only look in Data and not your staging folders, "
 					"so it cannot yet identify the source mod for each issue."
 				)

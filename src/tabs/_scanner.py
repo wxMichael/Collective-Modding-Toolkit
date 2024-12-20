@@ -127,7 +127,7 @@ class ScanSettings(dict[ScanSetting, bool]):
 
 		self.manager = side_pane.scanner_tab.cmc.game.manager
 		self.using_stage = side_pane.scanner_tab.using_stage
-		if self.manager:
+		if self.manager and self.manager.name == "Mod Organizer":
 			self.skip_file_suffixes = self.manager.skip_file_suffixes
 			self.skip_directories = IGNORE_FOLDERS.union(self.manager.skip_directories)
 		else:
@@ -382,7 +382,7 @@ class ScannerTab(CMCTabFrame):
 
 	def build_mod_file_list(self, scan_settings: ScanSettings) -> ModFiles:
 		mod_files = ModFiles()
-		if not scan_settings.using_stage or not scan_settings.manager:
+		if not scan_settings.using_stage or not scan_settings.manager or scan_settings.manager.name != "Mod Organizer":
 			return mod_files
 
 		for mod_path in self.get_stage_paths(scan_settings):
