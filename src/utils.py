@@ -124,7 +124,8 @@ def find_mod_manager() -> ModManagerInfo | None:
 			if proc.name() in managers:
 				manager_path = Path(proc.exe())
 				manager = "Mod Organizer" if proc.name() == "ModOrganizer.exe" else "Vortex"
-				manager_version = Version(".".join(str(n) for n in get_file_version(manager_path)[:3]))
+				ver = get_file_version(manager_path)
+				manager_version = Version(".".join(str(n) for n in ver[:3])) if ver else Version("0.0.0")
 				return ModManagerInfo(manager, manager_path, manager_version)
 			proc = proc.parent()
 	return None
@@ -143,8 +144,11 @@ def block_text_input(event: "Event[Text]") -> str | None:
 	return "break"
 
 
-def get_file_version(path: Path) -> tuple[int, int, int, int]:
-	info = win32api.GetFileVersionInfo(str(path), "\\")
+def get_file_version(path: Path) -> tuple[int, int, int, int] | None:
+	try:
+		info = win32api.GetFileVersionInfo(str(path), "\\")
+	except:
+		return None
 	ms = info["FileVersionMS"]
 	ls = info["FileVersionLS"]
 	return (
