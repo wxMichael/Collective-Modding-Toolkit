@@ -98,14 +98,17 @@ class ModManagerInfo:
 				continue
 
 		for name, val in self.mo2_settings.items():
-			if name != "base_directory" and name.endswith(("directory", "Path")):
-				if isinstance(val, str):
-					if "%BASE_DIR%" in val:
-						self.mo2_settings[name] = self.mo2_settings["base_directory"] / val.replace("%BASE_DIR%", "")
-				elif isinstance(val, Path) and val.parts[0] == "%BASE_DIR%":
-					self.mo2_settings[name] = self.mo2_settings["base_directory"] / val.relative_to("%BASE_DIR%")
-			elif name.startswith("skip_"):
-				self.mo2_settings[name] = next(csv.reader((str(val),), doublequote=False, escapechar="\\", skipinitialspace=True))
+			if name != "base_directory":
+				if name.endswith(("directory", "Path")):
+					if isinstance(val, str):
+						if "%BASE_DIR%" in val:
+							self.mo2_settings[name] = self.mo2_settings["base_directory"] / val.replace("%BASE_DIR%", "")
+						else:
+							self.mo2_settings[name] = Path(val)
+					elif isinstance(val, Path) and val.parts[0] == "%BASE_DIR%":
+						self.mo2_settings[name] = self.mo2_settings["base_directory"] / val.relative_to("%BASE_DIR%")
+				elif name.startswith("skip_"):
+					self.mo2_settings[name] = next(csv.reader((str(val),), doublequote=False, escapechar="\\", skipinitialspace=True))
 
 		if self.mo2_settings.get("gameName", "Fallout 4") != "Fallout 4":
 			msg = "Only Fallout 4 is supported."
