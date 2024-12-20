@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1] - 2024-12-20
+
+### Fixed
+
+- #### Scanner
+
+  - Some MO2-specific code was being run when using Vortex.
+
 ## [0.3] - 2024-12-19
 
 ### Added
@@ -117,6 +125,7 @@ It currently only supports `Data/` and MO2's mods folder with basic checks like 
 
 _Initial release._
 
+[0.3.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.3.1
 [0.3]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.3
 [0.2.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.2.1
 [0.2]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.2
