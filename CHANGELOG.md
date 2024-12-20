@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.2] - 2024-12-20
+
+### Fixed
+
+- #### Overview
+
+  - Files with missing version numbers should now show as Unknown instead of erroring.
+
+- #### Scanner
+
+  - Ensure paths read from MO2 settings are converted to Path types.  
+  Should fix `TypeError: unsupported operand type(s) for /: 'str' and 'str'`
+
 ## [0.3.1] - 2024-12-20
 
 ### Changed
