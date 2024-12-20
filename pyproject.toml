@@ -1,11 +1,11 @@
 [project]
 name = "Collective-Modding-Toolkit"
-version = "0.3.1"
+version = "0.3.2"
 requires-python = ">=3.12,<3.13"
 
 [tool.poetry]
 name = "Collective-Modding-Toolkit"
-version = "0.3"
+version = "0.3.2"
 description = "A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the Collective Modding Discord Community."
 authors = ["wxMichael"]
 readme = "README.md"
