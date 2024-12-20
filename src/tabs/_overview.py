@@ -39,7 +39,7 @@ class OverviewTab(CMCTabFrame):
 	def refresh(self) -> None:
 		self.cmc.overview_problems.clear()
 		self.get_info_binaries()
-		self.get_info_modules()
+		self.get_info_modules(refresh=True)
 		self.get_info_archives()
 		self.frame_info_binaries.destroy()
 		self.frame_info_archives.destroy()
@@ -740,7 +740,7 @@ class OverviewTab(CMCTabFrame):
 			else:
 				self.cmc.game.archives_og.add(ba2_file)
 
-	def get_info_modules(self) -> None:
+	def get_info_modules(self, *, refresh: bool = False) -> None:
 		self.cmc.game.reset_modules()
 
 		data_path = self.cmc.game.data_path
@@ -771,10 +771,11 @@ class OverviewTab(CMCTabFrame):
 					SolutionType.VerifyFiles,
 				),
 			)
-			messagebox.showwarning(
-				"Warning",
-				f"{ccc_path.name} not found.\nCC files may not be detected. Verifying Steam files or reinstalling should fix this.",
-			)
+			if not refresh:
+				messagebox.showwarning(
+					"Warning",
+					f"{ccc_path.name} not found.\nCC files may not be detected. Verifying Steam files or reinstalling should fix this.",
+				)
 
 		plugins_path = get_environment_path(CSIDL.AppDataLocal) / "Fallout4\\plugins.txt"
 		try:
@@ -788,10 +789,11 @@ class OverviewTab(CMCTabFrame):
 					"----",
 				),
 			)
-			messagebox.showwarning(
-				"Warning",
-				"plugins.txt not found.\nEnable state of plugins can't be detected.\nCounts will reflect all modules/archives in Data, which is likely higher than your actual counts.",
-			)
+			if not refresh:
+				messagebox.showwarning(
+					"Warning",
+					"plugins.txt not found.\nEnable state of plugins can't be detected.\nCounts will reflect all modules/archives in Data, which is likely higher than your actual counts.",
+				)
 			current_plugins = self.cmc.game.modules_enabled.copy()
 			self.cmc.game.modules_enabled.extend([
 				p for p in data_path.iterdir() if p.suffix.lower() in {".esp", ".esl", ".esm"} and p not in current_plugins
