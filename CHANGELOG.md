@@ -2,6 +2,14 @@
 
 ## [0.3.1] - 2024-12-20
 
+### Changed
+
+- Zip file now has the app in a subfolder named `Tools/CM-Toolkit/` to aid Collections.
+
+- #### Overview
+
+  - Refreshing won't show errors again for `Fallout4.ccc` and `plugins.txt` if missing.
+
 ### Fixed
 
 - #### Scanner
