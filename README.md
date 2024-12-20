@@ -11,6 +11,7 @@ A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpo
 - Provides counts of data files by type; plugins (Full/Light) and BA2 (General and Textures)
 - Patches all BA2 files to either v1 (OG) or v8 (NG)
 - Scans F4SE DLLs for game version support
+- Scans your mod setup for potential issues.
 
 With more features on the way!
 
