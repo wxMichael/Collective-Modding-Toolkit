@@ -116,7 +116,7 @@ def find_mod_manager() -> ModManagerInfo | None:
 	managers = {"ModOrganizer.exe", "Vortex.exe"}
 	manager = None
 
-	for _ in range(4):
+	for _ in range(8):
 		if proc is None:
 			break
 
