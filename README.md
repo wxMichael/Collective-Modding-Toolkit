@@ -16,6 +16,11 @@ A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpo
 
 With more features on the way!
 
+Suggestions and feedback welcome. Features are prioritized based on the needs of the Collective Modding Community.  
+[Join](https://discord.gg/pF9U5FmD6w) and look for the **#cm-toolkit** channel.
+
+[<img src="https://i.postimg.cc/dttk8WxL/CM-External-Banner-01.png">](https://discord.gg/pF9U5FmD6w)
+
 ## Installation
 
 _**Note:** MO2 users, do not install as a mod and run from inside the VFS. This isn't yet supported and currently causes the app to crash._
