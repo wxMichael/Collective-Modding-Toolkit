@@ -31,8 +31,12 @@ _**Note:** MO2 users, do not install as a mod and run from inside the VFS. This 
 
 ## Screenshots
 
-<img width="276" alt="CMT-02" src="https://github.com/user-attachments/assets/0955c576-32d5-4fc1-a373-d23333cc553c">
-<br>
-<img width="351" alt="CMT-03" src="https://github.com/user-attachments/assets/d6c96c61-1085-4dd5-acdb-bdc745673fe8">
-<br>
-<img width="381" alt="CMT-04" src="https://github.com/user-attachments/assets/12d40cab-c7dc-41c3-9f48-bb2f1378d268">
+![01-Overview](https://github.com/user-attachments/assets/cba3539a-2d78-4af2-a19d-eb665ad16e10)
+
+![02-F4SE](https://github.com/user-attachments/assets/b70cb510-411a-42d9-865f-2fc9a1581f02)
+
+![03-Scanner](https://github.com/user-attachments/assets/be135651-4185-4d08-83a2-4b823770b163)
+
+![04-Downgrader](https://github.com/user-attachments/assets/31748675-9759-49ff-91d7-78a00625f505)
+
+![05-ArchivePatcher](https://github.com/user-attachments/assets/3c49478d-5012-457e-8a57-7a153bc276ea)
