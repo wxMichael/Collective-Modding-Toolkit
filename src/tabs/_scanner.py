@@ -153,6 +153,7 @@ class ScannerTab(CMCTabFrame):
 		self.sv_scanning_text = StringVar()
 		self.label_scanning_text: ttk.Label | None = None
 		self.scan_folders: tuple[str, ...] = ("",)
+		self.sv_results_info = StringVar()
 
 		self.func_id_focus: str
 		self.func_id_config: str
@@ -195,38 +196,74 @@ class ScannerTab(CMCTabFrame):
 			return False
 		return True
 
+	def set_expanded(self, *, expanded: bool) -> None:
+		for ch in self.tree_results.get_children():
+			self.tree_results.item(ch, open=expanded)
+
 	def _build_gui(self) -> None:
 		self.grid_columnconfigure(0, weight=1)
-		self.grid_rowconfigure(0, weight=1)
+		self.grid_rowconfigure(0, weight=0)
+		self.grid_rowconfigure(1, weight=1)
+
+		frame_tree_controls = ttk.Frame(self, padding=0)
+		frame_tree_controls.grid(column=0, row=0, columnspan=2, sticky=EW, padx=5, pady=5)
+
+		button_collapse = ttk.Button(
+			frame_tree_controls,
+			text="Collapse All",
+			padding=0,
+			state=NORMAL,
+			command=lambda: self.set_expanded(expanded=False),
+		)
+		button_expand = ttk.Button(
+			frame_tree_controls,
+			text="Expand All",
+			padding=0,
+			state=NORMAL,
+			command=lambda: self.set_expanded(expanded=True),
+		)
+		button_collapse.pack(side=LEFT, anchor=W, padx=(0, 5))
+		button_expand.pack(side=LEFT, anchor=W, padx=(0, 5))
+
+		label_results_info = ttk.Label(
+			frame_tree_controls,
+			textvariable=self.sv_results_info,
+			font=FONT_SMALL,
+			foreground=COLOR_NEUTRAL_2,
+			justify=RIGHT,
+		)
+		label_results_info.pack(side=RIGHT, anchor=E, padx=(0, 5))
 
 		style = ttk.Style(self.cmc.root)
 		style.configure("Treeview", font=FONT_SMALL)
 		if self.using_stage:
-			self.tree_results = ttk.Treeview(self, columns=("problem", "type"), selectmode=NONE)
-			self.tree_results.heading("#0", text="Mod")
-			self.tree_results.heading("problem", text="Problem")
-			self.tree_results.heading("type", text="Type")
-			self.tree_results.column("#0", stretch=True, anchor=W)
-			self.tree_results.column("problem", stretch=True, anchor=W)
-			self.tree_results.column("type", minwidth=50, stretch=False, anchor=W)
-		else:
-			self.tree_results = ttk.Treeview(self, columns=("type",), selectmode=NONE)
+			# self.tree_results = ttk.Treeview(self, columns=("mod", "type"), selectmode=NONE)
+			self.tree_results = ttk.Treeview(self, columns=("mod",), selectmode=NONE, show="tree")
 			self.tree_results.heading("#0", text="Problem")
-			self.tree_results.heading("type", text="Type")
-			self.tree_results.column("#0", minwidth=350, stretch=True, anchor=W)
-			self.tree_results.column("type", minwidth=50, stretch=False, anchor=W)
+			# self.tree_results.heading("mod", text="Mod")
+			# self.tree_results.heading("type", text="Type")
+			self.tree_results.column("#0", minwidth=400, stretch=True, anchor=W)
+			self.tree_results.column("mod", stretch=True, anchor=E)
+			# self.tree_results.column("type", minwidth=50, stretch=False, anchor=W)
+		else:
+			# self.tree_results = ttk.Treeview(self, columns=("type",), selectmode=NONE)
+			self.tree_results = ttk.Treeview(self, selectmode=NONE, show="tree")
+			# self.tree_results.heading("#0", text="Mod")
+			# self.tree_results.heading("type", text="Type")
+			self.tree_results.column("#0", minwidth=400, stretch=True, anchor=W)
+			# self.tree_results.column("type", minwidth=50, stretch=False, anchor=W)
 
 		scroll_results_y = ttk.Scrollbar(
 			self,
 			orient=VERTICAL,
 			command=self.tree_results.yview,  # pyright: ignore[reportUnknownArgumentType]
 		)
-		self.tree_results.grid(column=0, row=0, rowspan=2, sticky=NSEW)
-		scroll_results_y.grid(column=1, row=0, rowspan=2, sticky=NS)
+		self.tree_results.grid(column=0, row=1, rowspan=2, sticky=NSEW)
+		scroll_results_y.grid(column=1, row=1, rowspan=2, sticky=NS)
 		self.tree_results.configure(yscrollcommand=scroll_results_y.set)
 
 		self.progress_bar = ttk.Progressbar(self, variable=self.dv_progress, maximum=100)
-		self.progress_bar.grid(column=0, row=3, columnspan=2, sticky=EW, ipady=1)
+		self.progress_bar.grid(column=0, row=4, columnspan=2, sticky=EW, ipady=1)
 
 	def start_threaded_scan(self) -> None:
 		if self.side_pane is None:
@@ -238,6 +275,7 @@ class ScannerTab(CMCTabFrame):
 		self.tree_results.delete(*self.tree_results.get_children())
 		self.tree_results_data.clear()
 		self.scan_results.clear()
+		self.sv_results_info.set("")
 		if self.details_pane is not None:
 			self.details_pane.destroy()
 			self.details_pane = None
@@ -250,7 +288,7 @@ class ScannerTab(CMCTabFrame):
 				foreground=COLOR_NEUTRAL_2,
 				justify=LEFT,
 			)
-			self.label_scanning_text.grid(column=0, row=2, sticky=EW, padx=5, pady=5)
+			self.label_scanning_text.grid(column=0, row=3, sticky=EW, padx=5, pady=5)
 		self.sv_scanning_text.set("Refreshing Overview...")
 		self.cmc.refresh_tab(Tab.Overview)
 
@@ -305,6 +343,7 @@ class ScannerTab(CMCTabFrame):
 			self.label_scanning_text.destroy()
 			self.label_scanning_text = None
 		self.sv_scanning_text.set("")
+		self.sv_results_info.set(f"{len(self.scan_results)} Results ~ Select an item for details")
 
 		if scan_settings[ScanSetting.OverviewIssues] and self.cmc.overview_problems and scan_settings.mod_files:
 			for problem in self.cmc.overview_problems:
@@ -315,25 +354,31 @@ class ScannerTab(CMCTabFrame):
 				if problem.mod == "OVERVIEW":
 					problem.mod = ""
 
-		for problem_info in sorted(self.scan_results, key=lambda p: p.mod):
-			if isinstance(problem_info, ProblemInfo):
-				if self.using_stage:
-					item_text = problem_info.mod
-					item_values = [problem_info.path.name, problem_info.type]
+		groups = {p.type for p in self.scan_results}
+
+		for group in groups:
+			group_id = self.tree_results.insert("", END, text=group, open=True)
+			for problem_info in sorted(self.scan_results, key=lambda p: p.mod):
+				if problem_info.type != group:
+					continue
+				if isinstance(problem_info, ProblemInfo):
+					if self.using_stage:
+						item_text = problem_info.path.name
+						item_values = [problem_info.mod]
+					else:
+						item_text = problem_info.path.name
+						item_values = []
+
+				# SimpleProblemInfo
+				elif self.using_stage:
+					item_text = problem_info.path
+					item_values = [problem_info.mod]
 				else:
-					item_text = problem_info.path.name
-					item_values = [problem_info.type]
+					item_text = problem_info.path
+					item_values = []
 
-			# SimpleProblemInfo
-			elif self.using_stage:
-				item_text = problem_info.mod
-				item_values = [problem_info.path, problem_info.type]
-			else:
-				item_text = problem_info.path
-				item_values = [problem_info.type]
-
-			item_id = self.tree_results.insert("", END, text=item_text, values=item_values)
-			self.tree_results_data[item_id] = problem_info
+				item_id = self.tree_results.insert(group_id, END, text=item_text, values=item_values)
+				self.tree_results_data[item_id] = problem_info
 
 		self.side_pane.button_scan.configure(state=NORMAL, text="Scan Game")
 		self.tree_results.bind("<<TreeviewSelect>>", self.on_row_select)
@@ -343,10 +388,11 @@ class ScannerTab(CMCTabFrame):
 		if not _event.widget.selection():
 			return
 
-		if self.details_pane is None:
-			self.details_pane = ResultDetailsPane(self)
 		selection = self.tree_results.selection()[0]
-		self.details_pane.set_info(self.tree_results_data[selection], using_stage=self.using_stage)
+		if selection in self.tree_results_data:
+			if self.details_pane is None:
+				self.details_pane = ResultDetailsPane(self)
+			self.details_pane.set_info(self.tree_results_data[selection], using_stage=self.using_stage)
 
 	def get_stage_paths(self, scan_settings: ScanSettings) -> list[Path]:
 		manager = scan_settings.manager
