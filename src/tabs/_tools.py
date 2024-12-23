@@ -84,6 +84,11 @@ class ToolsTab(CMCTabFrame):
 					"https://www.nexusmods.com/fallout4/mods/69978",
 					"Scripts to find precombine/previs (flickering/occlusion) errors in your mod list, and optionally generate a patch to fix those problems.",
 				),
+				(
+					"DDS Texture Scanner",
+					"https://www.nexusmods.com/fallout4/mods/71588",
+					"Sniff out textures that might CTD your game. With BA2 support.\nDiscord channel: #nistonmakemod",
+				),
 			),
 			"Other Useful Tools": (
 				(
@@ -100,11 +105,6 @@ class ToolsTab(CMCTabFrame):
 					"Cathedral Assets\nOptimizer (CAO)",
 					"https://www.nexusmods.com/skyrimspecialedition/mods/23316",
 					"An automation tool used to optimize BSAs, meshes, textures and animations.",
-				),
-				(
-					"DDS Texture Scanner",
-					"https://www.nexusmods.com/fallout4/mods/71588",
-					"Sniff out textures that might CTD your game. With BA2 support.\nDiscord channel: #nistonmakemod",
 				),
 				(
 					"Unpackrr",
