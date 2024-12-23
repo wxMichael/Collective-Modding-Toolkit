@@ -67,17 +67,17 @@ class ToolsTab(CMCTabFrame):
 				(
 					"Bethini Pie",
 					"https://www.nexusmods.com/site/mods/631",
-					"Bethini Pie (Performance INI Editor) makes editing INI config files simple.",
+					"Bethini Pie (Performance INI Editor) makes editing INI config files simple.\nDiscord channel: #bethini-doubleyou-etc",
 				),
 				(
 					"CLASSIC Crash Log Scanner",
 					"https://www.nexusmods.com/fallout4/mods/56255",
-					"Scans Buffout crash logs for key indicators of crashes.\nYou can also post crash logs to the CM Discord for assistance.",
+					"Scans Buffout crash logs for key indicators of crashes.\nYou can also post crash logs to the CM Discord for assistance.\nDiscord channel: #fo4-crash-logs",
 				),
 				(
 					"  Vault-Tec Enhanced\nFaceGen System (VEFS)",
 					"https://www.nexusmods.com/fallout4/mods/86374",
-					"Automates the process of generating FaceGen models and textures with xEdit/CK.",
+					"Automates the process of generating FaceGen models and textures with xEdit/CK.\nDiscord channel: #bethini-doubleyou-etc",
 				),
 				(
 					"PJM's Precombine/Previs\n    Patching Scripts",
@@ -104,7 +104,7 @@ class ToolsTab(CMCTabFrame):
 				(
 					"DDS Texture Scanner",
 					"https://www.nexusmods.com/fallout4/mods/71588",
-					"Sniff out textures that might CTD your game. With BA2 support.",
+					"Sniff out textures that might CTD your game. With BA2 support.\nDiscord channel: #nistonmakemod",
 				),
 				(
 					"Unpackrr",
