@@ -587,7 +587,7 @@ class ScannerTab(CMCTabFrame):
 					)
 					continue
 
-				if data_root_lower == "scripts":  # noqa: SIM102
+				if data_root_lower == "scripts" and current_path.parent == data_path:  # noqa: SIM102
 					if mod_name_file is not None and scan_settings[ScanSetting.ProblemOverrides] and file_lower in F4SE_CRC:
 						problems.append(
 							ProblemInfo(
@@ -595,8 +595,8 @@ class ScannerTab(CMCTabFrame):
 								stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
 								file_path_relative,
 								mod_name_file,
-								"This is an override of an F4SE script. This could break F4SE if they aren't the\nsame version.",
-								SolutionType.DeleteFile,
+								"This is an override of an F4SE script. This could break F4SE if they aren't the\nsame version or this mod isn't intended to override F4SE files.",
+								"Check if this mod is supposed to override F4SE Scripts.\nIf this is a script extender/library or requires one, this is likely intentional but it must support your game version explicitly.\nOtherwise, this file may need to be deleted.",
 							),
 						)
 						continue
