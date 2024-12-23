@@ -129,8 +129,16 @@ class ArchivePatcher(PatcherBase):
 					f.seek(4)
 					f.write(new_bytes)
 
+			except FileNotFoundError:
+				self.logger.log_message(LogType.Bad, f"Failed patching (File Not Found): {ba2_file.name}")
+				failed += 1
+
+			except PermissionError:
+				self.logger.log_message(LogType.Bad, f"Failed patching (Permissions/In-Use): {ba2_file.name}")
+				failed += 1
+
 			except OSError:
-				self.logger.log_message(LogType.Bad, f"Failed patching: {ba2_file.name}")
+				self.logger.log_message(LogType.Bad, f"Failed patching (Unknown OS Error): {ba2_file.name}")
 				failed += 1
 
 			else:
