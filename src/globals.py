@@ -171,8 +171,8 @@ ABOUT_ARCHIVES = """There are 2 formats and 3 versions for Fallout 4 BA2 files:
 • General (GNRL)
 • Textures (DX10)
 
-• v1: FO4 v1.10.163 and earlier
-• v7/8: FO4 v1.10.980 and later
+• v1: Required by FO4 v1.10.163 and earlier. Works in all versions.
+• v7/8: Only supported in FO4 v1.10.980 and later.
 
 It's suspected there are format differences between versions for XBox/PS, but for PC the only difference is the number itself.
 v7/8 are identical so this tool only patches to v1 & v8.
