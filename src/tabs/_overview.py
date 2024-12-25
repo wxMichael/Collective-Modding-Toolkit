@@ -596,7 +596,7 @@ class OverviewTab(CMCTabFrame):
 				if self.cmc.game.data_path is not None and self.cmc.game.is_foog():
 					startup_name = Path("Fallout4 - Startup.ba2")
 					startup_ba2 = self.cmc.game.data_path / startup_name
-					if is_file(startup_ba2) or True:
+					if is_file(startup_ba2):
 						startup_crc = get_crc32(startup_ba2, skip_ba2_header=True)
 						if startup_crc == NG_STARTUP_BA2_CRC:
 							self.cmc.game.install_type = InstallType.DG
