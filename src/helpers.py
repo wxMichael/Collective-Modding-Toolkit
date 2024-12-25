@@ -5,12 +5,10 @@ from tkinter import ttk
 from typing import TYPE_CHECKING, NotRequired, TypedDict, final
 
 from enums import InstallType, ProblemType, SolutionType, Tab
-from globals import FONT_LARGE
+from globals import COLOR_BAD, FONT_LARGE
 
 if TYPE_CHECKING:
 	from game_info import GameInfo
-
-COLOR_BAD = "firebrick1"
 
 
 class CMCheckerInterface(ABC):
@@ -118,7 +116,9 @@ class ProblemInfo:
 		relative_path: Path,
 		mod: str | None,
 		summary: str,
-		solution: SolutionType | None,
+		solution: SolutionType | str | None,
+		*,
+		file_list: list[tuple[int, Path]] | None = None,
 		extra_data: list[str] | None = None,
 	) -> None:
 		self.type = problem
@@ -127,11 +127,21 @@ class ProblemInfo:
 		self.mod = mod or ("<Unmanaged>" if problem != ProblemType.FileNotFound else "")
 		self.summary = summary
 		self.solution = solution
+		self.file_list = file_list
 		self.extra_data = extra_data
 
 
 class SimpleProblemInfo:
-	def __init__(self, path: str, problem: str, summary: str, solution: str, extra_data: list[str] | None = None) -> None:
+	def __init__(
+		self,
+		path: str,
+		problem: str,
+		summary: str,
+		solution: str,
+		*,
+		file_list: list[tuple[int, Path]] | None = None,
+		extra_data: list[str] | None = None,
+	) -> None:
 		self.path = path
 		self.problem = problem
 		self.summary = summary
@@ -139,6 +149,7 @@ class SimpleProblemInfo:
 		self.type = problem
 		self.relative_path = path
 		self.mod = ""
+		self.file_list = file_list
 		self.extra_data = extra_data
 
 
@@ -150,11 +161,11 @@ class Stderr:
 
 	def create_window(self) -> None:
 		if not self.error_window:
-			self.error_window = Toplevel(self.root, width=900, height=700)
+			self.error_window = Toplevel(self.root)
 			self.error_window.wm_title("An Error Occurred")
 			self.error_window.wm_protocol("WM_DELETE_WINDOW", self.on_close)
-			self.txt = Text(self.error_window)
-			self.txt.pack()
+			self.txt = Text(self.error_window, width=120, height=25)
+			self.txt.pack(expand=True, fill=BOTH)
 
 	def write(self, string: str) -> int:
 		self.create_window()

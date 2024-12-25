@@ -1,4 +1,6 @@
+import operator
 from abc import ABC
+from pathlib import Path
 from tkinter import *
 from tkinter import ttk
 from typing import final
@@ -81,3 +83,80 @@ class AboutWindow(ModalWindow):
 			width=self.win_width // 2,
 		)
 		self.button_close.grid(row=1, padx=10, pady=10)
+
+
+class TreeWindow(ModalWindow):
+	def __init__(
+		self,
+		parent: Wm,
+		cmc: CMCheckerInterface,
+		width: int,
+		height: int,
+		title: str,
+		text: str,
+		headers: tuple[str, str],
+		items: list[tuple[int, Path]] | None,
+	) -> None:
+		super().__init__(parent, cmc, title, width, height)
+		self.win_title = title
+		self.win_text = text
+		self.win_width = width
+		self.headers = headers
+		self.items = items
+		self.build_gui()
+		self.bind("<space>", self._ungrab_and_destroy)
+
+	def build_gui(self) -> None:
+		self.grid_columnconfigure(0, weight=1)
+		self.grid_columnconfigure(1, weight=0)
+		self.grid_rowconfigure(0, weight=0)
+		self.grid_rowconfigure(1, weight=1)
+		self.grid_rowconfigure(2, weight=0)
+
+		label_about = ttk.Label(
+			self,
+			text=self.win_text,
+			font=FONT_SMALL,
+			justify=LEFT,
+			anchor=W,
+			wraplength=self.win_width,
+		)
+		label_about.grid(column=0, row=0, columnspan=2, sticky=NSEW, padx=10, pady=10)
+
+		columns = tuple(f"#{i}" for i in range(1, len(self.items[0]) if self.items else 2))
+		self.tree_items = ttk.Treeview(
+			self,
+			columns=columns,
+			selectmode=NONE,
+			show="tree headings" if self.headers else "tree",
+			padding=1,
+		)
+		scroll_items_y = ttk.Scrollbar(
+			self,
+			orient=VERTICAL,
+			command=self.tree_items.yview,  # pyright: ignore[reportUnknownArgumentType]
+		)
+
+		for c, title in enumerate(self.headers):
+			self.tree_items.heading(f"#{c}", text=title, anchor=W if c else CENTER)
+
+		self.tree_items.grid(column=0, row=1, sticky=NSEW)
+		scroll_items_y.grid(column=1, row=1, sticky=NS)
+		self.tree_items.configure(yscrollcommand=scroll_items_y.set)
+
+		self.button_close = ttk.Button(
+			self,
+			text="Close",
+			command=self._ungrab_and_destroy,
+			width=self.win_width // 2,
+		)
+		self.button_close.grid(column=0, row=2, columnspan=2, padx=10, pady=10)
+
+		self.tree_items.column("#0", width=60, stretch=False, anchor=W)
+		if self.items:
+			for col in columns:
+				self.tree_items.column(col, stretch=True, anchor=W)
+			for item in sorted(self.items, key=operator.itemgetter(0), reverse=True):
+				self.tree_items.insert("", END, text=f"{item[0]: 3}", values=(item[1].name,))
+		else:
+			self.tree_items.insert("", END, text="No items to display.")

@@ -12,6 +12,7 @@ from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 from enums import ProblemType, SolutionType, Tab
 from globals import *
 from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SimpleProblemInfo
+from modal_window import TreeWindow
 from utils import copy_text, exists, is_dir, is_file
 
 IGNORE_FOLDERS = {
@@ -88,6 +89,7 @@ class ScanSetting(Enum):
 	LoosePrevis = ("Loose Previs", TOOLTIP_SCAN_PREVIS)
 	JunkFiles = ("Junk Files", TOOLTIP_SCAN_JUNK)
 	ProblemOverrides = ("Problem Overrides", TOOLTIP_SCAN_BAD_OVERRIDES)
+	RaceSubgraphs = ("Race Subgraphs", TOOLTIP_SCAN_RACE_SUBGRAPHS)
 
 	DDSChecks = ("DDS Checks", TOOLTIP_SCAN_DDS)
 	BA2Content = ("BA2 Contents", TOOLTIP_SCAN_BA2)
@@ -146,7 +148,7 @@ class ScannerTab(CMCTabFrame):
 		self.details_pane: ResultDetailsPane | None = None
 
 		self.scan_results: list[ProblemInfo | SimpleProblemInfo] = []
-		self.queue_progress: queue.Queue[str | tuple[str, ...] | list[ProblemInfo]] = queue.Queue()
+		self.queue_progress: queue.Queue[str | tuple[str, ...] | list[ProblemInfo | SimpleProblemInfo]] = queue.Queue()
 		self.thread_scan: threading.Thread | None = None
 		self.dv_progress = DoubleVar()
 		self.progress_check_delay = 100
@@ -384,17 +386,19 @@ class ScannerTab(CMCTabFrame):
 		self.tree_results.bind("<<TreeviewSelect>>", self.on_row_select)
 		self.tree_results.configure(selectmode=BROWSE)
 
-	def on_row_select(self, _event: "Event[ttk.Treeview]") -> None:
+	def on_row_select(self, _event: "Event[ttk.Treeview]") -> bool:
 		if not _event.widget.selection():
-			return
+			return False
 
 		selection = self.tree_results.selection()[0]
 		if selection in self.tree_results_data:
 			if self.details_pane is None:
 				self.details_pane = ResultDetailsPane(self)
 			self.details_pane.set_info(self.tree_results_data[selection], using_stage=self.using_stage)
+			return True
+		return False
 
-	def get_stage_paths(self, scan_settings: ScanSettings) -> list[Path]:
+	def get_stage_paths(self, scan_settings: ScanSettings) -> list[Path]:  # noqa: PLR6301
 		manager = scan_settings.manager
 		if not (manager and manager.stage_path and manager.profiles_path and manager.selected_profile and manager.overwrite_path):
 			msg = (
@@ -467,7 +471,7 @@ class ScannerTab(CMCTabFrame):
 		return mod_files
 
 	def scan_data_files(self, scan_settings: ScanSettings) -> None:
-		problems: list[ProblemInfo] = []
+		problems: list[ProblemInfo | SimpleProblemInfo] = []
 
 		data_path = self.cmc.game.data_path
 		if data_path is None:
@@ -479,6 +483,31 @@ class ScannerTab(CMCTabFrame):
 			stage_path = scan_settings.manager.stage_path
 
 		mod_files = self.build_mod_file_list(scan_settings)
+
+		if scan_settings[ScanSetting.RaceSubgraphs]:
+			sadd_modules: list[tuple[int, Path]] = []
+			sadd_total = 0
+			sadd_bytes = b"\x00\x53\x41\x44\x44"
+			for module_path in self.cmc.game.modules_enabled:
+				try:
+					module_bytes = module_path.read_bytes()
+				except OSError:
+					continue
+				sadd_count = module_bytes.count(sadd_bytes)
+				if sadd_count:
+					sadd_modules.append((sadd_count, module_path))
+					sadd_total += sadd_count
+
+			if sadd_modules:
+				problems.append(
+					SimpleProblemInfo(
+						f"{sadd_total} SADD Records from {len(sadd_modules)} modules",
+						"Race Subgraph Record Count",
+						TOOLTIP_SCAN_RACE_SUBGRAPHS,
+						"Removing some of these mods should alleviate performance issues.\nMerging them may also help reduce stutter.",
+						file_list=sadd_modules,
+					),
+				)
 
 		data_root_lower = "Data"
 		for current_path, folders, files in data_path.walk(top_down=True):
@@ -654,7 +683,7 @@ class ScannerTab(CMCTabFrame):
 									mod_name_file,
 									"This is not a valid archive name and won't be loaded by the game.",
 									SolutionType.RenameArchive,
-									[
+									extra_data=[
 										f"\nValid Suffixes: {', '.join(self.cmc.game.ba2_suffixes)}",
 										f"Example: {ba2_name_split[0]} - Main.ba2",
 									],
@@ -754,8 +783,10 @@ class ResultDetailsPane(Toplevel):
 		self.label_solution: ttk.Label
 		self.tooltip_file_path: ToolTip | None = None
 		self.tooltip_solution: ToolTip | None = None
+		self.button_files: ttk.Button | None = None
 
 		self.grid_columnconfigure(1, weight=1)
+		self.grid_columnconfigure(2, weight=1)
 
 		start_row = 0
 		if scanner_tab.cmc.game.manager and scanner_tab.cmc.game.manager.stage_path:
@@ -822,6 +853,9 @@ class ResultDetailsPane(Toplevel):
 
 		self.bind("<FocusIn>", self.on_focus)
 
+		self.frame_buttons = ttk.Frame(self)
+		self.frame_buttons.grid(column=2, row=0, rowspan=10, sticky=NSEW)
+
 	def set_info(self, problem_info: ProblemInfo | SimpleProblemInfo, *, using_stage: bool) -> None:
 		self.problem_info = problem_info
 		if using_stage:
@@ -874,6 +908,28 @@ class ResultDetailsPane(Toplevel):
 			if self.tooltip_solution:
 				self.tooltip_solution.destroy()
 				self.tooltip_solution = None
+
+		if self.button_files:
+			self.button_files.destroy()
+			self.button_files = None
+
+		if problem_info.file_list:
+			self.button_files = ttk.Button(
+				self.frame_buttons,
+				text="File List",
+				command=lambda: TreeWindow(
+					self.scanner_tab.cmc.root,
+					self.scanner_tab.cmc,
+					400,
+					500,
+					"Race Animation Subgraph Records",
+					TOOLTIP_SCAN_RACE_SUBGRAPHS.replace("\n", " ").replace(". ", ".\n", 1),
+					("Records", " Module"),
+					problem_info.file_list,
+				),
+				padding=(0, 5),
+			)
+			self.button_files.pack(side=TOP, anchor=E, fill=X, padx=5, pady=(5, 0))
 
 	def on_focus(self, _event: "Event[Misc]") -> None:
 		self.scanner_tab.cmc.root.tkraise()

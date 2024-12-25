@@ -516,7 +516,7 @@ class OverviewTab(CMCTabFrame):
 						"Limit Exceeded",
 						f"You have {num} {file_format} {file_type}s enabled. The limit is {limit}.",
 						solution,
-						extra_data,
+						extra_data=extra_data,
 					),
 				)
 
@@ -589,7 +589,7 @@ class OverviewTab(CMCTabFrame):
 								None,
 								"Address Library is a requirement for many F4SE mods and playing downgraded,\nand likely needs to be installed.",
 								SolutionType.DownloadMod,
-								["https://www.nexusmods.com/fallout4/mods/47327"],
+								extra_data=["https://www.nexusmods.com/fallout4/mods/47327"],
 							),
 						)
 
