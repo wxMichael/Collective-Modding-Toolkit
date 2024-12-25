@@ -12,7 +12,7 @@ from helpers import (
 )
 from utils import (
 	check_for_update_github,
-	# check_for_update_nexus,
+	check_for_update_nexus,
 	get_asset_path,
 )
 
@@ -52,7 +52,7 @@ class CMChecker(CMCheckerInterface):
 		self.root.wm_geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x}+{y}")
 		self.root.grid_columnconfigure(0, weight=1)
 
-		nexus_version = None  # check_for_update_nexus()
+		nexus_version = check_for_update_nexus()
 		github_version = check_for_update_github()
 		if nexus_version or github_version:
 			update_frame = ttk.Frame(self.root)
