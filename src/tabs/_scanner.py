@@ -490,7 +490,7 @@ class ScannerTab(CMCTabFrame):
 					sadd_modules.append((sadd_count, module_path))
 					sadd_total += sadd_count
 
-			if sadd_modules:
+			if sadd_total > RACE_SUBGRAPH_THRESHOLD:
 				problems.append(
 					SimpleProblemInfo(
 						f"{sadd_total} SADD Records from {len(sadd_modules)} modules",
