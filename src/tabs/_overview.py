@@ -587,7 +587,10 @@ class OverviewTab(CMCTabFrame):
 				version = get_crc32(file_path)
 			else:
 				ver = get_file_version(file_path)
-				version = ver_to_str(ver) if ver else "NO VERSION"
+				if ver is None and BASE_FILES[file_name].get("UseHashFallback", False):
+					version = get_crc32(file_path)
+				else:
+					version = ver_to_str(ver) if ver else "NO VERSION"
 
 			self.cmc.game.file_info[file_path.name] = {
 				"File": file_path,

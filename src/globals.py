@@ -64,6 +64,7 @@ RACE_SUBGRAPH_THRESHOLD = 100
 class BaseGameFile(TypedDict):
 	OnlyOG: NotRequired[bool]
 	UseHash: NotRequired[bool]
+	UseHashFallback: NotRequired[bool]
 	Versions: dict[str, InstallType]
 
 
@@ -83,9 +84,11 @@ BASE_FILES: dict[str, BaseGameFile] = {
 		},
 	},
 	"steam_api64.dll": {
+		"UseHashFallback": True,
 		"Versions": {
 			"2.89.45.4": InstallType.OG,
 			"7.40.51.27": InstallType.NG,
+			"BD3AA35F": InstallType.OG,  # GOG
 		},
 	},
 	"f4se_loader.exe": {
