@@ -3,6 +3,7 @@ import re
 import sys
 import winreg
 from abc import ABC, abstractmethod
+from ctypes import windll
 from pathlib import Path
 from tkinter import *
 from tkinter import ttk
@@ -39,7 +40,8 @@ os_versions = {
 
 class PCInfo:
 	def __init__(self) -> None:
-		self.os = self._get_os()
+		self.using_wine = hasattr(windll.ntdll, "wine_get_version")
+		self.os = self._get_os() if not self.using_wine else "Linux (WINE)"
 		self.ram = self._get_ram()
 		self.cpu = self._get_cpu()
 		self.gpu, self.vram = self._get_gpu()
