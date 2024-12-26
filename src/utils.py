@@ -8,7 +8,7 @@ from ctypes import WinDLL, byref, c_int, create_unicode_buffer, sizeof, windll, 
 from pathlib import Path
 from tkinter import *
 from tkinter import ttk
-from typing import Literal, overload
+from typing import TYPE_CHECKING, Literal, overload
 
 import requests
 import win32api
@@ -269,17 +269,19 @@ def set_theme(win: Tk) -> None:
 
 def check_for_update_nexus() -> str | None:
 	try:
-		response = requests.get(NEXUS_LINK, timeout=10, stream=True)
+		response = requests.get(NEXUS_LINK, timeout=5, stream=True)
 		if response.status_code == HTTP_OK:
 			use_next = False
 			version_line = None
 			for line in response.iter_lines(decode_unicode=True):
+				if TYPE_CHECKING:
+					assert isinstance(line, str)
 				if use_next:
-					version_line = str(line).rsplit('"', 2)
+					version_line = line.rsplit('"', 2)
 					response.close()
 					break
 
-				if line.startswith('<meta property="twitter:label1" content="Version"'):
+				if line.lstrip().startswith('<meta property="twitter:label1" content="Version"'):
 					use_next = True
 					continue
 
@@ -301,7 +303,7 @@ def check_for_update_github() -> str | None:
 		"X-GitHub-Api-Version": "2022-11-28",
 	}
 	try:
-		response = requests.get(url, headers=headers, timeout=10)
+		response = requests.get(url, headers=headers, timeout=5)
 	except requests.RequestException:
 		return None
 
