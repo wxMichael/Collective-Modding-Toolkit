@@ -1,14 +1,100 @@
+import platform
+import re
+import sys
+import winreg
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tkinter import *
 from tkinter import ttk
 from typing import TYPE_CHECKING, NotRequired, TypedDict, final
 
+import psutil
+
 from enums import InstallType, ProblemType, SolutionType, Tab
 from globals import COLOR_BAD, FONT_LARGE
 
 if TYPE_CHECKING:
+	import psutil._pswindows as pswin
+
 	from game_info import GameInfo
+
+
+pattern_cpu = re.compile(r"(?:\d+(?:th|rd|nd) Gen| ?Processor| ?CPU|\d*[- ]Core|\(TM\)|\(R\))")
+pattern_whitespace = re.compile(r"\s+")
+
+os_versions = {
+	"18362": "1903",
+	"18363": "1909",
+	"19041": "2004",
+	"19042": "20H2",
+	"19043": "21H1",
+	"19044": "21H2",
+	"19045": "22H2",
+	"22000": "21H2",
+	"22621": "22H2",
+	"22631": "23H2",
+	"26100": "24H2",
+}
+
+
+class PCInfo:
+	def __init__(self) -> None:
+		self.os = self._get_os()
+		self.ram = self._get_ram()
+		self.cpu = self._get_cpu()
+		self.gpu, self.vram = self._get_gpu()
+
+	@staticmethod
+	def _get_os() -> str:
+		os = platform.system()
+		release = platform.release()
+		version = os_versions.get(str(sys.getwindowsversion().build), "") if os == "Windows" else ""
+		return f"{os} {release} {version}"
+
+	@staticmethod
+	def _get_ram() -> int:
+		mem: pswin.svmem = psutil.virtual_memory()  # type: ignore[reportUnknownVariableType]
+		if TYPE_CHECKING:
+			assert isinstance(mem, pswin.svmem)
+		return round(mem.total / 1024**3)
+
+	@staticmethod
+	def _get_cpu() -> str:
+		cpu_model = "Unknown CPU"
+		try:
+			with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, R"Hardware\Description\System\CentralProcessor\0") as key:
+				model, value_type = winreg.QueryValueEx(key, "ProcessorNameString")
+			if value_type == winreg.REG_SZ and isinstance(model, str):
+				cpu_model = model
+		except OSError as e:
+			sys.stderr.write(f"get_cpu() Error: {e}")
+		else:
+			if "Intel" in cpu_model and not cpu_model.startswith("Intel"):
+				cpu_model = f"Intel {cpu_model.replace('Intel', '')}"
+			cpu_model = pattern_cpu.sub("", cpu_model)
+			cpu_model = pattern_whitespace.sub(" ", cpu_model)
+			cpu_model = cpu_model.rsplit("@", 1)[0].strip()
+		return cpu_model
+
+	@staticmethod
+	def _get_gpu() -> tuple[str, int]:
+		gpu_model = "Unknown GPU"
+		gpu_memory = 0
+		try:
+			with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, R"HARDWARE\DEVICEMAP\VIDEO") as key:
+				video_device, value_type = winreg.QueryValueEx(key, R"\Device\Video0")
+			if value_type == winreg.REG_SZ and isinstance(video_device, str):
+				video_device = video_device.removeprefix("\\Registry\\Machine\\")
+				with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, video_device) as key:
+					model, value_type_1 = winreg.QueryValueEx(key, "HardwareInformation.AdapterString")
+					memory, value_type_2 = winreg.QueryValueEx(key, "HardwareInformation.qwMemorySize")
+				if value_type_1 == winreg.REG_SZ and isinstance(model, str):
+					gpu_model = model.strip()
+				if value_type_2 == winreg.REG_QWORD and isinstance(memory, int):
+					gpu_memory = round(memory / 1024**3)
+		except OSError as e:
+			sys.stderr.write(f"get_gpu() Error: {e}")
+		return gpu_model, gpu_memory
 
 
 class CMCheckerInterface(ABC):
@@ -16,7 +102,10 @@ class CMCheckerInterface(ABC):
 		self.root: Tk
 		self.install_type_sv: StringVar
 		self.game_path_sv: StringVar
+		self.specs_sv_1: StringVar
+		self.specs_sv_2: StringVar
 		self.game: GameInfo
+		self.pc: PCInfo
 		self.overview_problems: list[ProblemInfo | SimpleProblemInfo]
 
 	@abstractmethod

@@ -51,15 +51,15 @@ class OverviewTab(CMCTabFrame):
 	def _build_gui(self) -> None:
 		frame_top = ttk.Frame(self)
 		frame_top.pack(anchor=W, fill=X, pady=5)
-		frame_top.grid_columnconfigure(index=2, weight=1)
+		frame_top.grid_columnconfigure(2, weight=1)
 
 		ttk.Label(
 			frame_top,
-			text="Mod Manager:\nGame Path:\nVersion:",
+			text="Mod Manager:\nGame Path:\nVersion:\nPC Specs:\n",
 			font=FONT,
 			justify=RIGHT,
 			foreground=COLOR_DEFAULT,
-		).grid(column=0, row=0, rowspan=3, sticky=E, padx=5)
+		).grid(column=0, row=0, rowspan=4, sticky=E, padx=5)
 
 		manager = self.cmc.game.manager
 		if manager:
@@ -138,6 +138,23 @@ class OverviewTab(CMCTabFrame):
 			font=FONT,
 			foreground=COLOR_GOOD,
 		).grid(column=2, row=2, sticky=W)
+
+		frame_specs = ttk.Frame(frame_top)
+		frame_specs.grid(column=2, row=3, sticky=NSEW)
+
+		ttk.Label(
+			frame_specs,
+			textvariable=self.cmc.specs_sv_1,
+			font=FONT,
+			foreground=COLOR_NEUTRAL_2,
+		).grid(column=0, row=0, sticky=W)
+
+		ttk.Label(
+			frame_specs,
+			textvariable=self.cmc.specs_sv_2,
+			font=FONT,
+			foreground=COLOR_NEUTRAL_2,
+		).grid(column=1, row=0, sticky=W, padx=(30, 0))
 
 		button_refresh = ttk.Button(
 			frame_top,

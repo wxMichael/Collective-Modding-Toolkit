@@ -9,6 +9,7 @@ from globals import *
 from helpers import (
 	CMCheckerInterface,
 	CMCTabFrame,
+	PCInfo,
 )
 from utils import (
 	check_for_update_github,
@@ -20,8 +21,11 @@ from utils import (
 class CMChecker(CMCheckerInterface):
 	def __init__(self, root: Tk) -> None:
 		self.root = root
+		self.pc = PCInfo()
 		self.install_type_sv = StringVar()
 		self.game_path_sv = StringVar()
+		self.specs_sv_1 = StringVar(value=f"{self.pc.os}\n{self.pc.ram}GB RAM")
+		self.specs_sv_2 = StringVar(value=f"{self.pc.cpu}\n{self.pc.gpu} {self.pc.vram}GB")
 		self._images: dict[str, PhotoImage] = {}
 		self.game = GameInfo(self.install_type_sv, self.game_path_sv)
 		self.current_tab: CMCTabFrame | None = None
