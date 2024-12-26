@@ -3,7 +3,7 @@ from typing import NotRequired, TypedDict
 from enums import InstallType
 
 APP_TITLE = "Collective Modding Toolkit"
-APP_VERSION = "0.3.2"
+APP_VERSION = "0.4.0"
 
 MAX_MODULES_FULL = 254
 MAX_MODULES_LIGHT = 4096
