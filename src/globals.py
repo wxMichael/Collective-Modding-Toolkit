@@ -59,6 +59,7 @@ FONT_SMALL = ("Cascadia Mono", 10)
 FONT = ("Cascadia Mono", 12)
 FONT_LARGE = ("Cascadia Mono", 20)
 
+RACE_SUBGRAPH_THRESHOLD = 100
 
 class BaseGameFile(TypedDict):
 	OnlyOG: NotRequired[bool]
@@ -260,9 +261,13 @@ TOOLTIP_SCAN_JUNK = """Report junk files such as desktop.ini, Thumbs.db,
 and leftover fomod folders."""
 TOOLTIP_SCAN_BAD_OVERRIDES = """Detect overrides that typically cause issues
 such as outdated F4SE script files or loose AnimTextData folders."""
-TOOLTIP_SCAN_RACE_SUBGRAPHS = """Counts the number of added race animation subgraph records (RACE \\ SADD).
+INFO_SCAN_RACE_SUBGRAPHS = """Counts the number of added race animation subgraph records (RACE \\ SADD).
 Depending on your PC, adding too many of these may result in stutter
 when loading Cells."""
+TOOLTIP_SCAN_RACE_SUBGRAPHS = f"""{INFO_SCAN_RACE_SUBGRAPHS}
+
+Base Game Count: 37
+Warning Threshold: {RACE_SUBGRAPH_THRESHOLD}"""
 
 TOOLTIP_SCAN_DDS = "Check dimensions and formats of DDS files for issues."
 TOOLTIP_SCAN_BA2 = "Scan inside BA2 archives.\nNote: Checks may be limited for compressed archives."

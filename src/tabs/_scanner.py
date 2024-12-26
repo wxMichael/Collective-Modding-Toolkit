@@ -117,15 +117,15 @@ class ScanSettings(dict[ScanSetting, bool]):
 	def __init__(self, side_pane: "SidePane") -> None:
 		super().__init__()
 
-		self.overview_only = True
+		self.skip_data_scan = True
 		self.mod_files: ModFiles | None = None
+
+		non_data = {ScanSetting.OverviewIssues, ScanSetting.RaceSubgraphs}
 
 		for setting in ScanSetting:
 			self[setting] = side_pane.bool_vars[setting].get()
-			if setting == ScanSetting.OverviewIssues:
-				self.overview_only = self.overview_only and self[ScanSetting.OverviewIssues]
-			else:
-				self.overview_only = self.overview_only and not self[setting]
+			if self[setting] and setting not in non_data:
+				self.skip_data_scan = False
 
 		self.manager = side_pane.scanner_tab.cmc.game.manager
 		self.using_stage = side_pane.scanner_tab.using_stage
@@ -297,15 +297,12 @@ class ScannerTab(CMCTabFrame):
 		scan_settings = ScanSettings(self.side_pane)
 		if scan_settings[ScanSetting.OverviewIssues] and self.cmc.overview_problems:
 			self.scan_results.extend(self.cmc.overview_problems)
-		if scan_settings.overview_only:
-			self.dv_progress.set(100)
-			self.populate_results(scan_settings)
-		else:
-			self.dv_progress.set(1)
+		self.dv_progress.set(1)
+		if not scan_settings.skip_data_scan:
 			self.sv_scanning_text.set("Building mod file index...")
-			self.thread_scan = threading.Thread(target=self.scan_data_files, args=(scan_settings,))
-			self.thread_scan.start()
-			self.cmc.root.after(self.progress_check_delay, self.check_scan_progress, scan_settings)
+		self.thread_scan = threading.Thread(target=self.scan_data_files, args=(scan_settings,))
+		self.thread_scan.start()
+		self.cmc.root.after(self.progress_check_delay, self.check_scan_progress, scan_settings)
 
 	def check_scan_progress(self, scan_settings: ScanSettings) -> None:
 		while self.queue_progress.qsize():
@@ -360,7 +357,7 @@ class ScannerTab(CMCTabFrame):
 
 		for group in groups:
 			group_id = self.tree_results.insert("", END, text=group, open=True)
-			for problem_info in sorted(self.scan_results, key=lambda p: p.mod):
+			for problem_info in sorted(self.scan_results, key=lambda p: p.type + p.mod):
 				if problem_info.type != group:
 					continue
 				if isinstance(problem_info, ProblemInfo):
@@ -478,13 +475,8 @@ class ScannerTab(CMCTabFrame):
 			self.thread_scan = None
 			return
 
-		stage_path = data_path
-		if scan_settings.manager and scan_settings.manager.stage_path:
-			stage_path = scan_settings.manager.stage_path
-
-		mod_files = self.build_mod_file_list(scan_settings)
-
 		if scan_settings[ScanSetting.RaceSubgraphs]:
+			self.queue_progress.put("Race Subgraph Records")
 			sadd_modules: list[tuple[int, Path]] = []
 			sadd_total = 0
 			sadd_bytes = b"\x00\x53\x41\x44\x44"
@@ -503,11 +495,21 @@ class ScannerTab(CMCTabFrame):
 					SimpleProblemInfo(
 						f"{sadd_total} SADD Records from {len(sadd_modules)} modules",
 						"Race Subgraph Record Count",
-						TOOLTIP_SCAN_RACE_SUBGRAPHS,
-						"Removing some of these mods should alleviate performance issues.\nMerging them may also help reduce stutter.",
+						INFO_SCAN_RACE_SUBGRAPHS,
+						"IF you are experiencing stutter when moving between cells, removing some of these mods could alleviate performance issues.\nMerging them may also reduce stutter.",
 						file_list=sadd_modules,
 					),
 				)
+
+		if scan_settings.skip_data_scan:
+			self.thread_scan = None
+			self.queue_progress.put(problems)
+			return
+
+		stage_path = data_path
+		if scan_settings.manager and scan_settings.manager.stage_path:
+			stage_path = scan_settings.manager.stage_path
+		mod_files = self.build_mod_file_list(scan_settings)
 
 		data_root_lower = "Data"
 		for current_path, folders, files in data_path.walk(top_down=True):
@@ -624,8 +626,8 @@ class ScannerTab(CMCTabFrame):
 								stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
 								file_path_relative,
 								mod_name_file,
-								"This is an override of an F4SE script. This could break F4SE if they aren't the\nsame version or this mod isn't intended to override F4SE files.",
-								"Check if this mod is supposed to override F4SE Scripts.\nIf this is a script extender/library or requires one, this is likely intentional but it must support your game version explicitly.\nOtherwise, this file may need to be deleted.",
+								"This is an override of an F4SE script. This could break F4SE if they aren't the same version or this mod isn't intended to override F4SE files.",
+								"Check if this mod is supposed to override F4SE Scripts.\nIf this is a script extender/library or requires one, this is likely intentional but it must support your game version explicitly.\nOtherwise, this mod or file may need to be deleted.",
 							),
 						)
 						continue
@@ -797,6 +799,7 @@ class ResultDetailsPane(Toplevel):
 				font=FONT,
 				justify=RIGHT,
 			).grid(column=0, row=0, sticky=NE, padx=5, pady=5)
+
 			ttk.Label(
 				self,
 				textvariable=self.sv_mod_name,
@@ -807,22 +810,26 @@ class ResultDetailsPane(Toplevel):
 
 		ttk.Label(
 			self,
-			text="Path:",
+			text="Problem:",
 			font=FONT_SMALL,
 			justify=RIGHT,
 		).grid(column=0, row=start_row, sticky=NE, padx=5, pady=5)
+
 		ttk.Label(
 			self,
 			text="Summary:",
 			font=FONT_SMALL,
 			justify=RIGHT,
 		).grid(column=0, row=start_row + 1, sticky=NE, padx=5, pady=5)
+
 		ttk.Label(
 			self,
 			text="Solution:",
 			font=FONT_SMALL,
 			justify=RIGHT,
 		).grid(column=0, row=start_row + 2, sticky=NE, padx=5, pady=5)
+
+		wraplength = WINDOW_WIDTH - 200
 
 		self.label_file_path = ttk.Label(
 			self,
@@ -831,6 +838,7 @@ class ResultDetailsPane(Toplevel):
 			font=FONT_SMALL,
 			foreground=COLOR_NEUTRAL_2,
 			justify=LEFT,
+			wraplength=wraplength,
 		)
 		self.label_file_path.grid(column=1, row=start_row, sticky=NW, padx=0, pady=5)
 
@@ -840,14 +848,16 @@ class ResultDetailsPane(Toplevel):
 			font=FONT_SMALL,
 			foreground=COLOR_NEUTRAL_2,
 			justify=LEFT,
+			wraplength=wraplength,
 		).grid(column=1, row=start_row + 1, sticky=NW, padx=0, pady=5)
+
 		self.label_solution = ttk.Label(
 			self,
 			textvariable=self.sv_solution,
 			font=FONT_SMALL,
 			foreground=COLOR_NEUTRAL_2,
 			justify=LEFT,
-			wraplength=WINDOW_WIDTH - 100,
+			wraplength=wraplength,
 		)
 		self.label_solution.grid(column=1, row=start_row + 2, sticky=NW, padx=0, pady=5)
 
@@ -859,7 +869,7 @@ class ResultDetailsPane(Toplevel):
 	def set_info(self, problem_info: ProblemInfo | SimpleProblemInfo, *, using_stage: bool) -> None:
 		self.problem_info = problem_info
 		if using_stage:
-			self.sv_mod_name.set(problem_info.mod)
+			self.sv_mod_name.set(problem_info.mod or "N/A")
 
 		self.sv_file_path.set(str(problem_info.relative_path))
 
@@ -923,7 +933,7 @@ class ResultDetailsPane(Toplevel):
 					400,
 					500,
 					"Race Animation Subgraph Records",
-					TOOLTIP_SCAN_RACE_SUBGRAPHS.replace("\n", " ").replace(". ", ".\n", 1),
+					INFO_SCAN_RACE_SUBGRAPHS.replace("\n", " ").replace(". ", ".\n", 1),
 					("Records", " Module"),
 					problem_info.file_list,
 				),
