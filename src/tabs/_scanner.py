@@ -719,7 +719,7 @@ class SidePane(Toplevel):
 
 		frame_wip_settings = ttk.Labelframe(self, text="WIP Settings", labelanchor=N, padding=5)
 		if WIP_SETTINGS:
-			frame_wip_settings.pack(expand=True, fill=BOTH, padx=5, pady=5)
+			frame_wip_settings.pack(expand=True, fill=BOTH, padx=5, pady=0)
 
 		self.bool_vars: dict[ScanSetting, BooleanVar] = {}
 		for setting in ScanSetting:
