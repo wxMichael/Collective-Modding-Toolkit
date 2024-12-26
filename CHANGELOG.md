@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.4.0] - 2024-12-26
+
+### Added
+
+- #### Overview
+
+  - PC Specs now displayed, along with a warning about issues with MO2's VFS if Windows 11 24H2 is detected.
+  - Update checking for Nexus Mods.
+
+- #### Scanner
+
+  - Race Subgraphs option. Counts the total number of Subgraph Addititve Race subrecords (RACE \ SADD).
+  Thanks Zzyxzz for suggesting this and providing the details!
+  - Junk file extensions: `.bak` and `.tmp`.
+  - Solution text for Invalid Module versions.
+
+- #### Tools
+
+  - Button for BA2 Merging Automation Tool (BMAT).
+  - Channel names for CM Authors' tools.
+
+### Changed
+
+- #### Scanner
+
+  - Improved results display with collapsible groups by type, a count, and a note to click for details.
+  - Better detection and description for F4SE script overrides, as there are some mods that intentionally provide these. Thanks Argon!
+  - Mod files and Data will only be scanned if selected options require it.
+
+### Fixed
+
+  - Potential crash reading INI files if a setting was not within any [section].
+
 ## [0.3.2] - 2024-12-20
 
 ### Fixed
@@ -11,7 +44,7 @@
 - #### Scanner
 
   - Ensure paths read from MO2 settings are converted to Path types.  
-  Should fix `TypeError: unsupported operand type(s) for /: 'str' and 'str'`
+  Should fix `TypeError: unsupported operand type(s) for /: 'str' and 'str'`.
 
 ## [0.3.1] - 2024-12-20
 
@@ -146,6 +179,8 @@ It currently only supports `Data/` and MO2's mods folder with basic checks like 
 
 _Initial release._
 
+[0.4.0]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.4.0
+[0.3.2]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.3.2
 [0.3.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.3.1
 [0.3]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.3
 [0.2.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.2.1
