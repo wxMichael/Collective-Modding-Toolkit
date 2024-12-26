@@ -100,14 +100,14 @@ class OverviewTab(CMCTabFrame):
 						compound="image",
 						image=self.cmc.get_image("images/warning-16.png"),
 					)
-					tooltip = (
+					os_tooltip = (
 						"Note: MO2 2.5.2 and earlier has issues on Windows 11 24H2.\n"
 						"Python apps such as Wrye Bash and CLASSIC may give errors\n"
 						"such as FileNotFound or fail to detect files that are only\n"
 						"present in the VFS and not the Data folder."
 					)
 					label_os_icon.grid(column=1, row=3, sticky=NW, padx=(0, 5), ipady=3)
-					ToolTip(label_os_icon, tooltip)
+					ToolTip(label_os_icon, os_tooltip)
 
 			# elif manager.name == "Vortex":
 			else:
