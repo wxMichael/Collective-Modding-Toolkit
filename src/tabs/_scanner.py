@@ -58,6 +58,11 @@ JUNK_FILES = {
 	".ds_store",
 }
 
+JUNK_FILE_SUFFIXES = (
+	".tmp",
+	".bak",
+)
+
 JUNK_FOLDERS_DATA_ROOT = {
 	"fomod",
 }
@@ -605,7 +610,7 @@ class ScannerTab(CMCTabFrame):
 				file_path_relative = current_path_relative / file
 				mod_name_file = mod_files.files.get(file_path_relative)
 
-				if scan_settings[ScanSetting.JunkFiles] and file_lower in JUNK_FILES:
+				if scan_settings[ScanSetting.JunkFiles] and (file_lower in JUNK_FILES or file_lower.endswith(JUNK_FILE_SUFFIXES)):
 					problems.append(
 						ProblemInfo(
 							ProblemType.JunkFile,
