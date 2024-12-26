@@ -820,7 +820,7 @@ class OverviewTab(CMCTabFrame):
 					plugins_path.name,
 					ProblemType.FileNotFound,
 					"plugins.txt was not found.\nThis is used to detect which modules/archives are enabled.",
-					"----",
+					"N/A" if self.cmc.game.manager else "Launch this app with your mod manager.",
 				),
 			)
 			if not refresh:
@@ -892,7 +892,7 @@ class OverviewTab(CMCTabFrame):
 						Path(module_path.name),
 						"OVERVIEW",
 						f"Module version ({hedr}) is not valid for Fallout 4.{valid_games_str}",
-						None,
+						"It may be possible to open/resave this file with Creation Kit to update its format for Fallout 4.\nYou should compare the original and resaved files with xEdit to verify no undesired changes were made.",
 					),
 				)
 
