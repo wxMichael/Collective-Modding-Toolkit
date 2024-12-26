@@ -13,7 +13,8 @@
 
   - Race Subgraphs option. Counts the total number of Subgraph Addititve Race subrecords (RACE \ SADD).
   Thanks Zzyxzz for suggesting this and providing the details!
-  - Junk file extensions: `.bak` and `.tmp`.
+  - Junk file extensions: `.bak` and `.tmp`.  
+  Thanks Alundra for all the suggestions! More on the rest later.
   - Solution text for Invalid Module versions.
 
 - #### Tools
@@ -26,7 +27,8 @@
 - #### Scanner
 
   - Improved results display with collapsible groups by type, a count, and a note to click for details.
-  - Better detection and description for F4SE script overrides, as there are some mods that intentionally provide these. Thanks Argon!
+  - Better detection and description for F4SE script overrides, as there are some mods that intentionally provide these.  
+  Thanks Argon for the feedback!
   - Mod files and Data will only be scanned if selected options require it.
 
 ### Fixed
