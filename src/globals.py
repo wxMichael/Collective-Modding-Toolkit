@@ -257,15 +257,15 @@ In the base game, these 4 modules are v0.95:
 TOOLTIP_HEDR_UNKNOWN = """These modules have an unknown header version.
 Fallout 4 OG & NG support only v0.95 and v1.00."""
 
-TOOLTIP_SCAN_OVERVIEW = "Report issues from Overview"
+TOOLTIP_SCAN_OVERVIEW = "Report details of issues from Overview"
 TOOLTIP_SCAN_ERRORS = """Check for errors in mod configuration or files."""
 TOOLTIP_SCAN_FORMATS = "Check file types against a whitelist per Data folder.\ne.g. MP3 instead of XWM/WAV in Data/Sound/."
 TOOLTIP_SCAN_PREVIS = "Report loose Data/Vis/ and Data/Meshes/Precombined/ folders."
 TOOLTIP_SCAN_JUNK = """Report junk files such as desktop.ini, Thumbs.db,
 and leftover fomod folders."""
-TOOLTIP_SCAN_BAD_OVERRIDES = """Detect overrides that typically cause issues
+TOOLTIP_SCAN_BAD_OVERRIDES = """Check for overrides that typically cause issues
 such as outdated F4SE script files or loose AnimTextData folders."""
-INFO_SCAN_RACE_SUBGRAPHS = """Counts the number of added race animation subgraph records (RACE \\ SADD).
+INFO_SCAN_RACE_SUBGRAPHS = """Count the number of added race animation subgraph records (RACE \\ SADD).
 Depending on your PC, adding too many of these may result in stutter
 when loading Cells."""
 TOOLTIP_SCAN_RACE_SUBGRAPHS = f"""{INFO_SCAN_RACE_SUBGRAPHS}
