@@ -61,6 +61,7 @@ class ProblemType(StrEnum):
 	F4SEOverride = "F4SE Script Override"
 	FileNotFound = "File Not Found"
 	WrongVersion = "Wrong Version"
+	ComplexSorter = "Complex Sorter Error"
 
 
 class SolutionType(StrEnum):
@@ -77,6 +78,7 @@ class SolutionType(StrEnum):
 		"Verify files with Steam or reinstall the game.\nIf you downgraded the game you will need to do so again afterward."
 	)
 	UnknownFormat = "If this file type is expected here, please report it."
+	ComplexSorterFix = "IF you are using xEdit v4.1.5g+, all references to 'Addon Index' in this file should be updated to 'Parent Combination Index'."
 
 
 class Language(StrEnum):

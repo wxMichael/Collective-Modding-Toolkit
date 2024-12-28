@@ -258,6 +258,7 @@ TOOLTIP_HEDR_UNKNOWN = """These modules have an unknown header version.
 Fallout 4 OG & NG support only v0.95 and v1.00."""
 
 TOOLTIP_SCAN_OVERVIEW = "Report issues from Overview"
+TOOLTIP_SCAN_ERRORS = """Check for errors in mod configuration or files."""
 TOOLTIP_SCAN_FORMATS = "Check file types against a whitelist per Data folder.\ne.g. MP3 instead of XWM/WAV in Data/Sound/."
 TOOLTIP_SCAN_PREVIS = "Report loose Data/Vis/ and Data/Meshes/Precombined/ folders."
 TOOLTIP_SCAN_JUNK = """Report junk files such as desktop.ini, Thumbs.db,

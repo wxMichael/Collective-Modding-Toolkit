@@ -17,7 +17,6 @@ from utils import copy_text, exists, is_dir, is_file
 
 IGNORE_FOLDERS = {
 	"bodyslide",
-	"complex sorter",
 	"fo4edit",
 	"robco_patcher",
 	"source",
@@ -25,6 +24,7 @@ IGNORE_FOLDERS = {
 """These are always lowercase."""
 
 DATA_WHITELIST = {
+	"complex sorter": None,
 	"f4se": None,
 	"materials": {"bgem", "bgsm", "txt"},
 	"meshes": {
@@ -90,6 +90,7 @@ RECORD_TYPES = {
 
 class ScanSetting(Enum):
 	OverviewIssues = ("Overview Issues", TOOLTIP_SCAN_OVERVIEW)
+	Errors = ("Errors", TOOLTIP_SCAN_ERRORS)
 	WrongFormat = ("Wrong File Formats", TOOLTIP_SCAN_FORMATS)
 	LoosePrevis = ("Loose Previs", TOOLTIP_SCAN_PREVIS)
 	JunkFiles = ("Junk Files", TOOLTIP_SCAN_JUNK)
@@ -642,6 +643,27 @@ class ScannerTab(CMCTabFrame):
 					continue
 
 				file_ext = file_split[1]
+
+				if scan_settings[ScanSetting.Errors]:  # noqa: SIM102
+					if data_root_lower == "complex sorter" and file_ext == "ini":
+						ini_lines = file_path_full.read_text("utf-8").splitlines(keepends=True)
+						error_found = False
+						for ini_line in ini_lines:
+							if not ini_line.startswith(";") and '"Addon Index"' in ini_line:
+								error_found = True
+								break
+						if error_found:
+							problems.append(
+								ProblemInfo(
+									ProblemType.ComplexSorter,
+									stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
+									file_path_relative,
+									mod_name_file,
+									"INI uses an outdated field name. xEdit 4.1.5g changed the name of 'Addon Index' to 'Parent Combination Index'. Using outdated INIs with xEdit 4.1.5g+ results in broken output that may crash the game.",
+									SolutionType.ComplexSorterFix,
+								),
+							)
+							continue
 
 				if scan_settings[ScanSetting.WrongFormat]:
 					if (whitelist and file_ext not in whitelist) or (
