@@ -111,8 +111,7 @@ class ModManagerInfo:
 		section = None
 		for line in ini_path.read_text(encoding="utf-8").splitlines():
 			if line.startswith("["):
-				if line in mo2_setting_list:
-					section = line
+				section = line if line in mo2_setting_list else None
 				continue
 			if section is None:
 				continue
