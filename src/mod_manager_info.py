@@ -1,9 +1,36 @@
 import csv
+import sys
 from pathlib import Path
 from tkinter import *
 from typing import Literal, TypedDict
 
 from packaging.version import Version
+
+from enums import Tool
+
+win11_24h2 = sys.getwindowsversion().build >= 26100
+
+
+def is_file(path: Path) -> bool:
+	if not win11_24h2:
+		return path.is_file()
+
+	try:
+		with path.open():
+			pass
+	except FileNotFoundError:
+		return False
+	except PermissionError:
+		# Probably a folder
+		try:
+			_ = next(path.iterdir(), None)
+		except NotADirectoryError:
+			# Was a file with actual PermissionError
+			return True
+		except OSError:
+			pass
+		return False
+	return True
 
 
 class MO2Settings(TypedDict, total=False):
@@ -43,6 +70,7 @@ class ModManagerInfo:
 		"""These are always lowercase."""
 
 		self.mo2_settings: MO2Settings = {}
+		self.executables: dict[Tool, set[Path]] = {}
 
 	def read_mo2_ini(self, ini_path: Path) -> None:
 		self.ini_path = ini_path
@@ -64,6 +92,7 @@ class ModManagerInfo:
 				"skip_file_suffixes",
 				"skip_directories",
 			},
+			"[customExecutables]": {""},
 		}
 		# Default values
 		self.mo2_settings = {
@@ -82,8 +111,7 @@ class ModManagerInfo:
 		section = None
 		for line in ini_path.read_text(encoding="utf-8").splitlines():
 			if line.startswith("["):
-				if line in mo2_setting_list:
-					section = line
+				section = line if line in mo2_setting_list else None
 				continue
 			if section is None:
 				continue
@@ -91,6 +119,22 @@ class ModManagerInfo:
 				setting, value = line.split("=", 1)
 			except ValueError:
 				continue
+			if section == "[customExecutables]":
+				if setting.endswith("binary"):
+					value_lower = value.lower()
+
+					for tool in Tool:
+						if value_lower.endswith(tool):
+							exe_path = Path(value)
+							if is_file(exe_path):
+								self.executables.setdefault(tool, set()).add(exe_path)
+							if tool == Tool.xEdit:
+								bsarch_path = exe_path.with_name("BSArch.exe")
+								if is_file(bsarch_path):
+									self.executables.setdefault(Tool.BSArch, set()).add(bsarch_path)
+							break
+				continue
+
 			if setting in mo2_setting_list[section]:
 				self.mo2_settings[setting] = value[11:-1] if value.startswith("@ByteArray(") else value
 				if setting == "base_directory":
@@ -108,7 +152,8 @@ class ModManagerInfo:
 					elif isinstance(val, Path) and val.parts[0] == "%BASE_DIR%":
 						self.mo2_settings[name] = self.mo2_settings["base_directory"] / val.relative_to("%BASE_DIR%")
 				elif name.startswith("skip_"):
-					self.mo2_settings[name] = next(csv.reader((str(val),), doublequote=False, escapechar="\\", skipinitialspace=True))
+					csv_reader = csv.reader((str(val),), doublequote=False, escapechar="\\", skipinitialspace=True)
+					self.mo2_settings[name] = next(csv_reader)
 
 		if self.mo2_settings.get("gameName", "Fallout 4") != "Fallout 4":
 			msg = "Only Fallout 4 is supported."

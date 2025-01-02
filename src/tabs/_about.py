@@ -36,7 +36,7 @@ class AboutTab(CMCTabFrame):
 
 		ttk.Label(
 			frame_about_text,
-			text=f"v{APP_VERSION}\n\nCreated by wxMichael for the\nCollective Modding Community",
+			text=f"v{APP_VERSION}\n\nCreated by wxMichael for the\nCollective Modding Community\n#cm-toolkit on Discord",
 			font=FONT,
 			justify=CENTER,
 		).grid(column=0, row=1, rowspan=2, pady=10)

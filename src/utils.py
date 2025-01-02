@@ -1,9 +1,11 @@
 import io
+import logging
 import os
 import struct
 import sys
 import winreg
 import zlib
+from collections.abc import Generator
 from ctypes import WinDLL, byref, c_int, create_unicode_buffer, sizeof, windll, wintypes
 from pathlib import Path
 from tkinter import *
@@ -21,11 +23,25 @@ from globals import APP_VERSION, COLOR_DEFAULT, FONT, FONT_SMALL, NEXUS_LINK
 from helpers import DLLInfo
 from mod_manager_info import ModManagerInfo
 
+logger = logging.getLogger(__name__)
+
 DONT_RESOLVE_DLL_REFERENCES = 0x00000001
 HTTP_OK = 200
 KEY_CTRL = 12
 
 win11_24h2 = sys.getwindowsversion().build >= 26100
+
+
+def rglob(path: Path, ext: str) -> Generator[Path]:
+	if not win11_24h2:
+		yield from path.rglob(f"*.{ext}")
+		return
+
+	ext = ext.lower()
+	for root, _, files in path.walk():
+		for file in files:
+			if file.lower().endswith(ext):
+				yield root / file
 
 
 def is_file(path: Path) -> bool:
@@ -268,6 +284,7 @@ def set_theme(win: Tk) -> None:
 
 
 def check_for_update_nexus() -> str | None:
+	logger.debug("Update Check : Nexus Mods")
 	try:
 		response = requests.get(NEXUS_LINK, timeout=5, stream=True)
 		if response.status_code == HTTP_OK:
@@ -286,17 +303,23 @@ def check_for_update_nexus() -> str | None:
 					continue
 
 			if not version_line:
+				logger.error("Update Check : Nexus Mods : Failed")
 				return None
 
 			latest_version = version_line[1]
 			if Version(latest_version) > Version(str(APP_VERSION)):
+				logger.info("Update Check : Nexus Mods : Update Available : v%s", latest_version)  # TODO: test variable
 				return latest_version
 	except (requests.RequestException, InvalidVersion, IndexError):
-		pass
+		logger.exception("Update Check : Nexus Mods : Failed")  # TODO: Reasons
+		return None
+
+	logger.debug("Update Check : Nexus Mods : No Updates")
 	return None
 
 
 def check_for_update_github() -> str | None:
+	logger.debug("Update Check : GitHub")
 	url = "https://api.github.com/repos/wxMichael/Collective-Modding-Toolkit/releases/latest"
 	headers = {
 		"Accept": "application/vnd.github+json",
@@ -305,6 +328,7 @@ def check_for_update_github() -> str | None:
 	try:
 		response = requests.get(url, headers=headers, timeout=5)
 	except requests.RequestException:
+		logger.exception("Update Check : GitHub : Failed")
 		return None
 
 	if response.status_code == HTTP_OK:
@@ -312,9 +336,13 @@ def check_for_update_github() -> str | None:
 			release_data = response.json()
 			latest_version = str(release_data["tag_name"])
 			if Version(latest_version) > Version(str(APP_VERSION)):
+				logger.info("Update Check : GitHub : Update Available : v%s", latest_version)
 				return latest_version
 		except (requests.JSONDecodeError, InvalidVersion):
-			pass
+			logger.exception("Update Check : GitHub : Failed")
+			return None
+
+	logger.debug("Update Check : GitHub : No Updates")
 	return None
 
 

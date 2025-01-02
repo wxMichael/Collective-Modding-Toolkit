@@ -1,3 +1,4 @@
+import logging
 import os
 import struct
 import sys
@@ -24,6 +25,8 @@ from utils import (
 	is_file,
 	ver_to_str,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class OverviewTab(CMCTabFrame):
@@ -561,6 +564,7 @@ class OverviewTab(CMCTabFrame):
 		)
 
 	def get_info_binaries(self) -> None:
+		logger.debug("Gathering Info: Binaries")
 		self.cmc.game.reset_binaries()
 
 		if not self.cmc.game.manager:
@@ -649,6 +653,7 @@ class OverviewTab(CMCTabFrame):
 						)
 
 	def get_info_archives(self) -> None:
+		logger.debug("Gathering Info: Archives")
 		self.cmc.game.reset_archives()
 
 		if self.cmc.game.data_path is None:
@@ -778,6 +783,7 @@ class OverviewTab(CMCTabFrame):
 				self.cmc.game.archives_og.add(ba2_file)
 
 	def get_info_modules(self, *, refresh: bool = False) -> None:
+		logger.debug("Gathering Info: Modules")
 		self.cmc.game.reset_modules()
 
 		data_path = self.cmc.game.data_path

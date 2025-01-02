@@ -175,7 +175,7 @@ class Downgrader(ModalWindow):
 		frame_bottom.grid_columnconfigure(0, weight=1)
 		self.logger = Logger(frame_bottom)
 
-		self.logger.log_message(LogType.Info, "Patches will be downloaded and applied as-needed.")
+		self.logger.log_message(LogType.Info, "Patches will be downloaded and applied as-needed.", skip_logging=True)
 
 		self.progress_var = DoubleVar()
 		self.progress_bar = ttk.Progressbar(self, variable=self.progress_var, maximum=100)

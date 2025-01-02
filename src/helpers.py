@@ -1,3 +1,4 @@
+import logging
 import platform
 import re
 import sys
@@ -17,7 +18,10 @@ from globals import COLOR_BAD, FONT_LARGE
 if TYPE_CHECKING:
 	import psutil._pswindows as pswin
 
+	from autofixes import AutoFixResult
 	from game_info import GameInfo
+
+logger = logging.getLogger(__name__)
 
 
 pattern_cpu = re.compile(r"(?:\d+(?:th|rd|nd) Gen| ?Processor| ?CPU|\d*[- ]Core|\(TM\)|\(R\))")
@@ -68,8 +72,8 @@ class PCInfo:
 				model, value_type = winreg.QueryValueEx(key, "ProcessorNameString")
 			if value_type == winreg.REG_SZ and isinstance(model, str):
 				cpu_model = model
-		except OSError as e:
-			sys.stderr.write(f"get_cpu() Error: {e}")
+		except OSError:
+			logger.exception("get_cpu():")
 		else:
 			if "Intel" in cpu_model and not cpu_model.startswith("Intel"):
 				cpu_model = f"Intel {cpu_model.replace('Intel', '')}"
@@ -94,8 +98,8 @@ class PCInfo:
 					gpu_model = model.strip()
 				if value_type_2 == winreg.REG_QWORD and isinstance(memory, int):
 					gpu_memory = round(memory / 1024**3)
-		except OSError as e:
-			sys.stderr.write(f"get_gpu() Error: {e}")
+		except OSError:
+			logger.exception("get_gpu():")
 		return gpu_model, gpu_memory
 
 
@@ -147,6 +151,7 @@ class CMCTabFrame(ttk.Frame, ABC):
 
 	@final
 	def load(self) -> None:
+		logger.debug("Switch Tab : %s", self.__class__.__name__)
 		if self._loaded:
 			self._switch_to()
 			return
@@ -158,6 +163,7 @@ class CMCTabFrame(ttk.Frame, ABC):
 			# Previously errored while loading.
 			return
 
+		logger.debug("Load Tab : %s", self.__class__.__name__)
 		self._loading = True
 		self.grid_columnconfigure(0, weight=1)
 		self.grid_rowconfigure(0, weight=1)
@@ -177,6 +183,7 @@ class CMCTabFrame(ttk.Frame, ABC):
 			self._build_gui()
 			self._switch_to()
 		else:
+			logger.error("Load Tab : %s : Failed : %s", self.__class__.__name__, self.loading_error)
 			self.sv_loading_text.set(self.loading_error or "Failed to load tab.")
 			self.label_loading.configure(foreground=COLOR_BAD)
 		self._loading = False
@@ -220,6 +227,7 @@ class ProblemInfo:
 		self.solution = solution
 		self.file_list = file_list
 		self.extra_data = extra_data
+		self.autofix_result: AutoFixResult | None = None
 
 
 class SimpleProblemInfo:
@@ -242,6 +250,7 @@ class SimpleProblemInfo:
 		self.mod = ""
 		self.file_list = file_list
 		self.extra_data = extra_data
+		self.autofix_result: AutoFixResult | None = None
 
 
 class Stderr:
@@ -259,6 +268,7 @@ class Stderr:
 			self.txt.pack(expand=True, fill=BOTH)
 
 	def write(self, string: str) -> int:
+		logger.error("StdErr : %s", string)
 		self.create_window()
 		self.txt.insert("insert", string)
 		return 0
