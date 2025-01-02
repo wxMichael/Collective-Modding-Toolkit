@@ -4,6 +4,7 @@ from tkinter import *
 from tkinter import ttk
 
 import tabs
+from app_settings import Settings
 from enums import Tab
 from game_info import GameInfo
 from globals import *
@@ -18,19 +19,13 @@ from utils import (
 	get_asset_path,
 )
 
-logging.basicConfig(
-	filename="cm-toolkit.log",
-	format="%(levelname)s : %(message)s",
-	level=logging.ERROR,
-)
 logger = logging.getLogger(__name__)
-logger.info("------------------------------------------")
-logger.info("Starting Collective Modding Toolkit v%s", APP_VERSION)
 
 
 class CMChecker(CMCheckerInterface):
-	def __init__(self, root: Tk) -> None:
+	def __init__(self, root: Tk, settings: Settings) -> None:
 		self.root = root
+		self.settings = settings
 		self.pc = PCInfo()
 		self.install_type_sv = StringVar()
 		self.game_path_sv = StringVar()
