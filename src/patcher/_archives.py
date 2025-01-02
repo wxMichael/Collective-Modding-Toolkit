@@ -109,7 +109,7 @@ class ArchivePatcher(PatcherBase):
 			try:
 				if ba2_file.stat().st_file_attributes & stat.FILE_ATTRIBUTE_READONLY:
 					ba2_file.chmod(stat.S_IWRITE)
-					logger.info("Removed read-only flag: %s", ba2_file)
+					logger.info("Removed read-only flag: %s", ba2_file.name)
 				with ba2_file.open("r+b") as f:
 					if f.read(4) != Magic.BTDX:
 						self.logger.log_message(LogType.Bad, f"Unrecognized format: {ba2_file.name}")

@@ -18,6 +18,7 @@ from globals import COLOR_BAD, FONT_LARGE
 if TYPE_CHECKING:
 	import psutil._pswindows as pswin
 
+	from autofixes import AutoFixResult
 	from game_info import GameInfo
 
 logger = logging.getLogger(__name__)
@@ -226,6 +227,7 @@ class ProblemInfo:
 		self.solution = solution
 		self.file_list = file_list
 		self.extra_data = extra_data
+		self.autofix_result: AutoFixResult | None = None
 
 
 class SimpleProblemInfo:
@@ -248,6 +250,7 @@ class SimpleProblemInfo:
 		self.mod = ""
 		self.file_list = file_list
 		self.extra_data = extra_data
+		self.autofix_result: AutoFixResult | None = None
 
 
 class Stderr:

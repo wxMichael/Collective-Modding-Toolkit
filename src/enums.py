@@ -1,6 +1,12 @@
 from enum import Enum, IntEnum, IntFlag, StrEnum
 
 
+class Tool(tuple[str, ...], Enum):
+	xEdit = ("xedit.exe", "fo4edit.exe")  # noqa: N815
+	BSArch = ("bsarch.exe",)
+	ComplexSorter = ("complex sorter (32bit).bat", "complex sorter.bat")
+
+
 class CSIDL(IntEnum):
 	Desktop = 0
 	Documents = 5

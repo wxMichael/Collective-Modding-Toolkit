@@ -9,7 +9,8 @@ from tkinter import ttk
 
 from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
-from enums import ProblemType, SolutionType, Tab
+from autofixes import AUTO_FIXES, do_autofix
+from enums import ProblemType, SolutionType, Tab, Tool
 from globals import *
 from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SimpleProblemInfo
 from modal_window import TreeWindow
@@ -146,7 +147,7 @@ class ScanSettings(dict[ScanSetting, bool]):
 class ScannerTab(CMCTabFrame):
 	def __init__(self, cmc: CMCheckerInterface, notebook: ttk.Notebook) -> None:
 		super().__init__(cmc, notebook, "Scanner")
-		self.using_stage = bool(self.cmc.game.manager and self.cmc.game.manager.stage_path)
+		self.using_stage: bool = bool(self.cmc.game.manager and self.cmc.game.manager.stage_path)
 		self.tree_results: ttk.Treeview
 		self.tree_results_data: dict[str, ProblemInfo | SimpleProblemInfo] = {}
 
@@ -397,7 +398,7 @@ class ScannerTab(CMCTabFrame):
 		if selection in self.tree_results_data:
 			if self.details_pane is None:
 				self.details_pane = ResultDetailsPane(self)
-			self.details_pane.set_info(self.tree_results_data[selection], using_stage=self.using_stage)
+			self.details_pane.set_info(selection, using_stage=self.using_stage)
 			return True
 		return False
 
@@ -480,6 +481,30 @@ class ScannerTab(CMCTabFrame):
 		if data_path is None:
 			self.thread_scan = None
 			return
+
+		if scan_settings[ScanSetting.Errors]:  # noqa: SIM102
+			if scan_settings.manager and Tool.ComplexSorter in scan_settings.manager.executables:
+				for tool_path in scan_settings.manager.executables[Tool.ComplexSorter]:
+					for ini_path in tool_path.parent.rglob("*.ini"):  # TODO: 24H2 fix
+						ini_lines = ini_path.read_text("utf-8").splitlines(keepends=True)
+						error_found = False
+						for ini_line in ini_lines:
+							if not ini_line.startswith(";") and '"Addon Index"' in ini_line:
+								error_found = True
+								break
+
+						if error_found:
+							problems.append(
+								ProblemInfo(
+									ProblemType.ComplexSorter,
+									ini_path,
+									ini_path.relative_to(tool_path.parent),
+									tool_path.parent.name,
+									"INI uses an outdated field name. xEdit 4.1.5g changed the name of 'Addon Index' to 'Parent Combination Index'. Using outdated INIs with xEdit 4.1.5g+ results in broken output that may crash the game.",
+									SolutionType.ComplexSorterFix,
+								),
+							)
+							continue
 
 		if scan_settings[ScanSetting.RaceSubgraphs]:
 			self.queue_progress.put("Race Subgraph Records")
@@ -813,6 +838,7 @@ class ResultDetailsPane(Toplevel):
 		self.tooltip_file_path: ToolTip | None = None
 		self.tooltip_solution: ToolTip | None = None
 		self.button_files: ttk.Button | None = None
+		self.button_autofix: ttk.Button | None = None
 
 		self.grid_columnconfigure(1, weight=1)
 		self.grid_columnconfigure(2, weight=1)
@@ -893,12 +919,12 @@ class ResultDetailsPane(Toplevel):
 		self.frame_buttons = ttk.Frame(self)
 		self.frame_buttons.grid(column=2, row=0, rowspan=10, sticky=NSEW)
 
-	def set_info(self, problem_info: ProblemInfo | SimpleProblemInfo, *, using_stage: bool) -> None:
-		self.problem_info = problem_info
+	def set_info(self, selection: str, *, using_stage: bool) -> None:
+		self.problem_info = self.scanner_tab.tree_results_data[selection]
 		if using_stage:
-			self.sv_mod_name.set(problem_info.mod or "N/A")
+			self.sv_mod_name.set(self.problem_info.mod or "N/A")
 
-		self.sv_file_path.set(str(problem_info.relative_path))
+		self.sv_file_path.set(str(self.problem_info.relative_path))
 
 		target = self.problem_info.path
 		if isinstance(target, Path) and (exists(target) or exists(target.parent)):
@@ -917,11 +943,12 @@ class ResultDetailsPane(Toplevel):
 				self.tooltip_file_path = None
 			self.label_file_path.configure(cursor="X_cursor")
 
-		self.sv_problem.set(problem_info.summary)
+		self.sv_problem.set(self.problem_info.summary)
 
-		if problem_info.extra_data:
-			self.sv_solution.set((problem_info.solution or "Solution not found.") + f"\n{'\n'.join(problem_info.extra_data)}")
-			url = problem_info.extra_data[0]
+		if self.problem_info.extra_data:
+			extra = "\n".join(self.problem_info.extra_data)
+			self.sv_solution.set((self.problem_info.solution or "Solution not found.") + f"\n{extra}")
+			url = self.problem_info.extra_data[0]
 
 			if url.startswith("http"):
 				self.label_solution.bind("<Button-1>", lambda _: webbrowser.open(url))
@@ -939,7 +966,7 @@ class ResultDetailsPane(Toplevel):
 					self.tooltip_solution.destroy()
 					self.tooltip_solution = None
 		else:
-			self.sv_solution.set(problem_info.solution or "Solution not found.")
+			self.sv_solution.set(self.problem_info.solution or "Solution not found.")
 			self.label_solution.unbind("<Button-1>")
 			self.label_solution.unbind("<Button-3>")
 			if self.tooltip_solution:
@@ -950,7 +977,11 @@ class ResultDetailsPane(Toplevel):
 			self.button_files.destroy()
 			self.button_files = None
 
-		if problem_info.file_list:
+		if self.button_autofix:
+			self.button_autofix.destroy()
+			self.button_autofix = None
+
+		if self.problem_info.file_list:
 			self.button_files = ttk.Button(
 				self.frame_buttons,
 				text="File List",
@@ -962,11 +993,31 @@ class ResultDetailsPane(Toplevel):
 					"Race Animation Subgraph Records",
 					INFO_SCAN_RACE_SUBGRAPHS.replace("\n", " ").replace(". ", ".\n", 1),
 					("Records", " Module"),
-					problem_info.file_list,
+					self.problem_info.file_list,
 				),
 				padding=(0, 5),
 			)
 			self.button_files.pack(side=TOP, anchor=E, fill=X, padx=5, pady=(5, 0))
+
+		if self.problem_info.solution in AUTO_FIXES:
+			if self.problem_info.autofix_result is None:
+				text="Auto-Fix"
+				style="Accent.TButton"
+			elif self.problem_info.autofix_result.success:
+				text="Fixed!"
+				style = "TButton"
+			else:
+				text="Fix Failed"
+				style = "TButton"
+
+			self.button_autofix = ttk.Button(
+				self.frame_buttons,
+				padding=(0, 5),
+				command=lambda: do_autofix(self, selection),
+				text=text,
+				style=style,
+			)
+			self.button_autofix.pack(side=TOP, anchor=E, fill=X, padx=5, pady=(5, 0))
 
 	def on_focus(self, _event: "Event[Misc]") -> None:
 		self.scanner_tab.cmc.root.tkraise()
