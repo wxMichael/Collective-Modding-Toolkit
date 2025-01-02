@@ -50,8 +50,9 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 
 	lines_fixed = 0
 	for i, ini_line in enumerate(ini_lines):
-		if not ini_line.startswith(";") and '"Addon Index"' in ini_line:
+		if not ini_line.startswith(";") and ('"Addon Index"' in ini_line or "'Addon Index'" in ini_line):
 			ini_lines[i] = ini_line.replace('"Addon Index"', '"Parent Combination Index"')
+			ini_lines[i] = ini_line.replace("'Addon Index'", "'Parent Combination Index'")
 			lines_fixed += 1
 
 	if lines_fixed:
