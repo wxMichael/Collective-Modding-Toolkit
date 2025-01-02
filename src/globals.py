@@ -61,6 +61,7 @@ FONT_LARGE = ("Cascadia Mono", 20)
 
 RACE_SUBGRAPH_THRESHOLD = 100
 
+
 class BaseGameFile(TypedDict):
 	OnlyOG: NotRequired[bool]
 	UseHash: NotRequired[bool]

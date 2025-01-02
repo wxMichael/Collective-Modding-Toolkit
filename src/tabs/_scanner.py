@@ -246,21 +246,13 @@ class ScannerTab(CMCTabFrame):
 		style = ttk.Style(self.cmc.root)
 		style.configure("Treeview", font=FONT_SMALL)
 		if self.using_stage:
-			# self.tree_results = ttk.Treeview(self, columns=("mod", "type"), selectmode=NONE)
 			self.tree_results = ttk.Treeview(self, columns=("mod",), selectmode=NONE, show="tree")
 			self.tree_results.heading("#0", text="Problem")
-			# self.tree_results.heading("mod", text="Mod")
-			# self.tree_results.heading("type", text="Type")
 			self.tree_results.column("#0", minwidth=400, stretch=True, anchor=W)
 			self.tree_results.column("mod", stretch=True, anchor=E)
-			# self.tree_results.column("type", minwidth=50, stretch=False, anchor=W)
 		else:
-			# self.tree_results = ttk.Treeview(self, columns=("type",), selectmode=NONE)
 			self.tree_results = ttk.Treeview(self, selectmode=NONE, show="tree")
-			# self.tree_results.heading("#0", text="Mod")
-			# self.tree_results.heading("type", text="Type")
 			self.tree_results.column("#0", minwidth=400, stretch=True, anchor=W)
-			# self.tree_results.column("type", minwidth=50, stretch=False, anchor=W)
 
 		scroll_results_y = ttk.Scrollbar(
 			self,
@@ -1001,13 +993,13 @@ class ResultDetailsPane(Toplevel):
 
 		if self.problem_info.solution in AUTO_FIXES:
 			if self.problem_info.autofix_result is None:
-				text="Auto-Fix"
-				style="Accent.TButton"
+				text = "Auto-Fix"
+				style = "Accent.TButton"
 			elif self.problem_info.autofix_result.success:
-				text="Fixed!"
+				text = "Fixed!"
 				style = "TButton"
 			else:
-				text="Fix Failed"
+				text = "Fix Failed"
 				style = "TButton"
 
 			self.button_autofix = ttk.Button(

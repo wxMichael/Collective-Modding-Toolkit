@@ -84,7 +84,8 @@ def do_autofix(results_pane: "tabs.ResultDetailsPane", selection: str) -> None:
 		if results_pane.problem_info.autofix_result.success:
 			results_pane.button_autofix.configure(text="Fixed!", style="TButton", state=NORMAL)
 			results_pane.scanner_tab.tree_results.item(
-				selection, image=results_pane.scanner_tab.cmc.get_image("images/check-20.png")
+				selection,
+				image=results_pane.scanner_tab.cmc.get_image("images/check-20.png"),
 			)
 		else:
 			results_pane.button_autofix.configure(text="Fix Failed", style="TButton", state=NORMAL)
