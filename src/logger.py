@@ -1,9 +1,12 @@
+import logging
 from tkinter import *
 from tkinter import ttk
 
 from enums import LogType
 from globals import *
 from utils import block_text_input
+
+logger = logging.getLogger(__name__)
 
 
 class Logger:
@@ -31,7 +34,13 @@ class Logger:
 		self._text.configure(yscrollcommand=self._scroll_text_y.set)
 		self._text.bind("<Key>", block_text_input)
 
-	def log_message(self, log_type: LogType, message: str) -> None:
+	def log_message(self, log_type: LogType, message: str, *, skip_logging: bool = False) -> None:
+		if not skip_logging:
+			if log_type == LogType.Bad:
+				logger.error(message)
+			else:
+				logger.info(message)
+
 		start_index = self._text.index(INSERT)
 		self._text.insert(index=END, chars=f"{self._emoji[log_type]}{message}\n")
 		current_line, current_column = start_index.split(".")

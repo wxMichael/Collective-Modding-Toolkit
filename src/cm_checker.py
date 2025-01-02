@@ -1,3 +1,4 @@
+import logging
 import webbrowser
 from tkinter import *
 from tkinter import ttk
@@ -16,6 +17,15 @@ from utils import (
 	check_for_update_nexus,
 	get_asset_path,
 )
+
+logging.basicConfig(
+	filename="cm-toolkit.log",
+	format="%(levelname)s : %(message)s",
+	level=logging.ERROR,
+)
+logger = logging.getLogger(__name__)
+logger.info("------------------------------------------")
+logger.info("Starting Collective Modding Toolkit v%s", APP_VERSION)
 
 
 class CMChecker(CMCheckerInterface):
@@ -173,4 +183,5 @@ class CMChecker(CMCheckerInterface):
 		self.root.update()
 
 	def refresh_tab(self, tab: Tab) -> None:
+		logger.debug("Refresh Tab : %s", tab)
 		self.tabs[tab].refresh()

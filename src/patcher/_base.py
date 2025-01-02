@@ -1,3 +1,4 @@
+import logging
 from abc import abstractmethod
 from pathlib import Path
 from tkinter import *
@@ -9,6 +10,8 @@ from globals import *
 from helpers import CMCheckerInterface
 from logger import Logger
 from modal_window import AboutWindow, ModalWindow
+
+logger = logging.getLogger()
 
 
 class PatcherBase(ModalWindow):
@@ -84,7 +87,9 @@ class PatcherBase(ModalWindow):
 		assert self.cmc.game.data_path is not None
 		self.processing_data = True
 
+		logger.info("Patcher Running: %s", self.__class__.__name__)
 		self.patch_files()
+		logger.info("Patcher Finished")
 
 		self.cmc.refresh_tab(Tab.Overview)
 		self.populate_tree()
@@ -98,4 +103,4 @@ class PatcherBase(ModalWindow):
 		for item in sorted(self.files_to_patch):
 			self._tree_files.insert("", END, text=item.name)
 
-		self.logger.log_message(LogType.Info, f"Showing {len(self.files_to_patch)} files to be patched.")
+		self.logger.log_message(LogType.Info, f"Showing {len(self.files_to_patch)} files to be patched.", skip_logging=True)

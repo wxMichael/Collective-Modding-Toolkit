@@ -1,3 +1,4 @@
+import logging
 from tkinter import *
 from tkinter import ttk
 
@@ -34,6 +35,8 @@ DLL_OGNG_WHITELIST = (
 	"x-cell-fo4.dll",
 )
 
+logger = logging.getLogger(__name__)
+
 
 class F4SETab(CMCTabFrame):
 	def __init__(self, cmc: CMCheckerInterface, notebook: ttk.Notebook) -> None:
@@ -56,6 +59,7 @@ class F4SETab(CMCTabFrame):
 		self.dll_info.clear()
 		for dll_file in self.cmc.game.f4se_path.iterdir():
 			if dll_file.suffix.lower() == ".dll" and not dll_file.name.startswith("msdia"):
+				logger.debug("Scanning %s", dll_file.name)
 				self.dll_info[dll_file.name] = parse_dll(dll_file)
 
 		return True

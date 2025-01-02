@@ -1,3 +1,4 @@
+import logging
 import stat
 from pathlib import Path
 from tkinter import *
@@ -9,6 +10,8 @@ from globals import *
 from helpers import CMCheckerInterface
 
 from ._base import PatcherBase
+
+logger = logging.getLogger()
 
 
 @final
@@ -95,16 +98,18 @@ class ArchivePatcher(PatcherBase):
 			old_bytes = [b"\x01"]
 			new_bytes = b"\x08"
 
-		file_to_patch = list(self.files_to_patch)
+		files_to_patch = list(self.files_to_patch)
+		logger.info("Files: %s | Version: %s | Filter: %s", len(files_to_patch), self.desired_version.get(), self.name_filter)
 
-		if not file_to_patch:
-			self.logger.log_message(LogType.Info, "Nothing to do!")
+		if not files_to_patch:
+			self.logger.log_message(LogType.Info, "Nothing to do!", skip_logging=True)
 			return
 
-		for ba2_file in list(self.files_to_patch):
+		for ba2_file in files_to_patch:
 			try:
 				if ba2_file.stat().st_file_attributes & stat.FILE_ATTRIBUTE_READONLY:
 					ba2_file.chmod(stat.S_IWRITE)
+					logger.info("Removed read-only flag: %s", ba2_file)
 				with ba2_file.open("r+b") as f:
 					if f.read(4) != Magic.BTDX:
 						self.logger.log_message(LogType.Bad, f"Unrecognized format: {ba2_file.name}")
