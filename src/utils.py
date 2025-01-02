@@ -5,6 +5,7 @@ import struct
 import sys
 import winreg
 import zlib
+from collections.abc import Generator
 from ctypes import WinDLL, byref, c_int, create_unicode_buffer, sizeof, windll, wintypes
 from pathlib import Path
 from tkinter import *
@@ -29,6 +30,18 @@ HTTP_OK = 200
 KEY_CTRL = 12
 
 win11_24h2 = sys.getwindowsversion().build >= 26100
+
+
+def rglob(path: Path, ext: str) -> Generator[Path]:
+	if not win11_24h2:
+		yield from path.rglob(f"*.{ext}")
+		return
+
+	ext = ext.lower()
+	for root, _, files in path.walk():
+		for file in files:
+			if file.lower().endswith(ext):
+				yield root / file
 
 
 def is_file(path: Path) -> bool:

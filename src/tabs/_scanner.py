@@ -14,7 +14,7 @@ from enums import ProblemType, SolutionType, Tab, Tool
 from globals import *
 from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SimpleProblemInfo
 from modal_window import TreeWindow
-from utils import copy_text, exists, is_dir, is_file
+from utils import copy_text, exists, is_dir, is_file, rglob
 
 IGNORE_FOLDERS = {
 	"bodyslide",
@@ -485,7 +485,7 @@ class ScannerTab(CMCTabFrame):
 		if scan_settings[ScanSetting.Errors]:  # noqa: SIM102
 			if scan_settings.manager and Tool.ComplexSorter in scan_settings.manager.executables:
 				for tool_path in scan_settings.manager.executables[Tool.ComplexSorter]:
-					for ini_path in tool_path.parent.rglob("*.ini"):  # TODO: 24H2 fix
+					for ini_path in rglob(tool_path.parent, "ini"):
 						ini_lines = ini_path.read_text("utf-8").splitlines(keepends=True)
 						error_found = False
 						for ini_line in ini_lines:
