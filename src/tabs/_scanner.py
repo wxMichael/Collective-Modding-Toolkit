@@ -137,10 +137,10 @@ class ScanSettings(dict[ScanSetting, bool]):
 		self.manager = side_pane.scanner_tab.cmc.game.manager
 		self.using_stage = side_pane.scanner_tab.using_stage
 		if self.manager and self.manager.name == "Mod Organizer":
-			self.skip_file_suffixes = self.manager.skip_file_suffixes
+			self.skip_file_suffixes = (*self.manager.skip_file_suffixes, ".vortex_backup")
 			self.skip_directories = IGNORE_FOLDERS.union(self.manager.skip_directories)
 		else:
-			self.skip_file_suffixes = ()
+			self.skip_file_suffixes = (".vortex_backup",)
 			self.skip_directories = IGNORE_FOLDERS
 
 
