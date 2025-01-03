@@ -14,7 +14,7 @@ from enums import ProblemType, SolutionType, Tab, Tool
 from globals import *
 from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SimpleProblemInfo
 from modal_window import TreeWindow
-from utils import copy_text, exists, is_dir, is_file, rglob
+from utils import copy_text, exists, is_dir, is_file, read_text_encoded, rglob
 
 IGNORE_FOLDERS = {
 	"bodyslide",
@@ -478,7 +478,8 @@ class ScannerTab(CMCTabFrame):
 			if scan_settings.manager and Tool.ComplexSorter in scan_settings.manager.executables:
 				for tool_path in scan_settings.manager.executables[Tool.ComplexSorter]:
 					for ini_path in rglob(tool_path.parent, "ini"):
-						ini_lines = ini_path.read_text("utf-8").splitlines(keepends=True)
+						ini_text, _ = read_text_encoded(ini_path)
+						ini_lines = ini_text.splitlines(keepends=True)
 						error_found = False
 						for ini_line in ini_lines:
 							if not ini_line.startswith(";") and ('"Addon Index"' in ini_line or "'Addon Index'" in ini_line):
@@ -663,7 +664,8 @@ class ScannerTab(CMCTabFrame):
 
 				if scan_settings[ScanSetting.Errors]:  # noqa: SIM102
 					if data_root_lower == "complex sorter" and file_ext == "ini":
-						ini_lines = file_path_full.read_text("utf-8").splitlines(keepends=True)
+						ini_text, _ = read_text_encoded(file_path_full)
+						ini_lines = ini_text.splitlines(keepends=True)
 						error_found = False
 						for ini_line in ini_lines:
 							if not ini_line.startswith(";") and ('"Addon Index"' in ini_line or "'Addon Index'" in ini_line):

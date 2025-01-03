@@ -12,6 +12,7 @@ from tkinter import *
 from tkinter import ttk
 from typing import TYPE_CHECKING, Literal, overload
 
+import chardet
 import requests
 import win32api
 from packaging.version import InvalidVersion, Version
@@ -101,6 +102,12 @@ def exists(path: Path) -> bool:
 	except OSError:
 		return False
 	return True
+
+
+def read_text_encoded(file_path: Path) -> tuple[str, str]:
+	file_bytes = file_path.read_bytes()
+	encoding = chardet.detect(file_bytes)["encoding"] or "utf-8"
+	return file_bytes.decode(encoding), encoding
 
 
 def load_font(font_path: str) -> None:

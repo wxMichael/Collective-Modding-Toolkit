@@ -6,6 +6,7 @@ from enums import SolutionType
 from globals import *
 from helpers import ProblemInfo, SimpleProblemInfo
 from modal_window import AboutWindow
+from utils import read_text_encoded
 
 if TYPE_CHECKING:
 	import tabs
@@ -27,7 +28,8 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 		)
 
 	try:
-		ini_lines = problem_info.path.read_text("utf-8").splitlines(keepends=True)
+		ini_text, ini_encoding = read_text_encoded(problem_info.path)
+		ini_lines = ini_text.splitlines(keepends=True)
 	except FileNotFoundError:
 		logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
 		return AutoFixResult(
@@ -53,12 +55,15 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 			ini_lines[i] = ini_line.replace('"Addon Index"', '"Parent Combination Index"')
 			ini_lines[i] = ini_line.replace("'Addon Index'", "'Parent Combination Index'")
 			lines_fixed += 1
-			logger.info('Auto-Fix : %s : Line %s : Updated "Addon Index" to "Parent Combination Index"', problem_info.path.name, i + 1)
+			logger.info(
+				'Auto-Fix : %s : Line %s : Updated "Addon Index" to "Parent Combination Index"',
+				problem_info.path.name,
+				i + 1,
+			)
 
 	if lines_fixed:
-		problem_info.path.write_text("".join(ini_lines), "utf-8")
 		try:
-			problem_info.path.write_text("".join(ini_lines), "utf-8")
+			problem_info.path.write_text("".join(ini_lines), ini_encoding)
 		except PermissionError:
 			logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
 			return AutoFixResult(
