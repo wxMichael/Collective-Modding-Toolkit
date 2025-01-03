@@ -141,6 +141,5 @@ class ToolsTab(CMCTabFrame):
 		label_planned.grid(column=0, row=len(frame_toolkit.children) - 1, pady=(10, 0))
 
 		self.add_tool_button(frame_toolkit, "File Inspector")
-		self.add_tool_button(frame_toolkit, "Complex Sorter\n  INI Patcher")
 		self.add_tool_button(frame_toolkit, "Move CC to\nMod Manager")
 		self.add_tool_button(frame_toolkit, "Papyrus Script\n   Compiler")
