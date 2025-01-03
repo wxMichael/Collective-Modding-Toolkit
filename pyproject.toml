@@ -21,12 +21,13 @@ pywin32-ctypes = "^0.2.3"
 pyxdelta = "^0.2.0"
 requests = "^2.32.3"
 tkinter-tooltip = "^3.1.2"
-pillow = "^11.0.0"
+pillow = "^11.1.0"
+chardet = "^5.2.0"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.13.0"
-types-psutil = "^6.1.0.20241102"
-types-pywin32 = "^308.0.0.20241128"
+mypy = "^1.14.1"
+types-psutil = "^6.1.0.20241221"
+types-pywin32 = "^308.0.0.20241221"
 types-requests = "^2.32.0.20241016"
 setuptools = "^75.6.0"
 
