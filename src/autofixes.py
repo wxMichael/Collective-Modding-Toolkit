@@ -66,22 +66,23 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 			problem_info.path.write_text("".join(ini_lines), ini_encoding)
 		except PermissionError:
 			logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
-			return AutoFixResult(
+			result = AutoFixResult(
 				success=False,
 				details=f"File Access Denied: {problem_info.path}",
 			)
 		except OSError:
 			logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
-			return AutoFixResult(
+			result = AutoFixResult(
 				success=False,
 				details=f"OSError: {problem_info.path}",
 			)
-
-		logger.info("Auto-Fix : %s : %s Lines Fixed", problem_info.path.name, lines_fixed)
-		return AutoFixResult(
-			success=True,
-			details=f'All references to "Addon Index" updated to "Parent Combination Index".\nINI Lines Fixed: {lines_fixed}',
-		)
+		else:
+			logger.info("Auto-Fix : %s : %s Lines Fixed", problem_info.path.name, lines_fixed)
+			result = AutoFixResult(
+				success=True,
+				details=f'All references to "Addon Index" updated to "Parent Combination Index".\nINI Lines Fixed: {lines_fixed}',
+			)
+		return result
 
 	logger.error("Auto-Fix : %s : No fixes were needed.", problem_info.path.name)
 	return AutoFixResult(
