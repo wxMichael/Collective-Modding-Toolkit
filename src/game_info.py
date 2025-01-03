@@ -18,6 +18,7 @@ from utils import (
 
 if TYPE_CHECKING:
 	from helpers import FileInfo
+	from mod_manager_info import ModManagerInfo
 
 
 class GameInfo:
@@ -51,7 +52,7 @@ class GameInfo:
 		self.module_count_full = 0
 		self.module_count_light = 0
 		self.module_count_v1 = 0
-		self.manager = find_mod_manager()
+		self.manager: ModManagerInfo | None = find_mod_manager()
 		self.find_path()
 		self.load_game_inis()
 
