@@ -98,19 +98,6 @@ class ScanSetting(Enum):
 	ProblemOverrides = ("Problem Overrides", TOOLTIP_SCAN_BAD_OVERRIDES)
 	RaceSubgraphs = ("Race Subgraphs", TOOLTIP_SCAN_RACE_SUBGRAPHS)
 
-	DDSChecks = ("DDS Checks", TOOLTIP_SCAN_DDS)
-	BA2Content = ("BA2 Contents", TOOLTIP_SCAN_BA2)
-	ModConflicts = ("Mod Conflicts", TOOLTIP_SCAN_CONFLICTS)
-	Suggestions = ("Suggestions", TOOLTIP_SCAN_SUGGEST)
-
-
-WIP_SETTINGS = (
-	ScanSetting.DDSChecks,
-	ScanSetting.BA2Content,
-	ScanSetting.ModConflicts,
-	ScanSetting.Suggestions,
-)
-
 
 class ModFiles:
 	def __init__(self) -> None:
@@ -758,19 +745,14 @@ class SidePane(Toplevel):
 		frame_scan_settings = ttk.Labelframe(self, text="Scan Settings", labelanchor=N, padding=5)
 		frame_scan_settings.pack(expand=True, fill=BOTH, padx=5, pady=5)
 
-		frame_wip_settings = ttk.Labelframe(self, text="WIP Settings", labelanchor=N, padding=5)
-		if WIP_SETTINGS:
-			frame_wip_settings.pack(expand=True, fill=BOTH, padx=5, pady=0)
-
 		self.bool_vars: dict[ScanSetting, BooleanVar] = {}
 		for setting in ScanSetting:
-			wip = bool(WIP_SETTINGS and setting in WIP_SETTINGS)
-			self.bool_vars[setting] = BooleanVar(value=not wip)
+			self.bool_vars[setting] = BooleanVar(value=True)
 			setting_check = ttk.Checkbutton(
-				frame_wip_settings if wip else frame_scan_settings,
+				frame_scan_settings,
 				text=setting.value[0],
 				variable=self.bool_vars[setting],
-				state=DISABLED if wip else NORMAL,
+				state=NORMAL,
 				command=self.on_checkbox_toggle,
 			)
 			setting_check.pack(anchor=W, side=TOP)
