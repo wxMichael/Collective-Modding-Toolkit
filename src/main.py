@@ -5,7 +5,7 @@ from tkinter import Tk
 from app_settings import AppSettings, Settings
 from cm_checker import CMChecker
 from globals import APP_TITLE, APP_VERSION
-from helpers import Stderr
+from helpers import StdErr
 from utils import get_asset_path, load_font, set_theme
 
 logging.basicConfig(
@@ -26,7 +26,7 @@ root = Tk()
 root.wm_withdraw()
 root.update_idletasks()
 
-sys.stderr = Stderr(root)
+sys.stderr = StdErr(root)
 CMChecker(root, settings)
 set_theme(root)
 root.update_idletasks()

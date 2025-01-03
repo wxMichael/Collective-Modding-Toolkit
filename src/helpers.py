@@ -253,11 +253,12 @@ class SimpleProblemInfo:
 		self.autofix_result: AutoFixResult | None = None
 
 
-class Stderr:
+class StdErr:
 	def __init__(self, root: Tk) -> None:
 		self.root = root
 		self.error_window: Toplevel | None = None
 		self.txt: Text
+		self.buffer: list[str] = []
 
 	def create_window(self) -> None:
 		if not self.error_window:
@@ -268,13 +269,16 @@ class Stderr:
 			self.txt.pack(expand=True, fill=BOTH)
 
 	def write(self, string: str) -> int:
-		logger.error("StdErr : %s", string)
-		self.create_window()
-		self.txt.insert("insert", string)
+		self.buffer.append(string)
 		return 0
 
 	def flush(self) -> None:
-		pass
+		self.create_window()
+		buffer = "".join(self.buffer).strip()
+		self.buffer.clear()
+		if buffer:
+			self.txt.insert("insert", buffer)
+			logger.error("StdErr : %s", buffer)
 
 	def on_close(self) -> None:
 		if self.error_window:
