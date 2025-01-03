@@ -18,6 +18,7 @@ from globals import COLOR_BAD, FONT_LARGE
 if TYPE_CHECKING:
 	import psutil._pswindows as pswin
 
+	from app_settings import AppSettings
 	from autofixes import AutoFixResult
 	from game_info import GameInfo
 
@@ -113,6 +114,7 @@ class CMCheckerInterface(ABC):
 		self.game: GameInfo
 		self.pc: PCInfo
 		self.overview_problems: list[ProblemInfo | SimpleProblemInfo]
+		self.settings: AppSettings
 
 	@abstractmethod
 	def refresh_tab(self, tab: Tab) -> None: ...

@@ -2,7 +2,7 @@ import logging
 import sys
 from tkinter import Tk
 
-from app_settings import AppSettings, Settings
+from app_settings import AppSettings
 from cm_checker import CMChecker
 from globals import APP_TITLE, APP_VERSION
 from helpers import StdErr
@@ -18,8 +18,8 @@ start_message = f"Starting {APP_TITLE} v{APP_VERSION}"
 logger.info("-" * len(start_message))
 logger.info("%s", start_message)
 
-settings: Settings = AppSettings()  # type: ignore[assignment]
-logger.setLevel(settings["log_level"])
+settings = AppSettings()
+logger.setLevel(settings.dict["log_level"])
 
 load_font(str(get_asset_path("fonts/CascadiaMono.ttf")))
 root = Tk()

@@ -1,79 +1,81 @@
 import json
 import logging
-from collections import UserDict
 from pathlib import Path
-from typing import Any, Literal, TypedDict
+from typing import Literal, TypedDict, get_args, get_origin
 
 from utils import is_file
 
 logger = logging.getLogger(__name__)
 
+SETTINGS_PATH = Path("settings.json")
 
-class Settings(TypedDict):
+
+class AppSettingsDict(TypedDict):
 	log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"]
 	update_source: Literal["nexus", "github", "both", "none"]
 
 
-DEFAULT_SETTINGS: Settings = {
+DEFAULT_SETTINGS: AppSettingsDict = {
 	"log_level": "INFO",
 	"update_source": "nexus",
 }
 
 
-class AppSettings(UserDict[str, Any]):
+class AppSettings:
 	def __init__(self) -> None:
-		super().__init__(DEFAULT_SETTINGS)
-		self._settings_path = Path("settings.json")
-		resave = False
-		if not is_file(self._settings_path):
-			logger.debug("Settings : %s not found; using defaults.", self._settings_path.name)
+		self.dict = DEFAULT_SETTINGS.copy()
+
+		if not is_file(SETTINGS_PATH):
+			logger.info("Settings : %s not found; using defaults.", SETTINGS_PATH.name)
+			self.save()
 			return
 
+		resave = False
 		try:
-			json_content: Settings = json.loads(self._settings_path.read_text("utf-8"))
+			json_content: AppSettingsDict = json.loads(SETTINGS_PATH.read_text("utf-8"))
 			if not isinstance(json_content, dict):  # type: ignore[reportUnnecessaryIsInstance]
 				raise ValueError  # noqa: TRY004
 		except:
-			logger.exception("Settings : Failed to load %s. Settings will be reset.", self._settings_path.name)
+			logger.exception("Settings : Failed to load %s. Settings will be reset.", SETTINGS_PATH.name)
 			resave = True
 		else:
-			new_settings = [k for k in self if k not in json_content]
+			new_settings = [k for k in self.dict if k not in json_content]
 			if new_settings:
 				logger.info("Settings : Adding new settings to JSON: %s", ", ".join(new_settings))
 				resave = True
 
 			for k, v in json_content.items():
-				if k not in self:
+				if k not in self.dict:
 					logger.error("Settings : Unknown setting '%s' will be removed.", k)
 					resave = True
 					continue
 
-				annotation = Settings.__annotations__.get(k)
+				annotation = AppSettingsDict.__annotations__.get(k)
 				if not annotation:
 					logger.debug("Settings : '%s' has no set type", k)
-					self[k] = v
-				elif annotation.__class__.__name__ == "_LiteralGenericAlias":
-					if v in annotation.__args__:
+					self.dict[k] = v
+				elif get_origin(annotation) is Literal:
+					if v in get_args(annotation):
 						logger.debug("Settings : '%s' is correct type (%s)", k, type(v).__name__)
-						self[k] = v
+						self.dict[k] = v
 					else:
-						logger.error("Settings : '%s' has invalid value '%s'. Reset to '%s'", k, v, self[k])  # type: ignore[reportUnknownArgumentType]
+						logger.error("Settings : '%s' has invalid value '%s'. Reset to '%s'", k, v, self.dict[k])  # type: ignore[reportUnknownArgumentType]
 						resave = True
 				elif type(v) is annotation:
 					logger.debug("Settings : '%s' is correct type (%s)", k, type(v).__name__)
-					self[k] = v
+					self.dict[k] = v
 				else:
-					logger.error("Settings : '%s' has invalid type (%s) '%s'. Reset to '%s'", k, type(v).__name__, v, self[k])  # type: ignore[reportUnknownArgumentType]
+					logger.error("Settings : '%s' has invalid type (%s) '%s'. Reset to '%s'", k, type(v).__name__, v, self.dict[k])  # type: ignore[reportUnknownArgumentType]
 					resave = True
 
 		if resave:
 			self.save()
 
 	def save(self) -> None:
-		logger.debug("Settings : Saving %s", self._settings_path.name)
+		logger.debug("Settings : Saving %s", SETTINGS_PATH.name)
 		try:
-			with self._settings_path.open("w", encoding="utf-8") as f:
-				json.dump(self.data, f, indent="\t")
+			with SETTINGS_PATH.open("w", encoding="utf-8") as f:
+				json.dump(self.dict, f, indent="\t")
 				f.write("\n")
 		except:
-			logger.exception("Settings : Failed to save %s", self._settings_path.name)
+			logger.exception("Settings : Failed to save %s", SETTINGS_PATH.name)

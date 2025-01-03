@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import ttk
 
 import tabs
-from app_settings import Settings
+from app_settings import AppSettings
 from enums import Tab
 from game_info import GameInfo
 from globals import *
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class CMChecker(CMCheckerInterface):
-	def __init__(self, root: Tk, settings: Settings) -> None:
+	def __init__(self, root: Tk, settings: AppSettings) -> None:
 		self.root = root
 		self.settings = settings
 		self.pc = PCInfo()
