@@ -481,7 +481,7 @@ class ScannerTab(CMCTabFrame):
 						ini_lines = ini_path.read_text("utf-8").splitlines(keepends=True)
 						error_found = False
 						for ini_line in ini_lines:
-							if not ini_line.startswith(";") and '"Addon Index"' in ini_line:
+							if not ini_line.startswith(";") and ('"Addon Index"' in ini_line or "'Addon Index'" in ini_line):
 								error_found = True
 								break
 
@@ -666,7 +666,7 @@ class ScannerTab(CMCTabFrame):
 						ini_lines = file_path_full.read_text("utf-8").splitlines(keepends=True)
 						error_found = False
 						for ini_line in ini_lines:
-							if not ini_line.startswith(";") and '"Addon Index"' in ini_line:
+							if not ini_line.startswith(";") and ('"Addon Index"' in ini_line or "'Addon Index'" in ini_line):
 								error_found = True
 								break
 						if error_found:
