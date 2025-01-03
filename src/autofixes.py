@@ -17,10 +17,6 @@ class AutoFixResult:
 	def __init__(self, *, success: bool, details: str) -> None:
 		self.success = success
 		self.details = details
-		if success:
-			logger.info(details)
-		else:
-			logger.info(details)
 
 
 def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> AutoFixResult:
@@ -33,16 +29,19 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 	try:
 		ini_lines = problem_info.path.read_text("utf-8").splitlines(keepends=True)
 	except FileNotFoundError:
+		logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
 		return AutoFixResult(
 			success=False,
 			details=f"File Not Found: {problem_info.path}",
 		)
 	except PermissionError:
+		logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
 		return AutoFixResult(
 			success=False,
 			details=f"File Access Denied: {problem_info.path}",
 		)
 	except OSError:
+		logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
 		return AutoFixResult(
 			success=False,
 			details=f"OSError: {problem_info.path}",
@@ -54,17 +53,35 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 			ini_lines[i] = ini_line.replace('"Addon Index"', '"Parent Combination Index"')
 			ini_lines[i] = ini_line.replace("'Addon Index'", "'Parent Combination Index'")
 			lines_fixed += 1
+			logger.info('Auto-Fix : %s : Line %s : Updated "Addon Index" to "Parent Combination Index"', problem_info.path.name, i + 1)
 
 	if lines_fixed:
 		problem_info.path.write_text("".join(ini_lines), "utf-8")
+		try:
+			problem_info.path.write_text("".join(ini_lines), "utf-8")
+		except PermissionError:
+			logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
+			return AutoFixResult(
+				success=False,
+				details=f"File Access Denied: {problem_info.path}",
+			)
+		except OSError:
+			logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
+			return AutoFixResult(
+				success=False,
+				details=f"OSError: {problem_info.path}",
+			)
+
+		logger.info("Auto-Fix : %s : %s Lines Fixed", problem_info.path.name, lines_fixed)
 		return AutoFixResult(
 			success=True,
 			details=f'All references to "Addon Index" updated to "Parent Combination Index".\nINI Lines Fixed: {lines_fixed}',
 		)
 
+	logger.error("Auto-Fix : %s : No fixes were needed.", problem_info.path.name)
 	return AutoFixResult(
 		success=True,
-		details="No INI fixes needed.",
+		details="No fixes were needed.",
 	)
 
 
@@ -80,7 +97,7 @@ def do_autofix(results_pane: "tabs.ResultDetailsPane", selection: str) -> None:
 			assert results_pane.button_autofix is not None
 		solution_func = AUTO_FIXES[results_pane.problem_info.solution]
 		results_pane.button_autofix.configure(text="Fixing...", state=DISABLED)
-		logger.info("Performing Auto-Fix: %s", solution_func.__name__)
+		logger.info("Auto-Fix : Running %s", solution_func.__name__)
 		results_pane.problem_info.autofix_result = solution_func(results_pane.problem_info)
 		if results_pane.problem_info.autofix_result.success:
 			results_pane.button_autofix.configure(text="Fixed!", style="TButton", state=NORMAL)
