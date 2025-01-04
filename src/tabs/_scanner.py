@@ -22,7 +22,15 @@ from scan_settings import (
 	ScanSetting,
 	ScanSettings,
 )
-from utils import copy_text, exists, is_dir, is_file, read_text_encoded, rglob
+from utils import (
+	copy_text,
+	copy_text_button,
+	exists,
+	is_dir,
+	is_file,
+	read_text_encoded,
+	rglob,
+)
 
 
 class ScannerTab(CMCTabFrame):
@@ -709,9 +717,9 @@ class ResultDetailsPane(Toplevel):
 		self.tooltip_solution: ToolTip | None = None
 		self.button_files: ttk.Button | None = None
 		self.button_autofix: ttk.Button | None = None
+		self.button_copy: ttk.Button | None = None
 
 		self.grid_columnconfigure(1, weight=1)
-		self.grid_columnconfigure(2, weight=1)
 
 		start_row = 0
 		if scanner_tab.cmc.game.manager and scanner_tab.cmc.game.manager.stage_path:
@@ -789,6 +797,20 @@ class ResultDetailsPane(Toplevel):
 		self.frame_buttons = ttk.Frame(self)
 		self.frame_buttons.grid(column=2, row=0, rowspan=10, sticky=NSEW)
 
+	def copy_details(self) -> None:
+		if not self.button_copy:
+			return
+
+		if self.scanner_tab.cmc.game.manager and self.scanner_tab.cmc.game.manager.stage_path:
+			mod = f"Mod: {self.sv_mod_name.get()}\n"
+		else:
+			mod = ""
+
+		details = (
+			f"{mod}Problem: {self.sv_file_path.get()}\nSummary: {self.sv_problem.get()}\nSolution: {self.sv_solution.get()}\n"
+		)
+		copy_text_button(self.button_copy, details)
+
 	def set_info(self, selection: str, *, using_stage: bool) -> None:
 		self.problem_info = self.scanner_tab.tree_results_data[selection]
 		if using_stage:
@@ -850,6 +872,16 @@ class ResultDetailsPane(Toplevel):
 		if self.button_autofix:
 			self.button_autofix.destroy()
 			self.button_autofix = None
+
+		if self.button_copy is None:
+			self.button_copy = ttk.Button(
+				self.frame_buttons,
+				text="Copy Details",
+				command=self.copy_details,
+				padding=(0, 5),
+			)
+
+			self.button_copy.pack(side=TOP, anchor=E, fill=X, padx=5, pady=(5, 0))
 
 		if self.problem_info.file_list:
 			self.button_files = ttk.Button(
