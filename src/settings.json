@@ -1,6 +1,6 @@
 {
 	"log_level": "INFO",
-	"update_source": "nexus",
+	"update_source": "github",
 	"scanner_OverviewIssues": true,
 	"scanner_Errors": true,
 	"scanner_WrongFormat": true,
