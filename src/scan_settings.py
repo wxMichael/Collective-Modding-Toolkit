@@ -57,11 +57,6 @@ JUNK_FILE_SUFFIXES = (
 	".bak",
 )
 
-JUNK_FOLDERS_DATA_ROOT = {
-	"fomod",
-}
-"""These are always lowercase."""
-
 PROPER_FORMATS = {
 	# Textures
 	"bmp": ["dds"],
