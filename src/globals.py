@@ -255,8 +255,14 @@ In the base game, these 4 modules are v0.95:
 • DLCworkshop02.esm
 • DLCworkshop03.esm
 • DLCNukaWorld.esm"""
-TOOLTIP_HEDR_UNKNOWN = """These modules have an unknown header version.
-Fallout 4 OG & NG support only v0.95 and v1.00."""
+TOOLTIP_HEDR_UNKNOWN = """These modules have an unsupported header version.
+Fallout 4 supports only v0.95 and v1.00.
+
+Files with v0.94 were likey made with FalloutSnip and
+should be replaced, recreated, or removed.
+Use such mods AT YOUR OWN RISK as they may result
+in unknown behavior or issues due to having an invalid
+structure or corruption."""
 
 TOOLTIP_SCAN_OVERVIEW = "Report details of issues from Overview"
 TOOLTIP_SCAN_ERRORS = """Check for errors in mod configuration or files."""
