@@ -3,6 +3,8 @@ import webbrowser
 from tkinter import *
 from tkinter import ttk
 
+from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
+
 import tabs
 from app_settings import AppSettings
 from enums import Tab
@@ -37,6 +39,7 @@ class CMChecker(CMCheckerInterface):
 		self.overview_problems = []
 		self.processing_data = False
 		self.setup_window()
+		self.check_for_updates()
 
 	def get_image(self, relative_path: str) -> PhotoImage:
 		if relative_path not in self._images:
@@ -60,84 +63,17 @@ class CMChecker(CMCheckerInterface):
 		y = (self.root.winfo_screenheight() // 2) - (WINDOW_HEIGHT // 2)
 		self.root.wm_geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x}+{y}")
 		self.root.grid_columnconfigure(0, weight=1)
-
-		nexus_version = check_for_update_nexus()
-		github_version = check_for_update_github()
-		if nexus_version or github_version:
-			update_frame = ttk.Frame(self.root)
-			update_frame.grid(sticky=NSEW)
-
-			column = 0
-			ttk.Label(
-				update_frame,
-				image=self.get_image("images/update-24.png"),
-				text="An update is available:",
-				compound=LEFT,
-				background="pale green",
-				foreground="dark green",
-				anchor=E,
-				justify=RIGHT,
-				padding=5,
-				font=FONT,
-			).grid(column=column, row=0, sticky=NSEW)
-
-			if nexus_version is not None:
-				column += 1
-				hyperlink_label_nexus = ttk.Label(
-					update_frame,
-					text=f"v{nexus_version} (NexusMods)",
-					background="pale green",
-					foreground="SteelBlue4",
-					cursor="hand2",
-					anchor=W,
-					justify=LEFT,
-					padding=0,
-					font=(*FONT, "bold underline"),
-				)
-				hyperlink_label_nexus.grid_configure(column=column, row=0, sticky=NSEW)
-				hyperlink_label_nexus.bind("<Button-1>", lambda _: webbrowser.open(NEXUS_LINK))
-
-			if github_version and nexus_version:
-				column += 1
-				ttk.Label(
-					update_frame,
-					text=" / ",
-					background="pale green",
-					foreground="dark green",
-					anchor=W,
-					justify=LEFT,
-					font=FONT,
-				).grid(column=column, row=0, sticky=NSEW)
-
-			if github_version is not None:
-				column += 1
-				hyperlink_label_github = ttk.Label(
-					update_frame,
-					text=f"v{github_version} (GitHub)",
-					background="pale green",
-					foreground="SteelBlue4",
-					cursor="hand2",
-					anchor=W,
-					justify=LEFT,
-					font=(*FONT, "bold underline"),
-				)
-				hyperlink_label_github.grid(column=column, row=0, sticky=NSEW)
-				hyperlink_label_github.bind("<Button-1>", lambda _: webbrowser.open(GITHUB_LINK))
-
-			update_frame.grid_columnconfigure(0, weight=1)
-			update_frame.grid_columnconfigure(column, weight=1)
-			update_frame.grid_rowconfigure(0, weight=1)
+		self.root.grid_rowconfigure(1, weight=1)
 
 		notebook = ttk.Notebook(self.root)
-		notebook.grid(sticky=NSEW)
-
-		self.root.grid_rowconfigure(self.root.grid_size()[1] - 1, weight=1)
+		notebook.grid(column=0, row=1, sticky=NSEW)
 
 		self.tabs: dict[Tab, CMCTabFrame] = {
 			Tab.Overview: tabs.OverviewTab(self, notebook),
 			Tab.F4SE: tabs.F4SETab(self, notebook),
 			Tab.Scanner: tabs.ScannerTab(self, notebook),
 			Tab.Tools: tabs.ToolsTab(self, notebook),
+			Tab.Settings: tabs.SettingsTab(self, notebook),
 			Tab.About: tabs.AboutTab(self, notebook),
 		}
 
@@ -145,6 +81,82 @@ class CMChecker(CMCheckerInterface):
 		self.root.bind("<Escape>", lambda _: self.root.destroy())
 		self.root.bind("<Unmap>", self.on_minimize)
 		self.root.bind("<Map>", self.on_restore)
+
+	def check_for_updates(self) -> None:
+		update_source = self.settings.dict["update_source"]
+		if update_source == "none":
+			return
+
+		nexus_version = check_for_update_nexus() if update_source in {"nexus", "both"} else None
+		github_version = check_for_update_github() if update_source in {"github", "both"} else None
+		if not (nexus_version or github_version):
+			return
+
+		update_frame = ttk.Frame(self.root, style="Update.TFrame")
+		update_frame.grid(column=0, row=0, sticky=NSEW)
+
+		column = 0
+		ttk.Label(
+			update_frame,
+			image=self.get_image("images/update-24.png"),
+			text="An update is available:",
+			compound=LEFT,
+			background="pale green",
+			foreground="dark green",
+			anchor=E,
+			justify=RIGHT,
+			padding=5,
+			font=FONT,
+		).grid(column=column, row=0, sticky=E)
+
+		if nexus_version:
+			column += 1
+			hyperlink_label_nexus = ttk.Label(
+				update_frame,
+				text=f"v{nexus_version} (NexusMods)",
+				background="pale green",
+				foreground="SteelBlue4",
+				cursor="hand2",
+				anchor=W,
+				justify=LEFT,
+				padding=0,
+				font=(*FONT, "bold underline"),
+			)
+			hyperlink_label_nexus.grid(column=column, row=0, sticky=W)
+			hyperlink_label_nexus.bind("<Button-1>", lambda _: webbrowser.open(NEXUS_LINK))
+			ToolTip(hyperlink_label_nexus, "Open Nexus Mods")
+
+		if github_version and nexus_version:
+			column += 1
+			ttk.Label(
+				update_frame,
+				text=" / ",
+				background="pale green",
+				foreground="dark green",
+				anchor=W,
+				justify=LEFT,
+				font=FONT,
+			).grid(column=column, row=0, sticky=W)
+
+		if github_version:
+			column += 1
+			hyperlink_label_github = ttk.Label(
+				update_frame,
+				text=f"v{github_version} (GitHub)",
+				background="pale green",
+				foreground="SteelBlue4",
+				cursor="hand2",
+				anchor=W,
+				justify=LEFT,
+				font=(*FONT, "bold underline"),
+			)
+			hyperlink_label_github.grid(column=column, row=0, sticky=W)
+			hyperlink_label_github.bind("<Button-1>", lambda _: webbrowser.open(GITHUB_LINK))
+			ToolTip(hyperlink_label_github, "Open GitHub")
+
+		update_frame.grid_columnconfigure(0, weight=1)
+		update_frame.grid_columnconfigure(column, weight=1)
+		update_frame.grid_rowconfigure(0, weight=1)
 
 	def on_minimize(self, _event: "Event[Misc]") -> None:
 		if self.root.wm_state() != "iconic":

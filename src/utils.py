@@ -288,6 +288,7 @@ def set_theme(win: Tk) -> None:
 	style.configure("TLabelframe.Label", font=FONT_SMALL, foreground=COLOR_DEFAULT)
 	style.configure("Treeview", font=FONT_SMALL, foreground=COLOR_DEFAULT)
 	style.configure("Heading", font=FONT_SMALL, foreground=COLOR_DEFAULT)
+	style.configure("Update.TFrame", background="pale green")
 
 
 def check_for_update_nexus() -> str | None:
