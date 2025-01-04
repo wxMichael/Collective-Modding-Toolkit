@@ -279,12 +279,13 @@ TOOLTIP_SCAN_BA2 = "Scan inside BA2 archives.\nNote: Checks may be limited for c
 TOOLTIP_SCAN_CONFLICTS = "Detect conflicting mods and mod settings."
 TOOLTIP_SCAN_SUGGEST = "Make suggestions for changes to your mod setup."
 
-TOOLTIP_SAVE_MODE = """Settings are saved to a JSON file by default.
-If this is disabled or the JSON file is deleted, default
-settings will be used and update checks will be disabled."""
-TOOLTIP_UPDATE_MODE = """GitHub will always have the latest release.
+TOOLTIP_UPDATE_SOURCE = """GitHub will always have the latest release.
 Nexus Mods releases may be delayed due to
 their review process or to await more testing."""
+TOOLTIP_LOG_LEVEL = """Sets the minimum importance level for messages sent to the log file.
+DEBUG: Extra verbose.
+INFO: Default.
+ERROR: Only log errors."""
 
 TOOLTIP_DOWNGRADER_BACKUPS = """Backups are created prior to patching, and will be used instead of patches if present.
 Simple Downgrader's backups will also be used.

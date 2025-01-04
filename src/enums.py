@@ -36,6 +36,7 @@ class Tab(StrEnum):
 	F4SE = "F4SE"
 	Scanner = "Scanner"
 	Tools = "Tools"
+	Settings = "Settings"
 	About = "About"
 
 
