@@ -13,6 +13,7 @@
   ⚠️ If you have already run Complex Sorter on these xEdit versions, you should delete/recreate your output files.
   - Auto-Fix Button! For supported issues, the Scanner will provide an option to automatically resolve the detected problem.  
   To start, this is only supported for Complex Sorter INI Errors.
+  - `*.vortex_backup` files will be ignored.
   - Copy Details Button: Copies all text from the result details pane.  
   Thanks Alundra for the suggestion!
 
