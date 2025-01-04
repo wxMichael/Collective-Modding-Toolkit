@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.5.0] - 2025-01-04
+
+### Added
+
+- Info and errors are now logged to `cm-toolkit.log`
+
+- #### Scanner
+
+  - Errors option: Checks for errors in mod configuration or files will be controlled by this option.
+  - Complex Sorter INI Errors: xEdit v4.1.5g changed the name of the "Addon Index" field to "Parent Combination Index". Any INI files referencing this field will need to be updated to be compatible.  
+  ⚠️ If you have already run Complex Sorter on these xEdit versions, you should delete/recreate your output files.
+  - Auto-Fix Button! For supported issues, the Scanner will provide an option to automatically resolve the detected problem.  
+  To start, this is only supported for Complex Sorter INI Errors.
+  - Copy Details Button: Copies all text from the result details pane.  
+  Thanks Alundra for the suggestion!
+
+- #### Settings
+
+  - Settings Tab! Settings are saved to `settings.json`.  
+  Downgrader and Scanner settings will be remembered now.
+  - Update Channel: Choose where to check for updates, Nexus Mods or GitHub.  
+  Updates will be released earlier via GitHub to allow time to catch issues before a more "stable" Nexus Mods release.
+  This defaults to where you downloaded from.
+  - Log Level: Choose how noisy you want your log file. Debug will likely be most useful for issue reporting.
+
+### Fixed
+
+- #### Overview
+
+  - Fixed detection of `steam_api64.dll` for GOG users.
+
 ## [0.4.0] - 2024-12-26
 
 ### Added
@@ -181,6 +212,7 @@ It currently only supports `Data/` and MO2's mods folder with basic checks like 
 
 _Initial release._
 
+[0.5.0]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.5.0
 [0.4.0]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.4.0
 [0.3.2]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.3.2
 [0.3.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.3.1
