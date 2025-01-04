@@ -13,11 +13,25 @@ SETTINGS_PATH = Path("settings.json")
 class AppSettingsDict(TypedDict):
 	log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"]
 	update_source: Literal["nexus", "github", "both", "none"]
+	scanner_OverviewIssues: bool
+	scanner_Errors: bool
+	scanner_WrongFormat: bool
+	scanner_LoosePrevis: bool
+	scanner_JunkFiles: bool
+	scanner_ProblemOverrides: bool
+	scanner_RaceSubgraphs: bool
 
 
 DEFAULT_SETTINGS: AppSettingsDict = {
 	"log_level": "INFO",
 	"update_source": "nexus",
+	"scanner_OverviewIssues": True,
+	"scanner_Errors": True,
+	"scanner_WrongFormat": True,
+	"scanner_LoosePrevis": True,
+	"scanner_JunkFiles": True,
+	"scanner_ProblemOverrides": True,
+	"scanner_RaceSubgraphs": True,
 }
 
 
@@ -65,7 +79,13 @@ class AppSettings:
 					logger.debug("Settings : '%s' is correct type (%s)", k, type(v).__name__)
 					self.dict[k] = v
 				else:
-					logger.error("Settings : '%s' has invalid type (%s) '%s'. Reset to '%s'", k, type(v).__name__, v, self.dict[k])  # type: ignore[reportUnknownArgumentType]
+					logger.error(
+						"Settings : '%s' has invalid type (%s) '%s'. Reset to '%s'",
+						k,
+						type(v).__name__,
+						v,
+						self.dict[k],  # type: ignore[reportUnknownArgumentType]
+					)
 					resave = True
 
 		if resave:

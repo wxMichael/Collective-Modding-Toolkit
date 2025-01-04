@@ -1,4 +1,11 @@
 {
 	"log_level": "INFO",
-	"update_source": "nexus"
+	"update_source": "nexus",
+	"scanner_OverviewIssues": true,
+	"scanner_Errors": true,
+	"scanner_WrongFormat": true,
+	"scanner_LoosePrevis": true,
+	"scanner_JunkFiles": true,
+	"scanner_ProblemOverrides": true,
+	"scanner_RaceSubgraphs": true
 }

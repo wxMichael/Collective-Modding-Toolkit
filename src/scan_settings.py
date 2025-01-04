@@ -109,10 +109,19 @@ class ScanSettings(dict[ScanSetting, bool]):
 
 		non_data = {ScanSetting.OverviewIssues, ScanSetting.RaceSubgraphs}
 
+		settings = side_pane.scanner_tab.cmc.settings
+		resave = False
 		for setting in ScanSetting:
 			self[setting] = side_pane.bool_vars[setting].get()
 			if self[setting] and setting not in non_data:
 				self.skip_data_scan = False
+
+			name = str(f"scanner_{setting.name}")
+			if settings.dict[name] != self[setting]:
+				settings.dict[name] = self[setting]
+				resave = True
+		if resave:
+			settings.save()
 
 		self.manager = side_pane.scanner_tab.cmc.game.manager
 		self.using_stage = side_pane.scanner_tab.using_stage
