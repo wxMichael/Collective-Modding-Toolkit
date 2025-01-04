@@ -1,4 +1,5 @@
 import logging
+import sys
 import webbrowser
 from tkinter import *
 from tkinter import ttk
@@ -50,6 +51,7 @@ class CMChecker(CMCheckerInterface):
 	def on_close(self) -> None:
 		if self.processing_data:
 			return
+		sys.stderr = sys.__stderr__
 		self.root.destroy()
 
 	def setup_window(self) -> None:
