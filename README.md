@@ -4,7 +4,7 @@ Latest Version: [Download](https://github.com/wxMichael/Collective-Modding-Toolk
 
 A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the Collective Modding Discord Community.
 
-<img width="381" alt="CMT-01" src="https://github.com/user-attachments/assets/7abb9406-564f-4ae7-b071-fbb161e4c536">
+<img width="381" alt="CMT-01" src="https://github.com/user-attachments/assets/cba3539a-2d78-4af2-a19d-eb665ad16e10">
 
 ## Features
 
