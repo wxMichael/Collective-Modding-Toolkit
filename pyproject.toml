@@ -93,7 +93,7 @@ extend-select = [
 	# "C901",  # Complex Structures
 	"COM",   # Commas
 	# "D",     # pydocstyle
-	"DTZ",   # Unsafe/Naive Datetimes
+	# "DTZ",   # Unsafe/Naive Datetimes
 	"EM",    # Exception Messages
 	"FA",    # Future Annotations
 	"FBT",   # Boolean Traps

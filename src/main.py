@@ -1,5 +1,6 @@
 import logging
 import sys
+from datetime import datetime
 from tkinter import Tk
 
 from app_settings import AppSettings
@@ -17,6 +18,7 @@ logger = logging.getLogger()
 start_message = f"Starting {APP_TITLE} v{APP_VERSION}"
 logger.info("-" * len(start_message))
 logger.info("%s", start_message)
+logger.info("%s", datetime.now().strftime("%Y-%m-%d %H:%M"))
 
 settings = AppSettings()
 logger.setLevel(settings.dict["log_level"])
