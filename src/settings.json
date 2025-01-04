@@ -7,5 +7,7 @@
 	"scanner_LoosePrevis": true,
 	"scanner_JunkFiles": true,
 	"scanner_ProblemOverrides": true,
-	"scanner_RaceSubgraphs": true
+	"scanner_RaceSubgraphs": true,
+	"downgrader_keep_backups": true,
+	"downgrader_delete_deltas": true
 }

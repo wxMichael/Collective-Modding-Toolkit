@@ -82,8 +82,8 @@ class Downgrader(ModalWindow):
 		self.get_info()
 
 		self.bv_wants_downgrade = BooleanVar(value=self.current_versions["Fallout4.exe"] == InstallType.OG)
-		self.bv_keep_backups = BooleanVar(value=True)
-		self.bv_delete_deltas = BooleanVar(value=True)
+		self.bv_keep_backups = BooleanVar(value=cmc.settings.dict["downgrader_keep_backups"])
+		self.bv_delete_deltas = BooleanVar(value=cmc.settings.dict["downgrader_delete_deltas"])
 
 		self.build_gui()
 
@@ -215,6 +215,17 @@ class Downgrader(ModalWindow):
 	def patch_files(self) -> None:
 		self.button_patch.configure(state=DISABLED)
 		self.logger.clear()
+
+		settings = self.cmc.settings
+		resave = False
+		if settings.dict["downgrader_keep_backups"] != self.bv_keep_backups.get():
+			settings.dict["downgrader_keep_backups"] = self.bv_keep_backups.get()
+			resave = True
+		if settings.dict["downgrader_delete_deltas"] != self.bv_delete_deltas.get():
+			settings.dict["downgrader_delete_deltas"] = self.bv_delete_deltas.get()
+			resave = True
+		if resave:
+			settings.save()
 
 		desired_version = InstallType.OG if self.bv_wants_downgrade.get() else InstallType.NG
 

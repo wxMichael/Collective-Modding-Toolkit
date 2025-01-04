@@ -20,6 +20,8 @@ class AppSettingsDict(TypedDict):
 	scanner_JunkFiles: bool
 	scanner_ProblemOverrides: bool
 	scanner_RaceSubgraphs: bool
+	downgrader_keep_backups: bool
+	downgrader_delete_deltas: bool
 
 
 DEFAULT_SETTINGS: AppSettingsDict = {
@@ -32,6 +34,8 @@ DEFAULT_SETTINGS: AppSettingsDict = {
 	"scanner_JunkFiles": True,
 	"scanner_ProblemOverrides": True,
 	"scanner_RaceSubgraphs": True,
+	"downgrader_keep_backups": True,
+	"downgrader_delete_deltas": True,
 }
 
 
