@@ -48,6 +48,7 @@ class AppSettings:
 		try:
 			json_content: AppSettingsDict = json.loads(SETTINGS_PATH.read_text("utf-8"))
 			if not isinstance(json_content, dict):  # type: ignore[reportUnnecessaryIsInstance]
+				# File doesn't contain a JSON Object
 				raise ValueError  # noqa: TRY004
 		except:
 			logger.exception("Settings : Failed to load %s. Settings will be reset.", SETTINGS_PATH.name)
