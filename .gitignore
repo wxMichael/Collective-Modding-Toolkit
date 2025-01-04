@@ -31,3 +31,4 @@ test.*
 
 # Runtime-Created Files
 *.xdelta
+cm-toolkit.log
