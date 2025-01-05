@@ -427,13 +427,11 @@ class OverviewTab(CMCTabFrame):
 		label_hedr_100.grid(column=0, row=5, sticky=E, padx=(5, 0))
 		ToolTip(label_hedr_100, TOOLTIP_HEDR_100)
 
-		# color_hedr_95 = COLOR_WARNING if self.cmc.game.modules_hedr_95 else COLOR_NEUTRAL_1
 		label_hedr_95 = ttk.Label(
 			self.frame_info_modules,
 			text="HEDR v0.95:",
 			font=FONT,
 			foreground=COLOR_DEFAULT,
-			# foreground=color_hedr_95,
 		)
 		label_hedr_95.grid(column=0, row=6, sticky=E, padx=(5, 0))
 		ToolTip(label_hedr_95, TOOLTIP_HEDR_95)
@@ -472,7 +470,6 @@ class OverviewTab(CMCTabFrame):
 			text=len(self.cmc.game.modules_hedr_95),
 			font=FONT,
 			foreground=COLOR_DEFAULT,
-			# foreground=color_hedr_95,
 		).grid(column=1, row=6, sticky=E, padx=(5, 0))
 
 		ttk.Label(
