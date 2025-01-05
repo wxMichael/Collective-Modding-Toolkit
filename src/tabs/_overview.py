@@ -14,7 +14,7 @@ from downgrader import Downgrader
 from enums import CSIDL, ArchiveVersion, Magic, ModuleFlag, ProblemType, SolutionType
 from globals import *
 from helpers import CMCheckerInterface, CMCTabFrame, ProblemInfo, SimpleProblemInfo
-from modal_window import AboutWindow
+from modal_window import AboutWindow, TreeWindow
 from patcher import ArchivePatcher
 from utils import (
 	add_separator,
@@ -490,6 +490,29 @@ class OverviewTab(CMCTabFrame):
 		label_module_max.grid(column=2, row=0, rowspan=3, sticky=EW)
 		ToolTip(label_module_max, TOOLTIP_MODULE_TYPES)
 
+		if self.cmc.game.modules_hedr_unknown:
+			label_hedr_unknown_icon = ttk.Label(
+				self.frame_info_modules,
+				compound="image",
+				image=self.cmc.get_image("images/info-16.png"),
+				cursor="hand2",
+			)
+			label_hedr_unknown_icon.grid(column=2, row=7, sticky=W, padx=(5, 0), ipady=3)
+			ToolTip(label_hedr_unknown_icon, "Detection details")
+			label_hedr_unknown_icon.bind(
+				"<Button-1>",
+				lambda _: TreeWindow(
+					self.cmc.root,
+					self.cmc,
+					400,
+					500,
+					"Detected Invalid Module Versions",
+					"",
+					("HEDR", " Module"),
+					[(v, k) for k, v in self.cmc.game.modules_hedr_unknown.items()],
+				),
+			)
+
 	def add_count_label(
 		self,
 		frame: ttk.Labelframe,
@@ -887,10 +910,10 @@ class OverviewTab(CMCTabFrame):
 			elif hedr_version == MODULE_VERSION_1:
 				self.cmc.game.module_count_v1 += 1
 			else:
-				hedr = str(round(struct.unpack("<f", hedr_version)[0], 2))
-				valid_games = [g for g, v in MODULE_VERSION_SUPPORT.items() if hedr in v]
+				hedr = round(struct.unpack("<f", hedr_version)[0], 2)
+				valid_games = [g for g, v in MODULE_VERSION_SUPPORT.items() if str(hedr) in v]
 				valid_games_str = (f"\nGames supporting v{hedr}: " + ", ".join(valid_games)) if valid_games else ""
-				self.cmc.game.modules_hedr_unknown.add(module_path)
+				self.cmc.game.modules_hedr_unknown[module_path] = hedr
 				self.cmc.overview_problems.append(
 					ProblemInfo(
 						ProblemType.InvalidModule,

@@ -38,7 +38,7 @@ class GameInfo:
 		self.archives_unreadable: set[Path] = set()
 		self.modules_unreadable: set[Path] = set()
 		self.modules_hedr_95: set[Path] = set()
-		self.modules_hedr_unknown: set[Path] = set()
+		self.modules_hedr_unknown: dict[Path, float] = {}
 		self.modules_enabled: list[Path] = []
 		self.file_info: dict[str, FileInfo] = {}
 		self.address_library: Path | None = None

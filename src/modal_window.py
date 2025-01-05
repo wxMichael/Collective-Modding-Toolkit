@@ -95,7 +95,7 @@ class TreeWindow(ModalWindow):
 		title: str,
 		text: str,
 		headers: tuple[str, str],
-		items: list[tuple[int, Path]] | None,
+		items: list[tuple[int | float, Path]] | None,
 	) -> None:
 		super().__init__(parent, cmc, title, width, height)
 		self.win_title = title
@@ -152,11 +152,11 @@ class TreeWindow(ModalWindow):
 		)
 		self.button_close.grid(column=0, row=2, columnspan=2, padx=10, pady=10)
 
-		self.tree_items.column("#0", width=60, stretch=False, anchor=W)
+		self.tree_items.column("#0", width=65, stretch=False, anchor=W)
 		if self.items:
 			for col in columns:
 				self.tree_items.column(col, stretch=True, anchor=W)
 			for item in sorted(self.items, key=operator.itemgetter(0), reverse=True):
-				self.tree_items.insert("", END, text=f"{item[0]: 3}", values=(item[1].name,))
+				self.tree_items.insert("", END, text=f"{item[0]}", values=(item[1].name,))
 		else:
 			self.tree_items.insert("", END, text="No items to display.")
