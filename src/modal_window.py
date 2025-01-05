@@ -119,7 +119,7 @@ class TreeWindow(ModalWindow):
 			font=FONT_SMALL,
 			justify=LEFT,
 			anchor=W,
-			wraplength=self.win_width,
+			wraplength=int(self.win_width * 0.9),
 		)
 		label_about.grid(column=0, row=0, columnspan=2, sticky=NSEW, padx=10, pady=10)
 
