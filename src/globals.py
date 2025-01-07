@@ -185,7 +185,7 @@ v7/8 are identical so this tool only patches to v1 & v8.
 Why Patch Versions?
 
 Patching is only needed if you use tools that require it.
-Most tools check the version to ensure compatiblity but v7/8 didn't exist when these tools were made, so they assume it's a different format and show errors.
+Most tools check the version to ensure compatibility but v7/8 didn't exist when these tools were made, so they assume it's a different format and show errors.
 Because they're actually identical, you can just patch the version number in the file header so the tools will allow reading them."""
 
 ABOUT_DOWNGRADING_TITLE = "About Downgrading Fallout 4 & Creation Kit"
