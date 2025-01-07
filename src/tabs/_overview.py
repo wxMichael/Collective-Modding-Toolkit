@@ -590,7 +590,7 @@ class OverviewTab(CMCTabFrame):
 		if not self.cmc.game.manager:
 			self.cmc.overview_problems.append(
 				SimpleProblemInfo(
-					sys.argv[0],
+					Path(sys.argv[0]).name,
 					"No Mod Manager",
 					"No Mod Manager Detected",
 					TOOLTIP_NO_MOD_MANAGER,
