@@ -155,8 +155,9 @@ class ModManagerInfo:
 					csv_reader = csv.reader((str(val),), doublequote=False, escapechar="\\", skipinitialspace=True)
 					self.mo2_settings[name] = next(csv_reader)
 
-		if self.mo2_settings.get("gameName", "Fallout 4") != "Fallout 4":
-			msg = "Only Fallout 4 is supported."
+		game_name = self.mo2_settings.get("gameName", "Fallout 4")
+		if game_name != "Fallout 4":
+			msg = f"Only Fallout 4 is supported.\ngameName is '{game_name}' in INI: \n{ini_path}"
 			raise ValueError(msg)
 
 		if "selected_profile" not in self.mo2_settings:
