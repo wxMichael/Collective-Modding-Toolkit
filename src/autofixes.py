@@ -29,7 +29,7 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 
 	try:
 		ini_text, ini_encoding = read_text_encoded(problem_info.path)
-		ini_lines = ini_text.splitlines(keepends=True)
+		ini_lines = ini_text.splitlines()
 	except FileNotFoundError:
 		logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
 		return AutoFixResult(
@@ -51,9 +51,17 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 
 	lines_fixed = 0
 	for i, ini_line in enumerate(ini_lines):
-		if not ini_line.startswith(";") and ('"Addon Index"' in ini_line or "'Addon Index'" in ini_line):
-			ini_lines[i] = ini_line.replace('"Addon Index"', '"Parent Combination Index"')
-			ini_lines[i] = ini_line.replace("'Addon Index'", "'Parent Combination Index'")
+		if ini_line.startswith(";"):
+			continue
+
+		if '"Addon Index"' in ini_line or "'Addon Index'" in ini_line:
+			ini_lines[i] = ini_line.replace(
+				'"Addon Index"',
+				'"Parent Combination Index"',
+			).replace(
+				"'Addon Index'",
+				"'Parent Combination Index'",
+			)
 			lines_fixed += 1
 			logger.info(
 				'Auto-Fix : %s : Line %s : Updated "Addon Index" to "Parent Combination Index"',
@@ -63,7 +71,7 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 
 	if lines_fixed:
 		try:
-			problem_info.path.write_text("".join(ini_lines), ini_encoding)
+			problem_info.path.write_text("\n".join(ini_lines) + "\n", ini_encoding)
 		except PermissionError:
 			logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
 			result = AutoFixResult(
