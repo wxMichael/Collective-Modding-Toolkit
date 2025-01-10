@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.1] - 2025-01-09
+
+### Added
+
+- #### Overview
+
+  - If any `HEDR v????` modules are found, a button next to the count will open a list of modules.
+
+### Fixed
+
+- #### Scanner
+
+  - Complex Sorter INI Errors: Fixed a bug introduced just before the last release that resulted in the fix undoing itself.
+
 ## [0.5.0] - 2025-01-04
 
 ### Added
@@ -213,6 +227,7 @@ It currently only supports `Data/` and MO2's mods folder with basic checks like 
 
 _Initial release._
 
+[0.5.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.5.1
 [0.5.0]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.5.0
 [0.4.0]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.4.0
 [0.3.2]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.3.2
