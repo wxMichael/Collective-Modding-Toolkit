@@ -30,7 +30,7 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 	try:
 		ini_text, ini_encoding = read_text_encoded(problem_info.path)
 		ini_text = ini_text.replace("\r\n", "\n")
-		if "\n\n\n\n" in ini_text:
+		while "\n\n\n" in str(ini_text):
 			ini_text = ini_text.replace("\n\n", "\n")
 		ini_lines = ini_text.splitlines()
 	except FileNotFoundError:
