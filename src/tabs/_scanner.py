@@ -371,7 +371,10 @@ class ScannerTab(CMCTabFrame):
 						ini_lines = ini_text.splitlines(keepends=True)
 						error_found = False
 						for ini_line in ini_lines:
-							if not ini_line.startswith(";") and ('"Addon Index"' in ini_line or "'Addon Index'" in ini_line):
+							if not ini_line.startswith(";") and (
+								'FindNode OBTS(FindNode "Addon Index"' in ini_line
+								or "FindNode OBTS(FindNode 'Addon Index'" in ini_line
+							):
 								error_found = True
 								break
 

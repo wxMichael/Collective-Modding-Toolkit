@@ -34,19 +34,19 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 			ini_text = ini_text.replace("\n\n", "\n")
 		ini_lines = ini_text.splitlines()
 	except FileNotFoundError:
-		logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
+		logger.exception("Auto-Fix : %s : Failed", problem_info.path)
 		return AutoFixResult(
 			success=False,
 			details=f"File Not Found: {problem_info.path}",
 		)
 	except PermissionError:
-		logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
+		logger.exception("Auto-Fix : %s : Failed", problem_info.path)
 		return AutoFixResult(
 			success=False,
 			details=f"File Access Denied: {problem_info.path}",
 		)
 	except OSError:
-		logger.exception("Auto-Fix : %s : Failed", problem_info.path.name)
+		logger.exception("Auto-Fix : %s : Failed", problem_info.path)
 		return AutoFixResult(
 			success=False,
 			details=f"OSError: {problem_info.path}",
@@ -57,13 +57,13 @@ def autofix_complex_sorter(problem_info: ProblemInfo | SimpleProblemInfo) -> Aut
 		if ini_line.startswith(";"):
 			continue
 
-		if '"Addon Index"' in ini_line or "'Addon Index'" in ini_line:
+		if 'FindNode OBTS(FindNode "Addon Index"' in ini_line or "FindNode OBTS(FindNode 'Addon Index'" in ini_line:
 			ini_lines[i] = ini_line.replace(
-				'"Addon Index"',
-				'"Parent Combination Index"',
+				'FindNode OBTS(FindNode "Addon Index"',
+				'FindNode OBTS(FindNode "Parent Combination Index"',
 			).replace(
-				"'Addon Index'",
-				"'Parent Combination Index'",
+				"FindNode OBTS(FindNode 'Addon Index'",
+				"FindNode OBTS(FindNode 'Parent Combination Index'",
 			)
 			lines_fixed += 1
 			logger.info(
