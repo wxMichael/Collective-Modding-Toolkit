@@ -41,7 +41,7 @@ def rglob(path: Path, ext: str) -> Generator[Path]:
 	ext = ext.lower()
 	for root, _, files in path.walk():
 		for file in files:
-			if file.lower().endswith(ext):
+			if file.lower().endswith(f"*.{ext}"):
 				yield root / file
 
 
