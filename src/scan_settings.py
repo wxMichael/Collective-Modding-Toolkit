@@ -89,10 +89,10 @@ class ScanSetting(Enum):
 
 class ModFiles:
 	def __init__(self) -> None:
-		self.folders: dict[Path, str] = {}
-		self.files: dict[Path, str] = {}
-		self.modules: dict[str, str] = {}
-		self.archives: dict[str, str] = {}
+		self.folders: dict[Path, tuple[str, Path]] = {}
+		self.files: dict[Path, tuple[str, Path]] = {}
+		self.modules: dict[str, tuple[str, Path]] = {}
+		self.archives: dict[str, tuple[str, Path]] = {}
 
 
 class ScanSettings(dict[ScanSetting, bool]):

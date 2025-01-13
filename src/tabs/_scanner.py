@@ -235,7 +235,7 @@ class ScannerTab(CMCTabFrame):
 		if scan_settings[ScanSetting.OverviewIssues] and self.cmc.overview_problems and scan_settings.mod_files:
 			for problem in self.cmc.overview_problems:
 				if problem.mod == "OVERVIEW":
-					problem.mod = scan_settings.mod_files.files.get(Path(problem.relative_path), "")
+					problem.mod = scan_settings.mod_files.files.get(Path(problem.relative_path), [""])[0]
 		else:
 			for problem in self.cmc.overview_problems:
 				if problem.mod == "OVERVIEW":
@@ -335,20 +335,22 @@ class ScannerTab(CMCTabFrame):
 					root_relative = Path()
 				else:
 					root_relative = root.relative_to(mod_path)
-					mod_files.folders[root_relative] = mod_name
+					mod_files.folders[root_relative] = (mod_name, root)
 
 				for file in files:
 					file_lower = file.lower()
 					if file_lower.endswith(scan_settings.skip_file_suffixes):
 						continue
 
-					mod_files.files[root_relative / file] = mod_name
+					full_path = root / file
+
+					mod_files.files[root_relative / file] = (mod_name, full_path)
 
 					if root_is_mod_path:
 						if file_lower.endswith((".esp", ".esl", ".esm")):
-							mod_files.modules[file] = mod_name
+							mod_files.modules[file] = (mod_name, full_path)
 						elif file_lower.endswith(".ba2"):
-							mod_files.archives[file] = mod_name
+							mod_files.archives[file] = (mod_name, full_path)
 					else:
 						pass
 
@@ -430,7 +432,7 @@ class ScannerTab(CMCTabFrame):
 		data_root_lower = "Data"
 		for current_path, folders, files in data_path.walk(top_down=True):
 			current_path_relative = current_path.relative_to(data_path)
-			mod_name = mod_files.folders.get(current_path_relative)
+			mod_name, mod_path = mod_files.folders.get(current_path_relative) or ("", current_path)
 			if current_path is data_path:
 				self.queue_progress.put(tuple(folders))
 
@@ -442,7 +444,7 @@ class ScannerTab(CMCTabFrame):
 					problems.append(
 						ProblemInfo(
 							ProblemType.JunkFile,
-							stage_path / mod_name / current_path_relative if mod_name else current_path,
+							mod_path,
 							current_path_relative,
 							mod_name,
 							"This is a junk folder not used by the game or mod managers.",
@@ -460,7 +462,7 @@ class ScannerTab(CMCTabFrame):
 					problems.append(
 						ProblemInfo(
 							ProblemType.LoosePrevis,
-							stage_path / mod_name / current_path_relative if mod_name else current_path,
+							mod_path,
 							current_path_relative,
 							mod_name,
 							"Loose previs files should be archived so they only win conflicts according to their plugin's load order.\nLoose previs files are also not supported by PJM's Previs Scripts.",
@@ -480,14 +482,14 @@ class ScannerTab(CMCTabFrame):
 
 					folder_path_full = current_path / folder
 					folder_path_relative = current_path_relative / folder
-					mod_name_folder = mod_files.folders.get(folder_path_relative)
+					mod_name_folder, mod_path_folder = mod_files.folders.get(folder_path_relative) or ("", folder_path_full)
 
 					if data_root_lower == "meshes":
 						if scan_settings[ScanSetting.LoosePrevis] and folder_lower == "precombined":
 							problems.append(
 								ProblemInfo(
 									ProblemType.LoosePrevis,
-									stage_path / mod_name_folder / folder_path_relative if mod_name_folder else folder_path_full,
+									mod_path_folder,
 									folder_path_relative,
 									mod_name_folder,
 									"Loose previs files should be archived so they only win conflicts according to their plugin's load order.\nLoose previs files are also not supported by PJM's Previs Scripts.",
@@ -501,7 +503,7 @@ class ScannerTab(CMCTabFrame):
 							problems.append(
 								ProblemInfo(
 									ProblemType.AnimTextDataFolder,
-									stage_path / mod_name_folder / folder_path_relative if mod_name_folder else folder_path_full,
+									mod_path_folder,
 									folder_path_relative,
 									mod_name_folder,
 									"The existence of unpacked AnimTextData may cause the game to crash.",
@@ -519,13 +521,13 @@ class ScannerTab(CMCTabFrame):
 
 				file_path_full = current_path / file
 				file_path_relative = current_path_relative / file
-				mod_name_file = mod_files.files.get(file_path_relative)
+				mod_name_file, mod_path_file = mod_files.files.get(file_path_relative) or ("", file_path_full)
 
 				if scan_settings[ScanSetting.JunkFiles] and (file_lower in JUNK_FILES or file_lower.endswith(JUNK_FILE_SUFFIXES)):
 					problems.append(
 						ProblemInfo(
 							ProblemType.JunkFile,
-							stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
+							mod_path_file,
 							file_path_relative,
 							mod_name_file,
 							"This is a junk file not used by the game or mod managers.",
@@ -535,11 +537,11 @@ class ScannerTab(CMCTabFrame):
 					continue
 
 				if data_root_lower == "scripts" and current_path.parent == data_path:  # noqa: SIM102
-					if mod_name_file is not None and scan_settings[ScanSetting.ProblemOverrides] and file_lower in F4SE_CRC:
+					if mod_name_file and scan_settings[ScanSetting.ProblemOverrides] and file_lower in F4SE_CRC:
 						problems.append(
 							ProblemInfo(
 								ProblemType.F4SEOverride,
-								stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
+								mod_path_file,
 								file_path_relative,
 								mod_name_file,
 								"This is an override of an F4SE script. This could break F4SE if they aren't the same version or this mod isn't intended to override F4SE files.",
@@ -570,7 +572,7 @@ class ScannerTab(CMCTabFrame):
 							problems.append(
 								ProblemInfo(
 									ProblemType.ComplexSorter,
-									stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
+									mod_path_file,
 									file_path_relative,
 									mod_name_file,
 									"INI uses an outdated field name. xEdit 4.1.5g changed the name of 'Addon Index' to 'Parent Combination Index'. Using outdated INIs with xEdit 4.1.5g+ results in broken output that may crash the game.",
@@ -601,7 +603,7 @@ class ScannerTab(CMCTabFrame):
 						problems.append(
 							ProblemInfo(
 								ProblemType.UnexpectedFormat,
-								stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
+								mod_path_file,
 								file_path_relative,
 								mod_name_file,
 								summary,
@@ -621,7 +623,7 @@ class ScannerTab(CMCTabFrame):
 							problems.append(
 								ProblemInfo(
 									ProblemType.InvalidArchiveName,
-									stage_path / mod_name_file / file_path_relative if mod_name_file else file_path_full,
+									mod_path_file,
 									file_path_relative,
 									mod_name_file,
 									"This is not a valid archive name and won't be loaded by the game.",
