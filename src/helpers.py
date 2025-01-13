@@ -218,7 +218,7 @@ class ProblemInfo:
 		summary: str,
 		solution: SolutionType | str | None,
 		*,
-		file_list: list[tuple[int, Path]] | None = None,
+		file_list: list[tuple[int, Path]] | list[tuple[float, Path]] | list[tuple[str, Path]] | None = None,
 		extra_data: list[str] | None = None,
 	) -> None:
 		self.type = problem
@@ -240,7 +240,7 @@ class SimpleProblemInfo:
 		summary: str,
 		solution: str,
 		*,
-		file_list: list[tuple[int, Path]] | None = None,
+		file_list: list[tuple[int, Path]] | list[tuple[float, Path]] | list[tuple[str, Path]] | None = None,
 		extra_data: list[str] | None = None,
 	) -> None:
 		self.path = path

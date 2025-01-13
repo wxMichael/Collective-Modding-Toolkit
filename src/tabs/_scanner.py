@@ -888,7 +888,14 @@ class ResultDetailsPane(Toplevel):
 
 			self.button_copy.pack(side=TOP, anchor=E, fill=X, padx=5, pady=(5, 0))
 
-		if self.problem_info.file_list:
+		if isinstance(self.problem_info, SimpleProblemInfo) and self.problem_info.file_list:
+			if self.problem_info.problem == "Race Subgraph Record Count":
+				tree_title = "Race Animation Subgraph Records"
+				tree_text = INFO_SCAN_RACE_SUBGRAPHS.replace("\n", " ").replace(". ", ".\n", 1)
+			else:
+				tree_title = "Files"
+				tree_text = ""
+
 			self.button_files = ttk.Button(
 				self.frame_buttons,
 				text="File List",
@@ -897,8 +904,8 @@ class ResultDetailsPane(Toplevel):
 					self.scanner_tab.cmc,
 					400,
 					500,
-					"Race Animation Subgraph Records",
-					INFO_SCAN_RACE_SUBGRAPHS.replace("\n", " ").replace(". ", ".\n", 1),
+					tree_title,
+					tree_text,
 					("Records", " Module"),
 					self.problem_info.file_list,
 				),

@@ -95,7 +95,7 @@ class TreeWindow(ModalWindow):
 		title: str,
 		text: str,
 		headers: tuple[str, str],
-		items: list[tuple[int | float, Path]] | None,
+		items: list[tuple[int, Path]] | list[tuple[float, Path]] | list[tuple[str, Path]] | None,
 	) -> None:
 		super().__init__(parent, cmc, title, width, height)
 		self.win_title = title

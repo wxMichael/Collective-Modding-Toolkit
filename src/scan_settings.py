@@ -102,7 +102,10 @@ class ScanSettings(dict[ScanSetting, bool]):
 		self.skip_data_scan = True
 		self.mod_files: ModFiles | None = None
 
-		non_data = {ScanSetting.OverviewIssues, ScanSetting.RaceSubgraphs}
+		non_data = {
+			ScanSetting.OverviewIssues,
+			ScanSetting.RaceSubgraphs,
+		}
 
 		settings = side_pane.scanner_tab.cmc.settings
 		resave = False
