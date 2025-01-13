@@ -424,9 +424,6 @@ class ScannerTab(CMCTabFrame):
 			self.queue_progress.put(problems)
 			return
 
-		stage_path = data_path
-		if scan_settings.manager and scan_settings.manager.stage_path:
-			stage_path = scan_settings.manager.stage_path
 		mod_files = self.build_mod_file_list(scan_settings)
 
 		data_root_lower = "Data"
