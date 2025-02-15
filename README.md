@@ -2,7 +2,7 @@
 
 Latest Version: [Download](https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest/download/cm-toolkit.zip) – [Release Notes](https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest)
 
-A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the Collective Modding Discord Community.
+A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the [Collective Modding Discord](https://discord.gg/tktyEyYHZH) Community.
 
 <img width="381" alt="CMT-01" src="https://github.com/user-attachments/assets/cba3539a-2d78-4af2-a19d-eb665ad16e10">
 
@@ -17,9 +17,9 @@ A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpo
 With more features on the way!
 
 Suggestions and feedback welcome. Features are prioritized based on the needs of the Collective Modding Community.  
-[Join](https://discord.gg/pF9U5FmD6w) and look for the **#🔧-cm-toolkit** channel.
+[Join on Discord](https://discord.gg/tktyEyYHZH) and look for the **#🔧-cm-toolkit** channel.
 
-[<img src="https://i.postimg.cc/dttk8WxL/CM-External-Banner-01.png">](https://discord.gg/pF9U5FmD6w)
+[<img src="https://i.postimg.cc/dttk8WxL/CM-External-Banner-01.png">](https://discord.gg/tktyEyYHZH)
 
 ## Installation
 

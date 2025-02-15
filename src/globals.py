@@ -19,7 +19,7 @@ COLOR_NEUTRAL_2 = "bisque"
 COLOR_WARNING = "orange"
 
 NEXUS_LINK = "https://www.nexusmods.com/fallout4/mods/87907"
-DISCORD_INVITE = "https://discord.gg/pF9U5FmD6w"
+DISCORD_INVITE = "https://discord.gg/tktyEyYHZH"
 GITHUB_LINK = "https://github.com/wxMichael/Collective-Modding-Toolkit"
 
 PATCHER_FILTER_OG = "Showing all v1\n(Includes Base Game/DLC/CC)"
