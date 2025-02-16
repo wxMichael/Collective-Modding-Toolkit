@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.2] - 2025-01-13
+
+*This is the final Python version. No release was published for v0.5.2.*
+
+### Fixed
+
+- #### Scanner
+
+  - Fixed pathing for files in MO2's overwrite that caused a FileNotFound error.
+
+### Changed
+
+- #### Scanner
+
+  - Complex Sorter INI Errors: More detailed check in case it's relevant, but no known changes in actual detections.
+
 ## [0.5.1] - 2025-01-09
 
 ### Added
