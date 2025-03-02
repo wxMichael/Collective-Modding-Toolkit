@@ -1,16 +1,18 @@
 [project]
 name = "Collective-Modding-Toolkit"
+authors = [{ name = "wxMichael" }]
+license = "GPL-2.0-or-later"
+description = "A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the Collective Modding Discord Community."
 version = "0.5.1"
+readme = "README.md"
 requires-python = ">=3.12,<3.13"
 
-[tool.poetry]
-name = "Collective-Modding-Toolkit"
-version = "0.5.1"
-description = "A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the Collective Modding Discord Community."
-authors = ["wxMichael"]
-readme = "README.md"
+[project.urls]
 homepage = "https://www.nexusmods.com/fallout4/mods/87907"
 repository = "https://github.com/wxMichael/Collective-Modding-Toolkit"
+issues = "https://github.com/wxMichael/Collective-Modding-Toolkit/issues"
+changelog = "https://github.com/wxMichael/Collective-Modding-Toolkit/blob/main/CHANGELOG.md"
+download = "https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest/download/cm-toolkit.zip"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
@@ -91,40 +93,40 @@ extend-select = [
 	"BLE",   # Blind Except
 	"C4",    # Comprehensions
 	# "C901",  # Complex Structures
-	"COM",   # Commas
+	"COM", # Commas
 	# "D",     # pydocstyle
 	# "DTZ",   # Unsafe/Naive Datetimes
-	"EM",    # Exception Messages
-	"FA",    # Future Annotations
-	"FBT",   # Boolean Traps
-	"FLY",   # F-Strings
-	"FURB",  # Modernization
-	"G",     # Logging Formatting
-	"I",     # Import Sorting
-	"ICN",   # Import Naming Conventions
-	"INT",   # gettext
-	"ISC",   # Implicit String Concatenation
-	"LOG",   # Logging
-	"N",     # PEP8 Naming Conventions
-	"PERF",  # Performance Anti-Patterns
-	"PGH",   # PyGrep Hooks
-	"PIE",   # Misc Lints
-	"PL",    # Pylint
-	"PT",    # PyTest
-	"PTH",   # Prefer Pathlib
-	"PYI",   # Stub Files
-	"Q",     # Quotes
-	"RET",   # Return
-	"RSE",   # Raise
-	"RUF",   # Ruff
+	"EM",   # Exception Messages
+	"FA",   # Future Annotations
+	"FBT",  # Boolean Traps
+	"FLY",  # F-Strings
+	"FURB", # Modernization
+	"G",    # Logging Formatting
+	"I",    # Import Sorting
+	"ICN",  # Import Naming Conventions
+	"INT",  # gettext
+	"ISC",  # Implicit String Concatenation
+	"LOG",  # Logging
+	"N",    # PEP8 Naming Conventions
+	"PERF", # Performance Anti-Patterns
+	"PGH",  # PyGrep Hooks
+	"PIE",  # Misc Lints
+	"PL",   # Pylint
+	"PT",   # PyTest
+	"PTH",  # Prefer Pathlib
+	"PYI",  # Stub Files
+	"Q",    # Quotes
+	"RET",  # Return
+	"RSE",  # Raise
+	"RUF",  # Ruff
 	# "S",     # Security Testing
-	"SIM",   # Simplify
-	"SLF",   # Self
+	"SIM", # Simplify
+	"SLF", # Self
 	# "T20",   # print
-	"TC",    # Type Checking
-	"TID",   # Tidy Imports
-	"TRY",   # Exception Anti-Patterns
-	"UP",    # pyupgrade (New Syntax Suggestions)
+	"TC",  # Type Checking
+	"TID", # Tidy Imports
+	"TRY", # Exception Anti-Patterns
+	"UP",  # pyupgrade (New Syntax Suggestions)
 ]
 
 ignore = [

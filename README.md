@@ -1,4 +1,8 @@
-# Collective Modding Toolkit
+> [!IMPORTANT]
+> Future development has moved to a new repo for the C# version.
+> <https://github.com/wxMichael/CollectiveModdingToolkit>
+
+# Collective Modding Toolkit (Python Version)
 
 Latest Version: [Download](https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest/download/cm-toolkit.zip) – [Release Notes](https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest)
 
@@ -19,7 +23,7 @@ With more features on the way!
 Suggestions and feedback welcome. Features are prioritized based on the needs of the Collective Modding Community.  
 [Join on Discord](https://discord.gg/tktyEyYHZH) and look for the **#🔧-cm-toolkit** channel.
 
-[<img src="https://i.postimg.cc/dttk8WxL/CM-External-Banner-01.png">](https://discord.gg/tktyEyYHZH)
+[![CM-External-Banner-01](https://i.postimg.cc/dttk8WxL/CM-External-Banner-01.png)](https://discord.gg/tktyEyYHZH)
 
 ## Installation
 
