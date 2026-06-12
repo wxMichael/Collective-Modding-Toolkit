@@ -1,0 +1,11 @@
+{
+  "name": "og",
+  "fallout4Version": "1.10.163.0",
+  "archives": [
+    { "name": "Fallout4 - Misc.ba2", "version": 1, "format": "GNRL" },
+    { "name": "Fallout4 - Textures1.ba2", "version": 8, "format": "DX10" }
+  ],
+  "modules": [
+    { "name": "Fallout4.esm", "light": false, "hedr": "1.00" }
+  ]
+}

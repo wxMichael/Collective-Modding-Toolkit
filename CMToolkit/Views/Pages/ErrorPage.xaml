@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Page
+    x:Class="CMToolkit.Views.Pages.ErrorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:CMToolkit.Views.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:DataType="local:ErrorPage">
+    <TextBlock
+        Margin="16"
+        Foreground="{StaticResource CmtColorBadBrush}"
+        FontFamily="{StaticResource CmtContentFontFamily}"
+        Text="{x:Bind Message}"
+        TextWrapping="WrapWholeWords" />
+</Page>

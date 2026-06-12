@@ -18,5 +18,14 @@
 			"program": "main.py",
 			"console": "integratedTerminal"
 		},
+		{
+			"name": "Run CMToolkit (WinUI)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build-cmtoolkit",
+			"program": "${workspaceFolder}/CMToolkit/bin/x64/Debug/net10.0-windows10.0.19041.0/win-x64/CMToolkit.exe",
+			"cwd": "${workspaceFolder}/CMToolkit/bin/x64/Debug/net10.0-windows10.0.19041.0/win-x64",
+			"console": "integratedTerminal"
+		}
 	]
 }

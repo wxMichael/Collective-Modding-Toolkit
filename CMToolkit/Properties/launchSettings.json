@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "CMToolkit (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "CMToolkit (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

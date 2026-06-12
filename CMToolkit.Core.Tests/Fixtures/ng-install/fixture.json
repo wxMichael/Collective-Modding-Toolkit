@@ -1,0 +1,11 @@
+{
+  "name": "ng",
+  "fallout4Version": "1.10.984.0",
+  "archives": [
+    { "name": "Fallout4 - Misc.ba2", "version": 8, "format": "GNRL" },
+    { "name": "Fallout4 - Textures1.ba2", "version": 8, "format": "DX10" }
+  ],
+  "modules": [
+    { "name": "TestLight.esl", "light": true, "hedr": "0.95" }
+  ]
+}

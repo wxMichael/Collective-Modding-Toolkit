@@ -1,0 +1,11 @@
+<Solution>
+    <Project Path="CMToolkit/CMToolkit.csproj">
+        <Deploy />
+    </Project>
+    <Project Path="CMToolkit.Core/CMToolkit.Core.csproj" />
+    <Project Path="CMToolkit.Core.Tests/CMToolkit.Core.Tests.csproj" />
+    <Project Path="CMToolkit.Smoke/CMToolkit.Smoke.csproj" />
+    <Properties Name="Visual Studio">
+        <Property Name="OpenWith" Value="17" />
+    </Properties>
+</Solution>

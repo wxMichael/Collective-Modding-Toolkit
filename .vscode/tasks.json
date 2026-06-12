@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build-cmtoolkit",
+			"type": "process",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"${workspaceFolder}/CMToolkit/CMToolkit.csproj",
+				"-c",
+				"Debug",
+				"-p:Platform=x64"
+			],
+			"group": "build",
+			"problemMatcher": "$msCompile"
+		}
+	]
+}
