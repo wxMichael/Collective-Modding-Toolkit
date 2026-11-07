@@ -741,8 +741,15 @@ class OverviewTab(CMCTabFrame):
 
 		ini_archive = self.cmc.game.game_settings.get("archive")
 		if ini_archive is None:
-			msg = "Archive section missing from INIs"
-			raise ValueError(msg)
+			ini_archive = {}
+			self.cmc.overview_problems.append(
+				SimpleProblemInfo(
+					"Fallout4.ini",
+					ProblemType.FileNotFound,
+					"The [Archive] section is missing from your game INIs.\nBase game archives can't be detected, so archive counts will be inaccurate.",
+					"Run the Fallout 4 Launcher or Bethini Pie to generate the INIs.",
+				),
+			)
 
 		self.cmc.game.archives_enabled = {
 			archive_path
