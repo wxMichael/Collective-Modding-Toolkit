@@ -229,7 +229,7 @@ Because they're actually identical, you can just patch the version number in the
 
 ABOUT_DOWNGRADING_TITLE = "About Downgrading Fallout 4 & Creation Kit"
 ABOUT_DOWNGRADING = """This downgrader makes use of delta patches which are downloaded as-needed from the CMT GitHub page.
-Patches range in size from 23KB to 63MB.
+Patches range in size from 1KB to 66MB.
 
 Backups are created prior to patching, and will be used instead of patches if present.
 Simple Downgrader's backups will also be used.

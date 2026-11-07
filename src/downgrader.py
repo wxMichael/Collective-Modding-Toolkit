@@ -50,6 +50,19 @@ COLOR_NG = "SlateBlue1"
 COLOR_AE = "salmon"
 PATCH_URL_BASE = "https://github.com/wxMichael/Collective-Modding-Toolkit/releases/download/delta-patches/"
 
+SUPPORTED_VERSIONS = (InstallType.OG, InstallType.NG, InstallType.AE)
+PATCH_PREFIXES = MappingProxyType({
+	InstallType.OG: "OG",
+	InstallType.NG: "NG",
+	InstallType.AE: "AE",
+})
+
+BACKUP_SUFFIXES = MappingProxyType({
+	InstallType.OG: "_upgradeBackup",
+	InstallType.NG: "_downgradeBackup",
+	InstallType.AE: "_anniversaryBackup",
+})
+
 
 class Downgrader(ModalWindow):
 	CRCs_game = MappingProxyType({
@@ -65,7 +78,8 @@ class Downgrader(ModalWindow):
 			"1E90BE57": InstallType.Obsolete,  # 1.11.159
 			"0481725D": InstallType.Obsolete,  # 1.11.169a
 			"0E176ABC": InstallType.Obsolete,  # 1.11.169b
-			"CF47788D": InstallType.AE,  # 1.11.191
+			"CF47788D": InstallType.Obsolete,  # 1.11.191
+			"67545AFB": InstallType.AE,  # 1.11.240
 		},
 		"Fallout4Launcher.exe": {
 			"02445570": InstallType.OG,  # 1.10.120 to 1.10.163
@@ -74,7 +88,9 @@ class Downgrader(ModalWindow):
 			"D15C6A49": InstallType.Obsolete,  # 1.11.159
 			"8C52BE93": InstallType.Obsolete,  # 1.11.169a
 			"591009C9": InstallType.Obsolete,  # 1.11.169b
-			"720BB9C3": InstallType.AE,  # 1.11.191
+			"720BB9C3": InstallType.Obsolete,  # 1.11.191
+			"CA61EDD7": InstallType.Obsolete,  # 1.11.221
+			"57D1C794": InstallType.AE,  # 1.11.240
 		},
 		"steam_api64.dll": {
 			"BBD912FC": InstallType.OG,
@@ -83,19 +99,22 @@ class Downgrader(ModalWindow):
 	})
 	CRCs_ck = MappingProxyType({
 		"CreationKit.exe": {
-			"0F5C065B": InstallType.OG,
-			"481CCE95": InstallType.NG,
-			"49E45284": InstallType.AE,
+			"0F5C065B": InstallType.OG,  # 1.10.163
+			"481CCE95": InstallType.NG,  # 1.10.984
+			"49E45284": InstallType.Obsolete,  # 1.11.191
+			"3E8BBBE7": InstallType.AE,  # 1.11.240
 		},
 		"Tools\\Archive2\\Archive2.exe": {
-			"4CDFC7B5": InstallType.OG,
-			"71A5240B": InstallType.NG,
-			"C867674F": InstallType.AE,
+			"4CDFC7B5": InstallType.OG,  # 1.10.163
+			"71A5240B": InstallType.NG,  # 1.10.984
+			"C867674F": InstallType.Obsolete,  # 1.11.191
+			"B2EEF34A": InstallType.AE,  # 1.11.240
 		},
 		"Tools\\Archive2\\Archive2Interop.dll": {
-			"850D36A9": InstallType.OG,
-			"EFBE3622": InstallType.NG,
-			"7B893B0D": InstallType.AE,
+			"850D36A9": InstallType.OG,  # 1.10.163
+			"EFBE3622": InstallType.NG,  # 1.10.984
+			"7B893B0D": InstallType.Obsolete,  # 1.11.191
+			"2690FD20": InstallType.AE,  # 1.11.240
 		},
 	})
 	CRCs_by_type: MappingProxyType[InstallType, list[str]] = MappingProxyType({
@@ -128,7 +147,10 @@ class Downgrader(ModalWindow):
 
 		self.get_info()
 
-		self.bv_wants_downgrade = BooleanVar(value=self.current_versions["Fallout4.exe"] == InstallType.OG)
+		current_game_version = self.current_versions["Fallout4.exe"]
+		self.sv_desired_version = StringVar(
+			value=current_game_version if current_game_version in SUPPORTED_VERSIONS else InstallType.NG,
+		)
 		self.bv_keep_backups = BooleanVar(value=cmc.settings.dict["downgrader_keep_backups"])
 		self.bv_delete_deltas = BooleanVar(value=cmc.settings.dict["downgrader_delete_deltas"])
 
@@ -174,19 +196,13 @@ class Downgrader(ModalWindow):
 		frame_radio_desired = ttk.Labelframe(self, text="Desired Version", padding=scale(5))
 		frame_radio_desired.grid(column=1, row=0, rowspan=2, sticky=NSEW, padx=scale(5))
 
-		ttk.Radiobutton(
-			frame_radio_desired,
-			text="Old-Gen",
-			variable=self.bv_wants_downgrade,
-			value=True,
-		).grid(column=0, row=0, sticky=NSEW)
-
-		ttk.Radiobutton(
-			frame_radio_desired,
-			text="Next-Gen",
-			variable=self.bv_wants_downgrade,
-			value=False,
-		).grid(column=0, row=1, sticky=NSEW)
+		for row, version in enumerate(SUPPORTED_VERSIONS):
+			ttk.Radiobutton(
+				frame_radio_desired,
+				text=version,
+				variable=self.sv_desired_version,
+				value=version,
+			).grid(column=0, row=row, sticky=NSEW)
 
 		frame_options = ttk.Labelframe(self, text="Options", padding=scale(5))
 		frame_options.grid(column=1, row=2, rowspan=2, sticky=NSEW, padx=scale(5))
@@ -287,66 +303,62 @@ class Downgrader(ModalWindow):
 		if resave:
 			settings.save()
 
-		desired_version = InstallType.OG if self.bv_wants_downgrade.get() else InstallType.NG
+		desired_version = InstallType(self.sv_desired_version.get())
 
 		patch_needed = False
 		for file_name, install_type in self.current_versions.items():
-			patch_needed = False
 			file_path = self.cmc.game.game_path / file_name
 
-			match install_type:
-				case desired_version.value:
-					self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Already {desired_version}.")
-					continue
+			if install_type == InstallType.NotFound:
+				self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Not Found.")
+				continue
 
-				case InstallType.NotFound:
-					self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Not Found.")
-					continue
+			if install_type == desired_version or (
+				install_type == InstallType.NGAE and desired_version in {InstallType.NG, InstallType.AE}
+			):
+				self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Already {desired_version}.")
+				continue
 
-				case InstallType.AE:
-					self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Unsupported Version.")
-					continue
+			# NG & AE files are identical; use NG patches.
+			current_version = InstallType.NG if install_type == InstallType.NGAE else install_type
 
-				case InstallType.Obsolete:
-					self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Unsupported Version.")
-					continue
+			if current_version not in SUPPORTED_VERSIONS:
+				self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Unsupported Version.")
+				continue
 
-				case _:
-					patch_needed = True
-					self.patch_file(file_path, desired_version)
+			patch_needed = True
+			self.patch_file(file_path, current_version, desired_version)
 
 		if not patch_needed:
 			self.button_patch.configure(state=NORMAL)
 
-	def patch_file(self, file_path: Path, desired_version: InstallType) -> None:
-		backup_name_og = f"{file_path.stem}_upgradeBackup{file_path.suffix}"
-		backup_name_ng = f"{file_path.stem}_downgradeBackup{file_path.suffix}"
+	@staticmethod
+	def get_backup_path(file_path: Path, install_type: InstallType) -> Path:
+		return file_path.with_name(f"{file_path.stem}{BACKUP_SUFFIXES[install_type]}{file_path.suffix}")
 
-		current_crc = get_crc32(file_path)
+	def find_backup(self, file_path: Path, desired_version: InstallType) -> Path | None:
+		backup_paths = [self.get_backup_path(file_path, desired_version)]
+		backup_paths.extend(self.get_backup_path(file_path, v) for v in SUPPORTED_VERSIONS if v != desired_version)
+		for backup_path in backup_paths:
+			if is_file(backup_path) and get_crc32(backup_path) in self.CRCs_by_type[desired_version]:
+				return backup_path
+		return None
 
-		if desired_version == InstallType.OG:
-			if current_crc not in self.CRCs_by_type[InstallType.NG]:
-				self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Unsupported Version.")
-				return
-
-			patch_direction = "NG-to-OG-"
-			backup_file_name_desired = backup_name_og
-			backup_file_name_current = backup_name_ng
-		else:
-			if current_crc not in self.CRCs_by_type[InstallType.OG]:
-				self.logger.log_message(LogType.Info, f"Skipped {file_path.name}: Unsupported Version.")
-				return
-
-			patch_direction = "OG-to-NG-"
-			backup_file_name_desired = backup_name_ng
-			backup_file_name_current = backup_name_og
-
-		backup_file_path_desired = file_path.with_name(backup_file_name_desired)
-		backup_file_path_current = file_path.with_name(backup_file_name_current)
+	def patch_file(self, file_path: Path, current_version: InstallType, desired_version: InstallType) -> None:
+		patch_direction = f"{PATCH_PREFIXES[current_version]}-to-{PATCH_PREFIXES[desired_version]}-"
+		backup_file_path_current = self.get_backup_path(file_path, current_version)
 
 		try:  # ruff: ignore[too-many-statements-in-try-clause]
 			if file_path.stat().st_file_attributes & stat.FILE_ATTRIBUTE_READONLY:
 				file_path.chmod(stat.S_IWRITE)
+
+			backup_file_path_desired = self.find_backup(file_path, desired_version)
+			if backup_file_path_desired is not None:
+				print(f"Found backup of {desired_version}: {backup_file_path_desired.name}")
+				if backup_file_path_desired == backup_file_path_current:
+					own_backup_path = self.get_backup_path(file_path, desired_version)
+					own_backup_path.unlink(missing_ok=True)
+					backup_file_path_desired = backup_file_path_desired.rename(own_backup_path)
 
 			if is_file(backup_file_path_current):
 				print("Backup of current version exists.")
@@ -361,26 +373,18 @@ class Downgrader(ModalWindow):
 				print(f"Backing up {file_path.name} to {backup_file_path_current.name}")
 				file_path.rename(backup_file_path_current)
 
-			if is_file(backup_file_path_desired):
-				print(f"{backup_file_path_desired.name} exists.")
-				if get_crc32(backup_file_path_desired) in self.CRCs_by_type[desired_version]:
-					print(f"Backup CRC good. Restoring to {file_path.name}")
-					if self.bv_keep_backups.get():
-						copy2(backup_file_path_desired, file_path)
-					else:
-						backup_file_path_desired.replace(file_path)
-					self.logger.log_message(LogType.Good, f"Patched {file_path.name}")
-
+			if backup_file_path_desired is not None:
+				print(f"Restoring {backup_file_path_desired.name} to {file_path.name}")
+				if self.bv_keep_backups.get():
+					copy2(backup_file_path_desired, file_path)
 				else:
-					print(f"Backup CRC bad. Deleting {backup_file_path_desired.name}")
-					backup_file_path_desired.unlink()
-
-			if not is_file(file_path):
+					backup_file_path_desired.replace(file_path)
+					backup_file_path_current.unlink()
+				self.logger.log_message(LogType.Good, f"Patched {file_path.name}")
+			else:
 				print("Restore from backup not possible. Patch download needed.")
 				url = f"{PATCH_URL_BASE}{patch_direction}{file_path.name}.xdelta"
 				self.download_queue.put((url, backup_file_path_current, file_path))
-			elif not self.bv_keep_backups.get():
-				backup_file_path_current.unlink()
 
 		except OSError as e:
 			print("Restore failed due to exception.", e)
