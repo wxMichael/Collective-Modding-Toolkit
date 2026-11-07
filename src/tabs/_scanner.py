@@ -639,7 +639,8 @@ class SidePane(Toplevel):
 
 		self.bool_vars: dict[ScanSetting, BooleanVar] = {}
 		for setting in ScanSetting:
-			self.bool_vars[setting] = BooleanVar(value=True)
+			saved_value = scanner_tab.cmc.settings.dict.get(f"scanner_{setting.name}", True)
+			self.bool_vars[setting] = BooleanVar(value=bool(saved_value))
 			setting_check = ttk.Checkbutton(
 				frame_scan_settings,
 				text=setting.value[0],
@@ -656,6 +657,7 @@ class SidePane(Toplevel):
 			padding=scale(5),
 			command=scanner_tab.start_threaded_scan,
 			style="Accent.TButton",
+			state=NORMAL if any(bv.get() for bv in self.bool_vars.values()) else DISABLED,
 		)
 		self.button_scan.pack(side=BOTTOM, padx=scale(10), pady=scale(10))
 
