@@ -24,8 +24,6 @@ from tkinter import *
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
-
 import tabs
 from enums import Tab
 from game_info import GameInfo
@@ -36,6 +34,7 @@ from helpers import (
 	PCInfo,
 )
 from utils import (
+	add_tooltip,
 	check_for_update_github,
 	check_for_update_nexus,
 	get_asset_path,
@@ -148,7 +147,7 @@ class CMChecker(CMCheckerInterface):
 			)
 			hyperlink_label_nexus.grid(column=column, row=0, sticky=W)
 			hyperlink_label_nexus.bind("<Button-1>", lambda _: webbrowser.open(NEXUS_LINK))
-			ToolTip(hyperlink_label_nexus, "Open Nexus Mods")
+			add_tooltip(hyperlink_label_nexus, "Open Nexus Mods")
 
 		if github_version and nexus_version:
 			column += 1
@@ -176,7 +175,7 @@ class CMChecker(CMCheckerInterface):
 			)
 			hyperlink_label_github.grid(column=column, row=0, sticky=W)
 			hyperlink_label_github.bind("<Button-1>", lambda _: webbrowser.open(GITHUB_LINK))
-			ToolTip(hyperlink_label_github, "Open GitHub")
+			add_tooltip(hyperlink_label_github, "Open GitHub")
 
 		update_frame.grid_columnconfigure(0, weight=1)
 		update_frame.grid_columnconfigure(column, weight=1)
@@ -196,10 +195,12 @@ class CMChecker(CMCheckerInterface):
 		if self.root.wm_state() != "normal":
 			return
 		scanner_tab = self.tabs[Tab.Scanner]
-		if scanner_tab.is_loaded and isinstance(scanner_tab, tabs.ScannerTab):
+		if scanner_tab.is_loaded and isinstance(scanner_tab, tabs.ScannerTab) and self.current_tab is scanner_tab:
 			if scanner_tab.side_pane:
+				scanner_tab.side_pane.update_geometry()
 				scanner_tab.side_pane.wm_state("normal")
 			if scanner_tab.details_pane:
+				scanner_tab.details_pane.update_geometry()
 				scanner_tab.details_pane.wm_state("normal")
 
 	def on_tab_changed(self, event: Event[ttk.Notebook]) -> None:
@@ -211,7 +212,6 @@ class CMChecker(CMCheckerInterface):
 		self.current_tab = self.tabs[new_tab]
 
 		self.tabs[new_tab].load()
-		self.root.update()
 
 	def refresh_tab(self, tab: Tab) -> None:
 		logger.debug("Refresh Tab : %s", tab)

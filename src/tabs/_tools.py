@@ -22,12 +22,11 @@ from tkinter import *
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
-
 from downgrader import Downgrader
 from globals import *
 from helpers import CMCheckerInterface, CMCTabFrame
 from patcher import ArchivePatcher
+from utils import add_tooltip
 
 if TYPE_CHECKING:
 	from collections.abc import Callable
@@ -54,11 +53,11 @@ class ToolsTab(CMCTabFrame):
 		elif isinstance(action, str):
 			new_button.configure(command=lambda: webbrowser.open(action))
 			if "nexusmods" in action:
-				ToolTip(new_button, "View on Nexus Mods")
+				add_tooltip(new_button, "View on Nexus Mods")
 			elif "github" in action:
-				ToolTip(new_button, "View on GitHub")
+				add_tooltip(new_button, "View on GitHub")
 			else:
-				ToolTip(new_button, "Open website")
+				add_tooltip(new_button, "Open website")
 		else:
 			new_button.configure(command=action)
 
@@ -72,7 +71,7 @@ class ToolsTab(CMCTabFrame):
 				justify=CENTER,
 			)
 			new_button_info.grid(column=1, row=row, sticky=NSEW, padx=(5, 0), pady=(padding_y, 0))
-			ToolTip(new_button_info, tooltip)
+			add_tooltip(new_button_info, tooltip)
 
 	def _build_gui(self) -> None:
 		tool_buttons = {

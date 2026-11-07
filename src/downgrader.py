@@ -29,13 +29,13 @@ from typing import TYPE_CHECKING
 
 import pyxdelta
 import requests
-from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
 from enums import LogType, Tab
 from globals import *
 from logger import Logger
 from modal_window import AboutWindow, ModalWindow
 from utils import (
+	add_tooltip,
 	get_crc32,
 	is_file,
 )
@@ -197,7 +197,7 @@ class Downgrader(ModalWindow):
 			padding=0,
 		)
 		self.check_keep_backups.grid(column=0, row=0, sticky=W, pady=5)
-		ToolTip(self.check_keep_backups, TOOLTIP_DOWNGRADER_BACKUPS)
+		add_tooltip(self.check_keep_backups, TOOLTIP_DOWNGRADER_BACKUPS)
 
 		self.check_delete_deltas = ttk.Checkbutton(
 			frame_options,
@@ -206,7 +206,7 @@ class Downgrader(ModalWindow):
 			padding=0,
 		)
 		self.check_delete_deltas.grid(column=0, row=1, sticky=W, pady=5)
-		ToolTip(self.check_delete_deltas, TOOLTIP_DOWNGRADER_DELTAS)
+		add_tooltip(self.check_delete_deltas, TOOLTIP_DOWNGRADER_DELTAS)
 
 		self.button_patch = ttk.Button(self, text="Patch\n All", command=self.patch_files)
 		self.button_patch.grid(column=2, row=0, rowspan=2, sticky=NSEW, padx=(5, 10), pady=(10, 0))

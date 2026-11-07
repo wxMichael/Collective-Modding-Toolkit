@@ -42,6 +42,7 @@ from scan_settings import (
 	ScanSettings,
 )
 from utils import (
+	add_tooltip,
 	copy_text,
 	copy_text_button,
 	exists,
@@ -91,6 +92,13 @@ class ScannerTab(CMCTabFrame):
 
 		if self.side_pane is None:
 			self.side_pane = SidePane(self)
+		else:
+			self.side_pane.update_geometry()
+			self.side_pane.wm_deiconify()
+
+		if self.details_pane is not None:
+			self.details_pane.update_geometry()
+			self.details_pane.wm_deiconify()
 
 	def switch_from(self) -> None:
 		self.tree_results.selection_remove(self.tree_results.selection())
@@ -98,12 +106,10 @@ class ScannerTab(CMCTabFrame):
 		self.cmc.root.unbind("<Configure>", self.func_id_config)
 
 		if self.side_pane is not None:
-			self.side_pane.destroy()
-			self.side_pane = None
+			self.side_pane.wm_withdraw()
 
 		if self.details_pane is not None:
-			self.details_pane.destroy()
-			self.details_pane = None
+			self.details_pane.wm_withdraw()
 
 	def _load(self) -> bool:
 		if self.cmc.game.data_path is None:
@@ -625,7 +631,7 @@ class SidePane(Toplevel):
 				command=self.on_checkbox_toggle,
 			)
 			setting_check.pack(anchor=W, side=TOP)
-			ToolTip(setting_check, setting.value[1])
+			add_tooltip(setting_check, setting.value[1])
 
 		self.button_scan = ttk.Button(
 			self,

@@ -36,6 +36,7 @@ import sv_ttk
 import win32api
 from packaging.version import InvalidVersion, Version
 from psutil import Process
+from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
 from globals import APP_VERSION, COLOR_DEFAULT, FONT, FONT_SMALL, NEXUS_LINK
 from mod_manager_info import ModManagerInfo
@@ -298,6 +299,15 @@ def get_registry_value(key: int, subkey: str, value_name: str) -> str | None:
 	return None
 
 
+def add_tooltip(widget: Misc, msg: str) -> None:
+	def on_first_enter(event: Event[Misc]) -> None:
+		widget.unbind("<Enter>", func_id)
+		tip = ToolTip(widget, msg)  # ty: ignore[invalid-argument-type]
+		tip.on_enter(event)
+
+	func_id = widget.bind("<Enter>", on_first_enter, "+")
+
+
 def copy_text(widget: ttk.Widget, text: str) -> None:
 	widget.clipboard_clear()
 	widget.clipboard_append(text)
@@ -356,6 +366,9 @@ def set_theme(win: Tk) -> None:
 	sv_ttk.set_theme("dark", win)
 	apply_green_accent(win)
 	style = ttk.Style(win)
+
+	style.layout("TNotebook", [("Notebook.background", {"children": [("TNotebook.Tab", {"sticky": NSEW})]})])
+	style.configure("TNotebook", background="#2f2f2f")
 
 	# Remove blue dotted line from focused tab
 	# fmt: off

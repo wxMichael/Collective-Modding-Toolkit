@@ -23,10 +23,9 @@ from tkinter import *
 from tkinter import ttk
 from typing import Any, cast
 
-from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
-
 from globals import *
 from helpers import CMCheckerInterface, CMCTabFrame
+from utils import add_tooltip
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +100,7 @@ class SettingsTab(CMCTabFrame):
 
 				radio.configure(command=update_setting)
 				radio.pack(anchor=W, side=TOP)
-				ToolTip(radio, tooltip)
+				add_tooltip(radio, tooltip)
 
 	def on_radio_change(self, setting: str, variable: Variable) -> None:
 		dynamic_settings = cast("dict[str, Any]", self.cmc.settings.dict)

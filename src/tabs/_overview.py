@@ -27,7 +27,6 @@ from tkinter import messagebox, ttk
 from typing import Literal
 
 from packaging.version import Version
-from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
 from downgrader import Downgrader
 from enums import CSIDL, ArchiveVersion, Magic, ModuleFlag, ProblemType, SolutionType
@@ -37,6 +36,7 @@ from modal_window import AboutWindow, TreeWindow
 from patcher import ArchivePatcher
 from utils import (
 	add_separator,
+	add_tooltip,
 	exists,
 	get_crc32,
 	get_environment_path,
@@ -129,7 +129,7 @@ class OverviewTab(CMCTabFrame):
 						"present in the VFS and not the Data folder."
 					)
 					label_os_icon.grid(column=1, row=3, sticky=NW, padx=(0, 5), ipady=3)
-					ToolTip(label_os_icon, os_tooltip)
+					add_tooltip(label_os_icon, os_tooltip)
 
 			# elif manager.name == "Vortex":
 			else:
@@ -145,7 +145,7 @@ class OverviewTab(CMCTabFrame):
 					"so it cannot yet identify the source mod for each issue."
 				)
 			label_mod_manager_icon.grid(column=1, row=0, sticky=W, padx=(0, 5), ipady=3)
-			ToolTip(label_mod_manager_icon, tooltip)
+			add_tooltip(label_mod_manager_icon, tooltip)
 
 		label_mod_manager = ttk.Label(
 			frame_top,
@@ -157,7 +157,7 @@ class OverviewTab(CMCTabFrame):
 		)
 		label_mod_manager.grid(column=2, row=0, sticky=W)
 		if not manager:
-			ToolTip(label_mod_manager, TOOLTIP_NO_MOD_MANAGER)
+			add_tooltip(label_mod_manager, TOOLTIP_NO_MOD_MANAGER)
 
 		label_path = ttk.Label(
 			frame_top,
@@ -168,7 +168,7 @@ class OverviewTab(CMCTabFrame):
 		)
 		label_path.grid(column=2, row=1, sticky=W)
 		label_path.bind("<Button-1>", lambda _: os.startfile(self.cmc.game.game_path))
-		ToolTip(label_path, TOOLTIP_GAME_PATH)
+		add_tooltip(label_path, TOOLTIP_GAME_PATH)
 
 		ttk.Label(
 			frame_top,
@@ -202,7 +202,7 @@ class OverviewTab(CMCTabFrame):
 			padding=0,
 		)
 		button_refresh.grid(column=3, row=0, rowspan=2, sticky=E, padx=10)
-		ToolTip(button_refresh, TOOLTIP_REFRESH)
+		add_tooltip(button_refresh, TOOLTIP_REFRESH)
 
 		self.build_gui_binaries()
 		self.build_gui_archives()
@@ -240,7 +240,7 @@ class OverviewTab(CMCTabFrame):
 		)
 		label_address_library.grid(column=1, row=rows, sticky=W)
 		if not self.cmc.game.address_library:
-			ToolTip(label_address_library, TOOLTIP_ADDRESS_LIBRARY_MISSING)
+			add_tooltip(label_address_library, TOOLTIP_ADDRESS_LIBRARY_MISSING)
 
 		for i, file_name in enumerate(self.cmc.game.file_info.keys()):
 			file_path = self.cmc.game.file_info[file_name]["File"] or Path(file_name)
@@ -339,7 +339,7 @@ class OverviewTab(CMCTabFrame):
 			justify=RIGHT,
 		)
 		label_ba2_formats.grid(column=0, row=0, rowspan=3, sticky=E, padx=(5, 0))
-		ToolTip(label_ba2_formats, TOOLTIP_BA2_FORMATS)
+		add_tooltip(label_ba2_formats, TOOLTIP_BA2_FORMATS)
 
 		color_unreadable = COLOR_BAD if self.cmc.game.archives_unreadable else COLOR_NEUTRAL_1
 		label_unreadable = ttk.Label(
@@ -349,7 +349,7 @@ class OverviewTab(CMCTabFrame):
 			foreground=color_unreadable,
 		)
 		label_unreadable.grid(column=0, row=3, sticky=E, padx=(5, 0))
-		ToolTip(label_unreadable, TOOLTIP_UNREADABLE)
+		add_tooltip(label_unreadable, TOOLTIP_UNREADABLE)
 
 		add_separator(self.frame_info_archives, HORIZONTAL, 0, 4, 3)
 
@@ -361,7 +361,7 @@ class OverviewTab(CMCTabFrame):
 			justify=RIGHT,
 		)
 		label_ba2_versions.grid(column=0, row=5, rowspan=2, sticky=E, padx=(5, 0))
-		ToolTip(label_ba2_versions, TOOLTIP_BA2_VERSIONS)
+		add_tooltip(label_ba2_versions, TOOLTIP_BA2_VERSIONS)
 
 		# Column 1
 		self.add_count_label(self.frame_info_archives, 1, 0, "GNRL")
@@ -402,7 +402,7 @@ class OverviewTab(CMCTabFrame):
 			foreground=COLOR_DEFAULT,
 		)
 		label_archives_max.grid(column=2, row=0, rowspan=3, sticky=EW)
-		ToolTip(label_archives_max, TOOLTIP_BA2_FORMATS)
+		add_tooltip(label_archives_max, TOOLTIP_BA2_FORMATS)
 
 		# Column 0
 		size = self.frame_info_archives.grid_size()
@@ -428,7 +428,7 @@ class OverviewTab(CMCTabFrame):
 			justify=RIGHT,
 		)
 		label_module_types.grid(column=0, row=0, rowspan=3, sticky=E, padx=(5, 0))
-		ToolTip(label_module_types, TOOLTIP_MODULE_TYPES)
+		add_tooltip(label_module_types, TOOLTIP_MODULE_TYPES)
 
 		color_unreadable = COLOR_BAD if self.cmc.game.modules_unreadable else COLOR_NEUTRAL_1
 		label_unreadable = ttk.Label(
@@ -438,7 +438,7 @@ class OverviewTab(CMCTabFrame):
 			foreground=color_unreadable,
 		)
 		label_unreadable.grid(column=0, row=3, sticky=E, padx=(5, 0))
-		ToolTip(label_unreadable, TOOLTIP_UNREADABLE)
+		add_tooltip(label_unreadable, TOOLTIP_UNREADABLE)
 
 		add_separator(self.frame_info_modules, HORIZONTAL, 0, 4, 3)
 
@@ -449,7 +449,7 @@ class OverviewTab(CMCTabFrame):
 			foreground=COLOR_DEFAULT,
 		)
 		label_hedr_100.grid(column=0, row=5, sticky=E, padx=(5, 0))
-		ToolTip(label_hedr_100, TOOLTIP_HEDR_100)
+		add_tooltip(label_hedr_100, TOOLTIP_HEDR_100)
 
 		label_hedr_95 = ttk.Label(
 			self.frame_info_modules,
@@ -458,7 +458,7 @@ class OverviewTab(CMCTabFrame):
 			foreground=COLOR_DEFAULT,
 		)
 		label_hedr_95.grid(column=0, row=6, sticky=E, padx=(5, 0))
-		ToolTip(label_hedr_95, TOOLTIP_HEDR_95)
+		add_tooltip(label_hedr_95, TOOLTIP_HEDR_95)
 
 		color_hedr_unknown = COLOR_BAD if self.cmc.game.modules_hedr_unknown else COLOR_NEUTRAL_1
 		label_hedr_unknown = ttk.Label(
@@ -468,7 +468,7 @@ class OverviewTab(CMCTabFrame):
 			foreground=color_hedr_unknown,
 		)
 		label_hedr_unknown.grid(column=0, row=7, sticky=E, padx=(5, 0))
-		ToolTip(label_hedr_unknown, TOOLTIP_HEDR_UNKNOWN)
+		add_tooltip(label_hedr_unknown, TOOLTIP_HEDR_UNKNOWN)
 
 		# Column 1
 		self.add_count_label(self.frame_info_modules, 1, 0, "Full")
@@ -512,7 +512,7 @@ class OverviewTab(CMCTabFrame):
 			justify=RIGHT,
 		)
 		label_module_max.grid(column=2, row=0, rowspan=3, sticky=EW)
-		ToolTip(label_module_max, TOOLTIP_MODULE_TYPES)
+		add_tooltip(label_module_max, TOOLTIP_MODULE_TYPES)
 
 		if self.cmc.game.modules_hedr_unknown:
 			label_hedr_unknown_icon = ttk.Label(
@@ -522,7 +522,7 @@ class OverviewTab(CMCTabFrame):
 				cursor="hand2",
 			)
 			label_hedr_unknown_icon.grid(column=2, row=7, sticky=W, padx=(5, 0), ipady=3)
-			ToolTip(label_hedr_unknown_icon, "Detection details")
+			add_tooltip(label_hedr_unknown_icon, "Detection details")
 			label_hedr_unknown_icon.bind(
 				"<Button-1>",
 				lambda _: TreeWindow(
