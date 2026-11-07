@@ -37,6 +37,7 @@ from utils import (
 	is_dir,
 	is_file,
 	is_fo4_dir,
+	read_text_encoded,
 )
 
 if TYPE_CHECKING:
@@ -94,9 +95,18 @@ class GameInfo:
 
 			section = "NO-SECTION"
 			ini_dict = self.game_prefs if name == "Fallout4Prefs.ini" else self.game_settings
-			for line in ini_path.read_text(encoding="utf-8").splitlines():
+			try:
+				ini_text, _ = read_text_encoded(ini_path)
+			except UnicodeDecodeError, LookupError:
+				ini_text = ini_path.read_bytes().decode("utf-8", errors="replace")
+			except OSError:
+				logger.exception("Failed to read %s", ini_path)
+				continue
+
+			for raw_line in ini_text.splitlines():
+				line = raw_line.strip()
 				if line.startswith("[") and line.endswith("]"):
-					section = line[1:-1].lower()
+					section = line[1:-1].strip().lower()
 					continue
 				try:
 					setting, value = line.split("=", 1)
@@ -104,7 +114,7 @@ class GameInfo:
 					continue
 				if section not in ini_dict:
 					ini_dict[section] = {}
-				ini_dict[section][setting.lower()] = value
+				ini_dict[section][setting.strip().lower()] = value.strip()
 
 		try:
 			self.language = Language(self.game_settings.get("general", {}).get("slanguage", "en").lower())
