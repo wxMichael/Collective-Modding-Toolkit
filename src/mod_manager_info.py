@@ -174,7 +174,7 @@ class ModManagerInfo:
 							dynamic_settings[name] = Path(val)
 					elif isinstance(val, Path) and val.parts[0] == "%BASE_DIR%":
 						dynamic_settings[name] = self.mo2_settings["base_directory"] / val.relative_to("%BASE_DIR%")
-				elif name.startswith("skip_"):
+				elif name.startswith("skip_") and isinstance(val, str):
 					csv_reader = csv.reader((str(val),), doublequote=False, escapechar="\\", skipinitialspace=True)
 					dynamic_settings[name] = next(csv_reader)
 
