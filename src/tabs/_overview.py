@@ -64,6 +64,8 @@ class OverviewTab(CMCTabFrame):
 		self.get_info_binaries()
 		self.get_info_modules(refresh=True)
 		self.get_info_archives()
+		if not self.is_loaded:
+			return
 		self.frame_info_binaries.destroy()
 		self.frame_info_archives.destroy()
 		self.frame_info_modules.destroy()

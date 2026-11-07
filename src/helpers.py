@@ -199,17 +199,26 @@ class CMCTabFrame(ttk.Frame, ABC):
 		)
 		self.label_loading.grid()
 
-		if self._load():
-			self.label_loading.destroy()
-			self.label_loading = None
-			self._loaded = True
-			self._build_gui()
-			self._switch_to()
-		else:
-			logger.error("Load Tab : %s : Failed : %s", self.__class__.__name__, self.loading_error)
-			self.sv_loading_text.set(self.loading_error or "Failed to load tab.")
-			self.label_loading.configure(foreground=COLOR_BAD)
-		self._loading = False
+		try:
+			loaded = self._load()
+		except Exception as e:
+			logger.exception("Load Tab : %s : Exception", self.__class__.__name__)
+			self.loading_error = f"Failed to load tab.\n{e.__class__.__name__}: {e}"
+			loaded = False
+
+		try:
+			if loaded:
+				self.label_loading.destroy()
+				self.label_loading = None
+				self._loaded = True
+				self._build_gui()
+				self._switch_to()
+			else:
+				logger.error("Load Tab : %s : Failed : %s", self.__class__.__name__, self.loading_error)
+				self.sv_loading_text.set(self.loading_error or "Failed to load tab.")
+				self.label_loading.configure(foreground=COLOR_BAD)
+		finally:
+			self._loading = False
 
 	@final
 	@property
