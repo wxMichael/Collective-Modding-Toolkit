@@ -114,7 +114,7 @@ class CMChecker(CMCheckerInterface):
 		}
 
 		notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
-		self.root.bind("<Escape>", lambda _: self.root.destroy())
+		self.root.bind("<Escape>", lambda _: self.on_close())
 		self.root.bind("<Unmap>", self.on_minimize)
 		self.root.bind("<Map>", self.on_restore)
 
