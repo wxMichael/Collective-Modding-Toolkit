@@ -167,7 +167,9 @@ class ModManagerInfo:
 				if name.endswith(("directory", "Path")):
 					if isinstance(val, str):
 						if "%BASE_DIR%" in val:
-							dynamic_settings[name] = self.mo2_settings["base_directory"] / val.replace("%BASE_DIR%", "")
+							# BASE_DIR=/mods
+							relative = val.replace("%BASE_DIR%", "").lstrip("/\\")
+							dynamic_settings[name] = self.mo2_settings["base_directory"] / relative
 						else:
 							dynamic_settings[name] = Path(val)
 					elif isinstance(val, Path) and val.parts[0] == "%BASE_DIR%":
