@@ -53,7 +53,7 @@ logger = logging.getLogger(__name__)
 
 DONT_RESOLVE_DLL_REFERENCES = 0x00000001
 HTTP_OK = 200
-KEY_CTRL = 12
+STATE_CONTROL_MASK = 0x0004
 
 win11_24h2 = sys.getwindowsversion().build >= 26100
 
@@ -221,7 +221,7 @@ def get_asset_path(relative_path: str) -> Path:
 
 def block_text_input(event: Event[Text]) -> str | None:
 	# Block all input except CTRL+A / CTRL+C
-	if event.state == KEY_CTRL and event.keysym in "AC":
+	if int(event.state) & STATE_CONTROL_MASK and event.keysym.lower() in {"a", "c"}:
 		return None
 	return "break"
 
