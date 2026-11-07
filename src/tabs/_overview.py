@@ -622,7 +622,6 @@ class OverviewTab(CMCTabFrame):
 		)
 
 	def get_file_info(self, file_name: str, file_path: Path) -> FileInfo:
-		file_path = self.cmc.game.game_path / file_name
 		logger.debug("Get File Info: %s", file_path)
 
 		if not is_file(file_path):
