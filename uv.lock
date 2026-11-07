@@ -98,7 +98,7 @@ wheels = [
 
 [[package]]
 name = "collective-modding-toolkit"
-version = "0.6.2.dev0"
+version = "0.6.3"
 source = { virtual = "." }
 dependencies = [
     { name = "chardet" },
