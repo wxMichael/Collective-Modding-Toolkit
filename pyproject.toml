@@ -3,7 +3,7 @@ name = "Collective-Modding-Toolkit"
 authors = [{ name = "wxMichael" }]
 license = "GPL-2.0-or-later"
 description = "A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the Collective Modding Discord Community."
-version = "0.6.2-dev"
+version = "0.6.3"
 readme = "README.md"
 requires-python = ">=3.15.2,<3.16"
 dependencies = [

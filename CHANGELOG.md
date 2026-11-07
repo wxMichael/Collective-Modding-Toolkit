@@ -1,6 +1,25 @@
 # Changelog
 
-## [0.6.2] - ####-##-## - RowanSkie's Fork
+## [0.6.3] - 2026-11-07
+
+### Added
+
+- Downgrader now supports Anniversary Edition Game & Creation Kit
+- Support for high DPI. The app should no longer appear blurry with display scaling over 100%.
+
+### Changed
+
+- SLightly improved tab loading speed
+
+### Fixed
+
+- Detection of F4SE DLL support for AE
+- Reading MO2 settings for BASE_DIR and skip_*
+- Misc error handling
+- File extension checks not working on Win11 24H2
+- Scanner settings resetting
+
+## [0.6.2] - 2026-10-22 - RowanSkie's Fork
 
 ### Added
 

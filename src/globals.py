@@ -20,7 +20,7 @@
 from enums import InstallType
 
 APP_TITLE = "Collective Modding Toolkit"
-APP_VERSION = "0.6.2-dev"
+APP_VERSION = "0.6.3"
 
 MAX_MODULES_FULL = 254
 MAX_MODULES_LIGHT = 4096
