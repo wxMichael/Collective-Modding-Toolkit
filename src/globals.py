@@ -325,8 +325,8 @@ TOOLTIP_SCAN_CONFLICTS = "Detect conflicting mods and mod settings."
 TOOLTIP_SCAN_SUGGEST = "Make suggestions for changes to your mod setup."
 
 TOOLTIP_UPDATE_SOURCE = """GitHub will always have the latest release.
-Nexus Mods releases may be delayed due to
-their review process or to await more testing."""
+Nexus Mods releases may be delayed to
+await more testing."""
 TOOLTIP_LOG_LEVEL = """Sets the minimum importance level for messages sent to the log file.
 DEBUG: Extra verbose.
 INFO: Default.
