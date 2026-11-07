@@ -264,12 +264,11 @@ class F4SEPluginVersionData(ctypes.Structure):
 
 	def IsSupportVersionNG(self):  # ruff: ignore[invalid-function-name, missing-return-type-undocumented-public-function]
 		# evildarkarchon: fixed more pythonic
-		result = (self.IsSupportVersion(n) for n in (RUNTIME_VERSION_1_10_980, RUNTIME_VERSION_1_10_984))
-		return bool(result)
+		return any(self.IsSupportVersion(n) for n in (RUNTIME_VERSION_1_10_980, RUNTIME_VERSION_1_10_984))
 
 	def IsSupportVersionAE(self):  # ruff: ignore[invalid-function-name, missing-return-type-undocumented-public-function]
 		# evildarkarchon: fixed more pythonic
-		result = (
+		return any(
 			self.IsSupportVersion(n)
 			for n in (
 				RUNTIME_VERSION_1_11_137,
@@ -280,7 +279,6 @@ class F4SEPluginVersionData(ctypes.Structure):
 				RUNTIME_VERSION_1_11_240,
 			)
 		)
-		return bool(result)
 
 
 ## version requirement for this def is cursed as fuck
