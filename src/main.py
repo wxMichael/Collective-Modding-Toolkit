@@ -26,7 +26,7 @@ from app_settings import AppSettings
 from cm_checker import CMChecker
 from globals import APP_TITLE, APP_VERSION
 from helpers import StdErr
-from utils import get_asset_path, load_font, set_theme
+from utils import apply_dpi_scaling, enable_dpi_awareness, get_asset_path, load_font, set_theme
 
 logging.basicConfig(
 	filename="cm-toolkit.log",
@@ -42,9 +42,11 @@ logger.info("%s", datetime.now().strftime("%Y-%m-%d %H:%M"))
 settings = AppSettings()
 logger.setLevel(settings.dict["log_level"])
 
+enable_dpi_awareness()
 load_font(str(get_asset_path("fonts/CascadiaMono.ttf")))
 root = Tk()
 root.wm_withdraw()
+apply_dpi_scaling(root)
 root.update_idletasks()
 
 set_theme(root)

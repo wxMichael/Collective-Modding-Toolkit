@@ -17,12 +17,15 @@
 #
 
 
+import io
 import logging
 import sys
 import webbrowser
 from tkinter import *
 from tkinter import ttk
 from typing import TYPE_CHECKING
+
+from PIL import Image as PILImage
 
 import tabs
 from enums import Tab
@@ -65,7 +68,15 @@ class CMChecker(CMCheckerInterface):
 
 	def get_image(self, relative_path: str) -> PhotoImage:
 		if relative_path not in self._images:
-			self._images[relative_path] = PhotoImage(file=get_asset_path(relative_path))
+			image_path = get_asset_path(relative_path)
+			if scale(100) == 100 or relative_path == "images/icon-32.png":
+				self._images[relative_path] = PhotoImage(file=image_path)
+			else:
+				with PILImage.open(image_path) as img:
+					size = (scale(img.width), scale(img.height))
+					buffer = io.BytesIO()
+					img.resize(size, PILImage.Resampling.LANCZOS).save(buffer, format="PNG")
+					self._images[relative_path] = PhotoImage(data=buffer.getvalue())
 
 		return self._images[relative_path]
 
@@ -82,9 +93,11 @@ class CMChecker(CMCheckerInterface):
 		self.root.wm_title(f"{APP_TITLE} v{APP_VERSION}")
 		self.root.wm_protocol("WM_DELETE_WINDOW", self.on_close)
 
-		x = (self.root.winfo_screenwidth() // 2) - (WINDOW_WIDTH // 2)
-		y = (self.root.winfo_screenheight() // 2) - (WINDOW_HEIGHT // 2)
-		self.root.wm_geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x}+{y}")
+		width = scale(WINDOW_WIDTH)
+		height = scale(WINDOW_HEIGHT)
+		x = (self.root.winfo_screenwidth() // 2) - (width // 2)
+		y = (self.root.winfo_screenheight() // 2) - (height // 2)
+		self.root.wm_geometry(f"{width}x{height}+{x}+{y}")
 		self.root.grid_columnconfigure(0, weight=1)
 		self.root.grid_rowconfigure(1, weight=1)
 
@@ -128,7 +141,7 @@ class CMChecker(CMCheckerInterface):
 			foreground="dark green",
 			anchor=E,
 			justify=RIGHT,
-			padding=5,
+			padding=scale(5),
 			font=FONT,
 		).grid(column=column, row=0, sticky=E)
 

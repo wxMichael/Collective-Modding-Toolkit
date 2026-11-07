@@ -38,7 +38,7 @@ from packaging.version import InvalidVersion, Version
 from psutil import Process
 from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
-from globals import APP_VERSION, COLOR_DEFAULT, FONT, FONT_SMALL, NEXUS_LINK
+from globals import APP_VERSION, COLOR_DEFAULT, FONT, FONT_SMALL, NEXUS_LINK, scale, set_ui_scale
 from mod_manager_info import ModManagerInfo
 
 if TYPE_CHECKING:
@@ -151,6 +151,22 @@ def read_text_encoded(file_path: Path) -> tuple[str, str]:
 	file_bytes = file_path.read_bytes()
 	encoding = chardet.detect(file_bytes)["encoding"] or "utf-8"
 	return file_bytes.decode(encoding), encoding
+
+
+def enable_dpi_awareness() -> None:
+	try:
+		windll.shcore.SetProcessDpiAwareness(1)  # System DPI aware
+	except AttributeError, OSError:
+		try:
+			windll.user32.SetProcessDPIAware()
+		except AttributeError, OSError:
+			logger.debug("Could not enable DPI awareness")
+
+
+def apply_dpi_scaling(root: Tk) -> None:
+	dpi = root.winfo_fpixels("1i")
+	root.tk.call("tk", "scaling", dpi / 72)
+	set_ui_scale(dpi / 96)
 
 
 def load_font(font_path: str) -> None:
@@ -324,9 +340,9 @@ def copy_text_button(button: ttk.Button, text: str) -> None:
 def add_separator(master: Misc, orient: Literal["horizontal", "vertical"], column: int, row: int, span: int) -> None:
 	separator = ttk.Separator(master, orient=orient)
 	if orient == HORIZONTAL:
-		separator.grid(column=column, row=row, columnspan=span, padx=10, pady=10, ipady=1, sticky=EW)
+		separator.grid(column=column, row=row, columnspan=span, padx=scale(10), pady=scale(10), ipady=scale(1), sticky=EW)
 	else:
-		separator.grid(column=column, row=row, rowspan=span, padx=10, pady=10, ipadx=1, sticky=NS)
+		separator.grid(column=column, row=row, rowspan=span, padx=scale(10), pady=scale(10), ipadx=scale(1), sticky=NS)
 
 
 def set_titlebar_style(window: Misc) -> None:
@@ -392,7 +408,7 @@ def set_theme(win: Tk) -> None:
 	style.configure("TCheckbutton", font=FONT_SMALL, foreground=COLOR_DEFAULT)
 	style.configure("TRadiobutton", font=FONT_SMALL, foreground=COLOR_DEFAULT)
 	style.configure("TLabelframe.Label", font=FONT_SMALL, foreground=COLOR_DEFAULT)
-	style.configure("Treeview", font=FONT_SMALL, foreground=COLOR_DEFAULT)
+	style.configure("Treeview", font=FONT_SMALL, foreground=COLOR_DEFAULT, rowheight=scale(25))
 	style.configure("Heading", font=FONT_SMALL, foreground=COLOR_DEFAULT)
 	style.configure("Update.TFrame", background="pale green")
 

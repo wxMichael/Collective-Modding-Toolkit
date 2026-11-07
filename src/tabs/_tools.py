@@ -47,7 +47,7 @@ class ToolsTab(CMCTabFrame):
 	) -> None:
 		row = len(frame.children)
 		new_button = ttk.Button(frame, text=text)
-		new_button.grid(column=0, row=row, sticky=EW, padx=(10, 0), pady=5)
+		new_button.grid(column=0, row=row, sticky=EW, padx=(scale(10), 0), pady=scale(5))
 		if action is None:
 			new_button.configure(state=DISABLED)
 		elif isinstance(action, str):
@@ -70,7 +70,7 @@ class ToolsTab(CMCTabFrame):
 				image=image_info,
 				justify=CENTER,
 			)
-			new_button_info.grid(column=1, row=row, sticky=NSEW, padx=(5, 0), pady=(padding_y, 0))
+			new_button_info.grid(column=1, row=row, sticky=NSEW, padx=(scale(5), 0), pady=(padding_y, 0))
 			add_tooltip(new_button_info, tooltip)
 
 	def _build_gui(self) -> None:
@@ -148,7 +148,7 @@ class ToolsTab(CMCTabFrame):
 
 		for i, (column, buttons) in enumerate(tool_buttons.items()):
 			self.grid_columnconfigure(i, weight=1, pad=5)
-			frame_column = ttk.Labelframe(self, text=column, labelanchor=N, padding=5)
-			frame_column.grid(column=i, row=0, sticky=NSEW, padx=5, pady=5)
+			frame_column = ttk.Labelframe(self, text=column, labelanchor=N, padding=scale(5))
+			frame_column.grid(column=i, row=0, sticky=NSEW, padx=scale(5), pady=scale(5))
 			for button in buttons:
 				self.add_tool_button(frame_column, *button)  # type: ignore[reportArgumentType]

@@ -79,11 +79,11 @@ class F4SETab(CMCTabFrame):
 		tree_dlls.heading("ae", text="AE")
 		tree_dlls.heading("user", text="Your Game")
 
-		tree_dlls.column("#0", width=240, stretch=False, anchor=E)
-		tree_dlls.column("og", width=60, stretch=False, anchor=CENTER)
-		tree_dlls.column("ng", width=60, stretch=False, anchor=CENTER)
-		tree_dlls.column("ae", width=60, stretch=False, anchor=CENTER)
-		tree_dlls.column("user", width=80, stretch=False, anchor=CENTER)
+		tree_dlls.column("#0", width=scale(240), stretch=False, anchor=E)
+		tree_dlls.column("og", width=scale(60), stretch=False, anchor=CENTER)
+		tree_dlls.column("ng", width=scale(60), stretch=False, anchor=CENTER)
+		tree_dlls.column("ae", width=scale(60), stretch=False, anchor=CENTER)
+		tree_dlls.column("user", width=scale(80), stretch=False, anchor=CENTER)
 
 		tree_dlls.tag_configure(TAG_NEUTRAL, foreground=COLOR_NEUTRAL_1)
 		tree_dlls.tag_configure(TAG_GOOD, foreground=COLOR_GOOD)
@@ -106,7 +106,7 @@ class F4SETab(CMCTabFrame):
 			text="F4SE DLLs",
 			font=FONT,
 			anchor=N,
-		).grid(column=2, row=0, padx=5, pady=5)
+		).grid(column=2, row=0, padx=scale(5), pady=scale(5))
 
 		text_about_f4se = Text(
 			self,

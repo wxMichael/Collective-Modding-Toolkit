@@ -52,9 +52,11 @@ class ModalWindow(Toplevel, ABC):
 		self.wm_protocol("WM_DELETE_WINDOW", self._ungrab_and_destroy)
 		self.wm_title(self._window_title)
 
-		x = (self.winfo_screenwidth() // 2) - (self.width // 2)
-		y = (self.winfo_screenheight() // 2) - (self.height // 2)
-		self.wm_geometry(f"{self.width}x{self.height}+{x}+{y}")
+		width = scale(self.width)
+		height = scale(self.height)
+		x = (self.winfo_screenwidth() // 2) - (width // 2)
+		y = (self.winfo_screenheight() // 2) - (height // 2)
+		self.wm_geometry(f"{width}x{height}+{x}+{y}")
 
 		self.wm_transient(self.parent)
 		set_titlebar_style(self)
@@ -95,16 +97,16 @@ class AboutWindow(ModalWindow):
 			font=FONT_SMALL,
 			justify=LEFT,
 			anchor=N,
-			wraplength=self.win_width,
+			wraplength=scale(self.win_width),
 		)
-		label_about.grid(sticky=NSEW, padx=10, pady=(10, 0))
+		label_about.grid(sticky=NSEW, padx=scale(10), pady=(scale(10), 0))
 		self.button_close = ttk.Button(
 			self,
 			text="Close",
 			command=self._ungrab_and_destroy,
 			width=self.win_width // 2,
 		)
-		self.button_close.grid(row=1, padx=10, pady=10)
+		self.button_close.grid(row=1, padx=scale(10), pady=scale(10))
 
 
 class TreeWindow(ModalWindow):
@@ -141,9 +143,9 @@ class TreeWindow(ModalWindow):
 			font=FONT_SMALL,
 			justify=LEFT,
 			anchor=W,
-			wraplength=int(self.win_width * 0.9),
+			wraplength=scale(int(self.win_width * 0.9)),
 		)
-		label_about.grid(column=0, row=0, columnspan=2, sticky=NSEW, padx=10, pady=10)
+		label_about.grid(column=0, row=0, columnspan=2, sticky=NSEW, padx=scale(10), pady=scale(10))
 
 		columns = tuple(f"#{i}" for i in range(1, len(self.items[0]) if self.items else 2))
 		self.tree_items = ttk.Treeview(
@@ -151,7 +153,7 @@ class TreeWindow(ModalWindow):
 			columns=columns,
 			selectmode=NONE,
 			show="tree headings",
-			padding=1,
+			padding=scale(1),
 		)
 		scroll_items_y = ttk.Scrollbar(
 			self,
@@ -172,9 +174,9 @@ class TreeWindow(ModalWindow):
 			command=self._ungrab_and_destroy,
 			width=self.win_width // 2,
 		)
-		self.button_close.grid(column=0, row=2, columnspan=2, padx=10, pady=10)
+		self.button_close.grid(column=0, row=2, columnspan=2, padx=scale(10), pady=scale(10))
 
-		self.tree_items.column("#0", width=65, stretch=False, anchor=W)
+		self.tree_items.column("#0", width=scale(65), stretch=False, anchor=W)
 		if self.items:
 			for col in columns:
 				self.tree_items.column(col, stretch=True, anchor=W)

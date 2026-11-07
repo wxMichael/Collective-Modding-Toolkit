@@ -66,7 +66,7 @@ class ArchivePatcher(PatcherBase):
 
 	def build_gui_secondary(self) -> None:
 		frame_radio = ttk.Labelframe(self.frame_top, text="Desired Version")
-		frame_radio.pack(side=LEFT, ipadx=5, ipady=5, padx=5, pady=5)
+		frame_radio.pack(side=LEFT, ipadx=scale(5), ipady=scale(5), padx=scale(5), pady=scale(5))
 
 		radio_og = ttk.Radiobutton(
 			frame_radio,
@@ -82,8 +82,8 @@ class ArchivePatcher(PatcherBase):
 			value=ArchiveVersion.NG,
 			command=self.on_radio_change,
 		)
-		radio_og.grid(column=0, row=0, padx=5)
-		radio_ng.grid(column=1, row=0, padx=5)
+		radio_og.grid(column=0, row=0, padx=scale(5))
+		radio_ng.grid(column=1, row=0, padx=scale(5))
 
 		self.label_filter = ttk.Label(
 			self.frame_top,
@@ -91,14 +91,14 @@ class ArchivePatcher(PatcherBase):
 			font=FONT_SMALL,
 			foreground=COLOR_NEUTRAL_2,
 		)
-		self.label_filter.pack(side=LEFT, padx=10, fill=Y)
+		self.label_filter.pack(side=LEFT, padx=scale(10), fill=Y)
 
 		ttk.Label(
 			self.frame_middle,
 			text="Name Filter:",
 			font=FONT_SMALL,
 			foreground=COLOR_DEFAULT,
-		).grid(column=0, row=0, sticky=NSEW, padx=5, pady=5)
+		).grid(column=0, row=0, sticky=NSEW, padx=scale(5), pady=scale(5))
 		self.text_filter = ttk.Entry(self.frame_middle)
 		self.text_filter.grid(column=1, row=0, sticky=NSEW)
 

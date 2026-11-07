@@ -85,8 +85,8 @@ class SettingsTab(CMCTabFrame):
 		}
 
 		for name, (tooltip, column, row, var, action, options) in options_radios.items():
-			frame = ttk.Labelframe(self, text=name, padding=5)
-			frame.grid(column=column, row=row, padx=5, pady=5, sticky=NSEW)
+			frame = ttk.Labelframe(self, text=name, padding=scale(5))
+			frame.grid(column=column, row=row, padx=scale(5), pady=scale(5), sticky=NSEW)
 			for text, value in options:
 				radio = ttk.Radiobutton(
 					frame,

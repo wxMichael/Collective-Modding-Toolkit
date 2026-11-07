@@ -127,7 +127,7 @@ class ScannerTab(CMCTabFrame):
 		self.grid_rowconfigure(1, weight=1)
 
 		frame_tree_controls = ttk.Frame(self, padding=0)
-		frame_tree_controls.grid(column=0, row=0, columnspan=2, sticky=EW, padx=5, pady=5)
+		frame_tree_controls.grid(column=0, row=0, columnspan=2, sticky=EW, padx=scale(5), pady=scale(5))
 
 		button_collapse = ttk.Button(
 			frame_tree_controls,
@@ -143,8 +143,8 @@ class ScannerTab(CMCTabFrame):
 			state=NORMAL,
 			command=lambda: self.set_expanded(expanded=True),
 		)
-		button_collapse.pack(side=LEFT, anchor=W, padx=(0, 5))
-		button_expand.pack(side=LEFT, anchor=W, padx=(0, 5))
+		button_collapse.pack(side=LEFT, anchor=W, padx=(0, scale(5)))
+		button_expand.pack(side=LEFT, anchor=W, padx=(0, scale(5)))
 
 		label_results_info = ttk.Label(
 			frame_tree_controls,
@@ -153,18 +153,18 @@ class ScannerTab(CMCTabFrame):
 			foreground=COLOR_NEUTRAL_2,
 			justify=RIGHT,
 		)
-		label_results_info.pack(side=RIGHT, anchor=E, padx=(0, 5))
+		label_results_info.pack(side=RIGHT, anchor=E, padx=(0, scale(5)))
 
 		style = ttk.Style(self.cmc.root)
 		style.configure("Treeview", font=FONT_SMALL)
 		if self.using_stage:
 			self.tree_results = ttk.Treeview(self, columns=("mod",), selectmode=NONE, show="tree")
 			self.tree_results.heading("#0", text="Problem")
-			self.tree_results.column("#0", minwidth=400, stretch=True, anchor=W)
+			self.tree_results.column("#0", minwidth=scale(400), stretch=True, anchor=W)
 			self.tree_results.column("mod", stretch=True, anchor=E)
 		else:
 			self.tree_results = ttk.Treeview(self, selectmode=NONE, show="tree")
-			self.tree_results.column("#0", minwidth=400, stretch=True, anchor=W)
+			self.tree_results.column("#0", minwidth=scale(400), stretch=True, anchor=W)
 
 		scroll_results_y = ttk.Scrollbar(
 			self,
@@ -176,7 +176,7 @@ class ScannerTab(CMCTabFrame):
 		self.tree_results.configure(yscrollcommand=scroll_results_y.set)
 
 		self.progress_bar = ttk.Progressbar(self, variable=self.dv_progress, maximum=100)
-		self.progress_bar.grid(column=0, row=4, columnspan=2, sticky=EW, ipady=1)
+		self.progress_bar.grid(column=0, row=4, columnspan=2, sticky=EW, ipady=scale(1))
 
 	def start_threaded_scan(self) -> None:
 		if self.side_pane is None:
@@ -201,7 +201,7 @@ class ScannerTab(CMCTabFrame):
 				foreground=COLOR_NEUTRAL_2,
 				justify=LEFT,
 			)
-			self.label_scanning_text.grid(column=0, row=3, sticky=EW, padx=5, pady=5)
+			self.label_scanning_text.grid(column=0, row=3, sticky=EW, padx=scale(5), pady=scale(5))
 		self.sv_scanning_text.set("Refreshing Overview...")
 		self.cmc.refresh_tab(Tab.Overview)
 
@@ -617,8 +617,8 @@ class SidePane(Toplevel):
 		self.wm_resizable(width=False, height=False)
 		self.update_geometry()
 
-		frame_scan_settings = ttk.Labelframe(self, text="Scan Settings", labelanchor=N, padding=5)
-		frame_scan_settings.pack(expand=True, fill=BOTH, padx=5, pady=5)
+		frame_scan_settings = ttk.Labelframe(self, text="Scan Settings", labelanchor=N, padding=scale(5))
+		frame_scan_settings.pack(expand=True, fill=BOTH, padx=scale(5), pady=scale(5))
 
 		self.bool_vars: dict[ScanSetting, BooleanVar] = {}
 		for setting in ScanSetting:
@@ -636,11 +636,11 @@ class SidePane(Toplevel):
 		self.button_scan = ttk.Button(
 			self,
 			text="Scan Game",
-			padding=5,
+			padding=scale(5),
 			command=scanner_tab.start_threaded_scan,
 			style="Accent.TButton",
 		)
-		self.button_scan.pack(side=BOTTOM, padx=10, pady=10)
+		self.button_scan.pack(side=BOTTOM, padx=scale(10), pady=scale(10))
 
 		self.grid_rowconfigure(self.grid_size()[1], weight=1)
 		self.bind("<FocusIn>", self.on_focus)
@@ -659,9 +659,9 @@ class SidePane(Toplevel):
 		root_y = self.scanner_tab.cmc.root.winfo_rooty()
 		root_width = self.scanner_tab.cmc.root.winfo_width()
 		root_height = self.scanner_tab.cmc.root.winfo_height()
-		width = 200
-		offset_y = 40
-		self.wm_geometry(f"{width}x{root_height - offset_y - 5}+{root_x + root_width}+{root_y + offset_y}")
+		width = scale(200)
+		offset_y = scale(40)
+		self.wm_geometry(f"{width}x{root_height - offset_y - scale(5)}+{root_x + root_width}+{root_y + offset_y}")
 		self.update_idletasks()
 
 
@@ -702,7 +702,7 @@ class ResultDetailsPane(Toplevel):
 				text="Mod:",
 				font=FONT,
 				justify=RIGHT,
-			).grid(column=0, row=0, sticky=NE, padx=5, pady=5)
+			).grid(column=0, row=0, sticky=NE, padx=scale(5), pady=scale(5))
 
 			ttk.Label(
 				self,
@@ -710,30 +710,30 @@ class ResultDetailsPane(Toplevel):
 				font=FONT,
 				justify=LEFT,
 				foreground=COLOR_NEUTRAL_2,
-			).grid(column=1, row=0, sticky=NW, padx=0, pady=5)
+			).grid(column=1, row=0, sticky=NW, padx=0, pady=scale(5))
 
 		ttk.Label(
 			self,
 			text="Problem:",
 			font=FONT_SMALL,
 			justify=RIGHT,
-		).grid(column=0, row=start_row, sticky=NE, padx=5, pady=5)
+		).grid(column=0, row=start_row, sticky=NE, padx=scale(5), pady=scale(5))
 
 		ttk.Label(
 			self,
 			text="Summary:",
 			font=FONT_SMALL,
 			justify=RIGHT,
-		).grid(column=0, row=start_row + 1, sticky=NE, padx=5, pady=5)
+		).grid(column=0, row=start_row + 1, sticky=NE, padx=scale(5), pady=scale(5))
 
 		ttk.Label(
 			self,
 			text="Solution:",
 			font=FONT_SMALL,
 			justify=RIGHT,
-		).grid(column=0, row=start_row + 2, sticky=NE, padx=5, pady=5)
+		).grid(column=0, row=start_row + 2, sticky=NE, padx=scale(5), pady=scale(5))
 
-		wraplength = WINDOW_WIDTH - 200
+		wraplength = scale(WINDOW_WIDTH - 200)
 
 		self.label_file_path = ttk.Label(
 			self,
@@ -744,7 +744,7 @@ class ResultDetailsPane(Toplevel):
 			justify=LEFT,
 			wraplength=wraplength,
 		)
-		self.label_file_path.grid(column=1, row=start_row, sticky=NW, padx=0, pady=5)
+		self.label_file_path.grid(column=1, row=start_row, sticky=NW, padx=0, pady=scale(5))
 
 		ttk.Label(
 			self,
@@ -753,7 +753,7 @@ class ResultDetailsPane(Toplevel):
 			foreground=COLOR_NEUTRAL_2,
 			justify=LEFT,
 			wraplength=wraplength,
-		).grid(column=1, row=start_row + 1, sticky=NW, padx=0, pady=5)
+		).grid(column=1, row=start_row + 1, sticky=NW, padx=0, pady=scale(5))
 
 		self.label_solution = ttk.Label(
 			self,
@@ -763,7 +763,7 @@ class ResultDetailsPane(Toplevel):
 			justify=LEFT,
 			wraplength=wraplength,
 		)
-		self.label_solution.grid(column=1, row=start_row + 2, sticky=NW, padx=0, pady=5)
+		self.label_solution.grid(column=1, row=start_row + 2, sticky=NW, padx=0, pady=scale(5))
 
 		self.bind("<FocusIn>", self.on_focus)
 
@@ -851,10 +851,10 @@ class ResultDetailsPane(Toplevel):
 				self.frame_buttons,
 				text="Copy Details",
 				command=self.copy_details,
-				padding=(0, 5),
+				padding=(0, scale(5)),
 			)
 
-			self.button_copy.pack(side=TOP, anchor=E, fill=X, padx=5, pady=(5, 0))
+			self.button_copy.pack(side=TOP, anchor=E, fill=X, padx=scale(5), pady=(scale(5), 0))
 
 		if isinstance(self.problem_info, SimpleProblemInfo) and self.problem_info.file_list:
 			if self.problem_info.problem == "Race Subgraph Record Count":
@@ -877,9 +877,9 @@ class ResultDetailsPane(Toplevel):
 					("Records", " Module"),
 					self.problem_info.file_list,
 				),
-				padding=(0, 5),
+				padding=(0, scale(5)),
 			)
-			self.button_files.pack(side=TOP, anchor=E, fill=X, padx=5, pady=(5, 0))
+			self.button_files.pack(side=TOP, anchor=E, fill=X, padx=scale(5), pady=(scale(5), 0))
 
 		if self.problem_info.solution in AUTO_FIXES:
 			if self.problem_info.autofix_result is None:
@@ -894,12 +894,12 @@ class ResultDetailsPane(Toplevel):
 
 			self.button_autofix = ttk.Button(
 				self.frame_buttons,
-				padding=(0, 5),
+				padding=(0, scale(5)),
 				command=lambda: do_autofix(self, selection),
 				text=text,
 				style=style,
 			)
-			self.button_autofix.pack(side=TOP, anchor=E, fill=X, padx=5, pady=(5, 0))
+			self.button_autofix.pack(side=TOP, anchor=E, fill=X, padx=scale(5), pady=(scale(5), 0))
 
 	def on_focus(self, _event: Event[Misc]) -> None:
 		self.scanner_tab.cmc.root.tkraise()
@@ -911,7 +911,7 @@ class ResultDetailsPane(Toplevel):
 		root_y = self.scanner_tab.cmc.root.winfo_rooty()
 		root_width = self.scanner_tab.cmc.root.winfo_width()
 		root_height = self.scanner_tab.cmc.root.winfo_height()
-		height = 200
+		height = scale(200)
 		offset_x = 0
 		self.wm_geometry(f"{root_width}x{height}+{root_x + offset_x}+{root_y + root_height}")
 

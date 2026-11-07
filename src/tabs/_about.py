@@ -42,26 +42,26 @@ class AboutTab(CMCTabFrame):
 			text="\n".join(APP_TITLE.rsplit(maxsplit=1)),
 			font=FONT_LARGE,
 			justify=CENTER,
-		).grid(column=0, row=0, pady=10)
+		).grid(column=0, row=0, pady=scale(10))
 
 		ttk.Label(
 			self,
 			compound="image",
 			image=self.cmc.get_image("images/icon-256.png"),
-		).grid(column=0, row=1, sticky=NS, pady=(0, 20))
+		).grid(column=0, row=1, sticky=NS, pady=(0, scale(20)))
 
 		frame_about_text = ttk.Frame(self)
-		frame_about_text.grid(column=1, row=0, rowspan=2, padx=(0, 20))
+		frame_about_text.grid(column=1, row=0, rowspan=2, padx=(0, scale(20)))
 
 		ttk.Label(
 			frame_about_text,
 			text=f"v{APP_VERSION}\n\nCreated by wxMichael for the\nCollective Modding Community\n#cm-toolkit on Discord\nModified by RowanSkie",
 			font=FONT,
 			justify=CENTER,
-		).grid(column=0, row=1, rowspan=2, pady=10)
+		).grid(column=0, row=1, rowspan=2, pady=scale(10))
 
 		frame_nexus = ttk.Frame(frame_about_text)
-		frame_nexus.grid(column=0, row=3, pady=(10, 0), sticky=E)
+		frame_nexus.grid(column=0, row=3, pady=(scale(10), 0), sticky=E)
 
 		ttk.Label(
 			frame_nexus,
@@ -77,14 +77,14 @@ class AboutTab(CMCTabFrame):
 			padding=0,
 			width=12,
 			command=lambda: webbrowser.open(NEXUS_LINK),
-		).grid(column=2, row=0, padx=0, pady=5)
+		).grid(column=2, row=0, padx=0, pady=scale(5))
 
 		button_nexus_copy = ttk.Button(frame_nexus, text="Copy Link", padding=0, width=12)
 		button_nexus_copy.configure(command=lambda: copy_text_button(button_nexus_copy, NEXUS_LINK))
-		button_nexus_copy.grid(column=2, row=1, padx=0, pady=5)
+		button_nexus_copy.grid(column=2, row=1, padx=0, pady=scale(5))
 
 		frame_discord = ttk.Frame(frame_about_text)
-		frame_discord.grid(column=0, row=4, pady=(10, 0), sticky=E)
+		frame_discord.grid(column=0, row=4, pady=(scale(10), 0), sticky=E)
 
 		ttk.Label(
 			frame_discord,
@@ -100,14 +100,14 @@ class AboutTab(CMCTabFrame):
 			padding=0,
 			width=12,
 			command=lambda: webbrowser.open(DISCORD_INVITE),
-		).grid(column=2, row=0, padx=0, pady=5)
+		).grid(column=2, row=0, padx=0, pady=scale(5))
 
 		button_discord_copy = ttk.Button(frame_discord, text="Copy Invite", padding=0, width=12)
 		button_discord_copy.configure(command=lambda: copy_text_button(button_discord_copy, DISCORD_INVITE))
-		button_discord_copy.grid(column=2, row=1, padx=0, pady=5)
+		button_discord_copy.grid(column=2, row=1, padx=0, pady=scale(5))
 
 		frame_github = ttk.Frame(frame_about_text)
-		frame_github.grid(column=0, row=5, pady=(10, 0), sticky=E)
+		frame_github.grid(column=0, row=5, pady=(scale(10), 0), sticky=E)
 
 		ttk.Label(
 			frame_github,
@@ -123,8 +123,8 @@ class AboutTab(CMCTabFrame):
 			padding=0,
 			width=12,
 			command=lambda: webbrowser.open(GITHUB_LINK),
-		).grid(column=2, row=0, padx=0, pady=5)
+		).grid(column=2, row=0, padx=0, pady=scale(5))
 
 		button_github_copy = ttk.Button(frame_github, text="Copy Link", padding=0, width=12)
 		button_github_copy.configure(command=lambda: copy_text_button(button_github_copy, GITHUB_LINK))
-		button_github_copy.grid(column=2, row=1, padx=0, pady=5)
+		button_github_copy.grid(column=2, row=1, padx=0, pady=scale(5))

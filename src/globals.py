@@ -65,6 +65,18 @@ MODULE_VERSION_SUPPORT = {
 	"Starfield": {"0.96"},
 }
 
+_ui_scale = 1.0
+
+
+def set_ui_scale(factor: float) -> None:
+	global _ui_scale  # ruff: ignore[global-statement]
+	_ui_scale = max(factor, 1.0)
+
+
+def scale(pixels: float) -> int:
+	return round(pixels * _ui_scale)
+
+
 WINDOW_WIDTH = 760
 WINDOW_HEIGHT = 450
 

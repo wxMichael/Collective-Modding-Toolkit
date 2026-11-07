@@ -153,26 +153,26 @@ class Downgrader(ModalWindow):
 
 	def build_gui(self) -> None:
 		self.grid_columnconfigure(2, weight=1)
-		self.frame_game = ttk.Labelframe(self, text="Current Game", padding=5)
-		self.frame_game.grid(column=0, row=0, rowspan=2, sticky=NSEW, padx=10)
+		self.frame_game = ttk.Labelframe(self, text="Current Game", padding=scale(5))
+		self.frame_game.grid(column=0, row=0, rowspan=2, sticky=NSEW, padx=scale(10))
 		self.frame_game.grid_columnconfigure(0, weight=1)
-		self.frame_ck = ttk.Labelframe(self, text="Current Creation Kit", padding=5)
-		self.frame_ck.grid(column=0, row=2, rowspan=2, sticky=NSEW, padx=10)
+		self.frame_ck = ttk.Labelframe(self, text="Current Creation Kit", padding=scale(5))
+		self.frame_ck.grid(column=0, row=2, rowspan=2, sticky=NSEW, padx=scale(10))
 		self.frame_ck.grid_columnconfigure(0, weight=1)
 
 		file_names_game = "\n".join([f"{Path(f).name}:" for f in self.CRCs_game])
 		file_names_ck = "\n".join([f"{Path(f).name}:" for f in self.CRCs_ck])
 
 		label_file_names_game = ttk.Label(self.frame_game, text=file_names_game, font=FONT, justify=RIGHT)
-		label_file_names_game.grid(column=0, row=0, rowspan=len(self.CRCs_game), sticky=E, padx=5)
+		label_file_names_game.grid(column=0, row=0, rowspan=len(self.CRCs_game), sticky=E, padx=scale(5))
 
 		label_file_names_ck = ttk.Label(self.frame_ck, text=file_names_ck, font=FONT, justify=RIGHT)
-		label_file_names_ck.grid(column=0, row=0, rowspan=len(self.CRCs_ck), sticky=E, padx=5)
+		label_file_names_ck.grid(column=0, row=0, rowspan=len(self.CRCs_ck), sticky=E, padx=scale(5))
 
 		self.draw_versions()
 
-		frame_radio_desired = ttk.Labelframe(self, text="Desired Version", padding=5)
-		frame_radio_desired.grid(column=1, row=0, rowspan=2, sticky=NSEW, padx=5)
+		frame_radio_desired = ttk.Labelframe(self, text="Desired Version", padding=scale(5))
+		frame_radio_desired.grid(column=1, row=0, rowspan=2, sticky=NSEW, padx=scale(5))
 
 		ttk.Radiobutton(
 			frame_radio_desired,
@@ -188,15 +188,15 @@ class Downgrader(ModalWindow):
 			value=False,
 		).grid(column=0, row=1, sticky=NSEW)
 
-		frame_options = ttk.Labelframe(self, text="Options", padding=5)
-		frame_options.grid(column=1, row=2, rowspan=2, sticky=NSEW, padx=5)
+		frame_options = ttk.Labelframe(self, text="Options", padding=scale(5))
+		frame_options.grid(column=1, row=2, rowspan=2, sticky=NSEW, padx=scale(5))
 		self.check_keep_backups = ttk.Checkbutton(
 			frame_options,
 			text="Keep Backups",
 			variable=self.bv_keep_backups,
 			padding=0,
 		)
-		self.check_keep_backups.grid(column=0, row=0, sticky=W, pady=5)
+		self.check_keep_backups.grid(column=0, row=0, sticky=W, pady=scale(5))
 		add_tooltip(self.check_keep_backups, TOOLTIP_DOWNGRADER_BACKUPS)
 
 		self.check_delete_deltas = ttk.Checkbutton(
@@ -205,20 +205,20 @@ class Downgrader(ModalWindow):
 			variable=self.bv_delete_deltas,
 			padding=0,
 		)
-		self.check_delete_deltas.grid(column=0, row=1, sticky=W, pady=5)
+		self.check_delete_deltas.grid(column=0, row=1, sticky=W, pady=scale(5))
 		add_tooltip(self.check_delete_deltas, TOOLTIP_DOWNGRADER_DELTAS)
 
 		self.button_patch = ttk.Button(self, text="Patch\n All", command=self.patch_files)
-		self.button_patch.grid(column=2, row=0, rowspan=2, sticky=NSEW, padx=(5, 10), pady=(10, 0))
+		self.button_patch.grid(column=2, row=0, rowspan=2, sticky=NSEW, padx=(scale(5), scale(10)), pady=(scale(10), 0))
 
 		ttk.Button(
 			self,
 			text="About",
 			command=lambda: AboutWindow(self, self.cmc, 500, 300, ABOUT_DOWNGRADING_TITLE, ABOUT_DOWNGRADING),
-		).grid(column=2, row=2, sticky=EW, padx=(5, 10), pady=(5, 0))
+		).grid(column=2, row=2, sticky=EW, padx=(scale(5), scale(10)), pady=(scale(5), 0))
 
 		frame_bottom = ttk.Frame(self)
-		frame_bottom.grid(column=0, row=5, columnspan=3, sticky=EW, pady=(5, 0))
+		frame_bottom.grid(column=0, row=5, columnspan=3, sticky=EW, pady=(scale(5), 0))
 		frame_bottom.grid_columnconfigure(0, weight=1)
 		self.logger = Logger(frame_bottom)
 
@@ -226,7 +226,7 @@ class Downgrader(ModalWindow):
 
 		self.progress_var = DoubleVar()
 		self.progress_bar = ttk.Progressbar(self, variable=self.progress_var, maximum=100)
-		self.progress_bar.grid(column=0, row=6, columnspan=3, sticky=EW, ipady=1)
+		self.progress_bar.grid(column=0, row=6, columnspan=3, sticky=EW, ipady=scale(1))
 
 	def draw_versions(self) -> None:
 		for label in self.version_labels:
@@ -268,7 +268,7 @@ class Downgrader(ModalWindow):
 				foreground=color,
 				justify=RIGHT,
 			)
-			label.grid(column=1, row=i, sticky=E, padx=5)
+			label.grid(column=1, row=i, sticky=E, padx=scale(5))
 			self.version_labels.append(label)
 			i += 1
 
