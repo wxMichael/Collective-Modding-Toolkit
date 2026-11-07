@@ -866,7 +866,7 @@ class OverviewTab(CMCTabFrame):
 							ba2_file,
 							Path(ba2_file.name),
 							"OVERVIEW",
-							f"Archive format ({head[8:].decode('utf-8')}) is not valid for Fallout 4.",
+							f"Archive format ({head[8:].decode('utf-8', errors='replace')}) is not valid for Fallout 4.",
 							None,
 						),
 					)
