@@ -86,7 +86,7 @@ class PatcherBase(ModalWindow):
 		# self.label_filter = ttk.Label(frame_top, text=self.filter_text, foreground=COLOR_NEUTRAL_2)
 		button_patch_all = ttk.Button(self.frame_top, text="Patch All", padding=(scale(6), scale(2)), command=self._patch_wrapper)
 		button_patcher_info = ttk.Button(self.frame_top, text="About", padding=(scale(6), scale(2)))
-		button_patcher_info.config(command=lambda: AboutWindow(self, self.cmc, 500, 435, self.about_title, self.about_text))
+		button_patcher_info.config(command=lambda: AboutWindow(self, self.cmc, 500, 465, self.about_title, self.about_text))
 
 		button_patcher_info.pack(side=RIGHT, padx=scale(24), pady=scale(5))
 		button_patch_all.pack(side=RIGHT, padx=scale(5), pady=scale(5))

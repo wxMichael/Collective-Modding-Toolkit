@@ -231,7 +231,7 @@ class Downgrader(ModalWindow):
 		ttk.Button(
 			self,
 			text="About",
-			command=lambda: AboutWindow(self, self.cmc, 500, 300, ABOUT_DOWNGRADING_TITLE, ABOUT_DOWNGRADING),
+			command=lambda: AboutWindow(self, self.cmc, 500, 320, ABOUT_DOWNGRADING_TITLE, ABOUT_DOWNGRADING),
 		).grid(column=2, row=2, sticky=EW, padx=(scale(5), scale(10)), pady=(scale(5), 0))
 
 		frame_bottom = ttk.Frame(self)
