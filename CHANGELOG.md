@@ -9,7 +9,7 @@
 
 ### Changed
 
-- SLightly improved tab loading speed
+- Slightly improved tab loading speed
 
 ### Fixed
 
