@@ -144,6 +144,7 @@ class Downgrader(ModalWindow):
 		self.download_progress_updates: queue.Queue[float] = queue.Queue()
 		self.download_or_patch_in_progress = False
 		self.download_thread: Thread | None = None
+		self.download_error: str | None = None
 
 		self.get_info()
 
@@ -408,9 +409,9 @@ class Downgrader(ModalWindow):
 			self.processing_data = False
 			return
 
+		self.download_error = None
 		file_path = Path(Path(next_download[0]).name)
 		if is_file(file_path):
-			self.download_thread = None
 			self.progress_var.set(100)
 		else:
 			self.progress_var.set(0)
@@ -420,17 +421,24 @@ class Downgrader(ModalWindow):
 
 	def _threaded_download(self, url: str) -> None:
 		file_path = Path(Path(url).name)
+		part_path = file_path.with_name(f"{file_path.name}.part")
 
-		response = requests.get(url, timeout=10, stream=True)
-		total_size = int(response.headers.get("content-length", 0))
-		downloaded_size = 0
-		with file_path.open("wb") as f:
-			for data in response.iter_content(chunk_size=1024):
-				downloaded_size += len(data)
-				f.write(data)
-				self.download_progress_updates.put(downloaded_size / total_size * 100)
-		self.download_progress_updates.put(100)
-		self.download_thread = None
+		try:  # ruff: ignore[too-many-statements-in-try-clause]
+			with requests.get(url, timeout=10, stream=True) as response:
+				response.raise_for_status()
+				total_size = int(response.headers.get("content-length", 0))
+				downloaded_size = 0
+				with part_path.open("wb") as f:
+					for data in response.iter_content(chunk_size=65536):
+						downloaded_size += len(data)
+						f.write(data)
+						if total_size > 0:
+							self.download_progress_updates.put(downloaded_size / total_size * 100)
+			part_path.replace(file_path)
+			self.download_progress_updates.put(100)
+		except (requests.RequestException, OSError) as e:
+			self.download_error = str(e) or e.__class__.__name__
+			part_path.unlink(missing_ok=True)
 
 	def check_download_progress(self, url: str, infile: Path, outfile: Path) -> None:
 		while self.download_progress_updates.qsize():
@@ -441,30 +449,58 @@ class Downgrader(ModalWindow):
 			else:
 				self.progress_var.set(value)
 
-		if self.download_thread is None:
-			print("Download completed. Patching...")
-			self.apply_patch(url, infile, outfile)
+		if self.download_thread is not None and self.download_thread.is_alive():
+			self.cmc.root.after(100, self.check_download_progress, url, infile, outfile)
 			return
-		self.cmc.root.after(100, self.check_download_progress, url, infile, outfile)
+
+		self.download_thread = None
+		if self.download_error is not None:
+			print("Download failed:", self.download_error)
+			self.logger.log_message(LogType.Bad, f"Failed downloading patch for {outfile.name}: {self.download_error}")
+			self.restore_original(infile, outfile)
+			self.check_download_queue()
+			return
+
+		print("Download completed. Patching...")
+		self.apply_patch(url, infile, outfile)
+
+	def restore_original(self, infile: Path, outfile: Path) -> None:
+		try:  # ruff: ignore[too-many-statements-in-try-clause]
+			if is_file(infile):
+				if self.bv_keep_backups.get():
+					outfile.unlink(missing_ok=True)
+					copy2(infile, outfile)
+				else:
+					infile.replace(outfile)
+				self.logger.log_message(LogType.Info, f"Restored original {outfile.name}")
+		except OSError as e:
+			print("Restore of original failed.", e)
+			self.logger.log_message(LogType.Bad, f"Failed restoring original {outfile.name} from {infile.name}")
 
 	def apply_patch(self, url: str, infile: Path, outfile: Path) -> None:
 		patch_name = Path(url).name
 		print(f"Applying {patch_name} to {infile.name}")
-		patch_successful = pyxdelta.decode(
-			str(infile),
-			patch_name,
-			str(outfile),
-		)
+		try:
+			patch_successful = bool(
+				pyxdelta.decode(
+					str(infile),
+					patch_name,
+					str(outfile),
+				),
+			)
+		except Exception as e:
+			print("Patching raised an exception.", e)
+			patch_successful = False
 
 		if patch_successful:
 			self.logger.log_message(LogType.Good, f"Patched {outfile.name}")
+			if not self.bv_keep_backups.get():
+				infile.unlink(missing_ok=True)
+			if self.bv_delete_deltas.get():
+				Path(patch_name).unlink(missing_ok=True)
 		else:
 			self.logger.log_message(LogType.Bad, f"Failed patching {outfile.name}")
-
-		if not self.bv_keep_backups.get():
-			infile.unlink()
-
-		if self.bv_delete_deltas.get():
-			Path(patch_name).unlink()
+			self.restore_original(infile, outfile)
+			Path(patch_name).unlink(missing_ok=True)
 
 		self.check_download_queue()
