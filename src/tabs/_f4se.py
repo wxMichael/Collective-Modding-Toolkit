@@ -143,7 +143,7 @@ class F4SETab(CMCTabFrame):
 			values: list[str] = []
 			if info is None or not info["IsF4SE"]:
 				tag = TAG_NEUTRAL
-				values = [EMOJI_DLL_UNKNOWN] * 3
+				values = [EMOJI_DLL_UNKNOWN] * len(tree_dlls["columns"])
 			else:
 				og = EMOJI_DLL_GOOD if info.get("SupportsOG") else EMOJI_DLL_BAD
 
