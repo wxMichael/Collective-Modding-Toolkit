@@ -17,6 +17,7 @@
 #
 
 
+import logging
 import os
 import queue
 import threading
@@ -49,6 +50,8 @@ from utils import (
 	is_dir,
 	is_file,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class ScannerTab(CMCTabFrame):
@@ -216,6 +219,7 @@ class ScannerTab(CMCTabFrame):
 		self.cmc.root.after(self.progress_check_delay, self.check_scan_progress, scan_settings)
 
 	def check_scan_progress(self, scan_settings: ScanSettings) -> None:
+		scan_finished = self.thread_scan is None or not self.thread_scan.is_alive()
 		while self.queue_progress.qsize():
 			try:
 				update = self.queue_progress.get()
@@ -238,7 +242,8 @@ class ScannerTab(CMCTabFrame):
 				# list
 				self.scan_results.extend(update)
 
-		if self.thread_scan is None:
+		if scan_finished:
+			self.thread_scan = None
 			self.dv_progress.set(100)
 			self.populate_results(scan_settings)
 			return
@@ -379,12 +384,27 @@ class ScannerTab(CMCTabFrame):
 		return mod_files
 
 	def scan_data_files(self, scan_settings: ScanSettings) -> None:
+		try:
+			problems = self._scan_data_files(scan_settings)
+		except Exception as e:
+			logger.exception("Scanner : Scan failed")
+			self.queue_progress.put([
+				SimpleProblemInfo(
+					"Scanner",
+					"Scan Error",
+					f"The scan failed and results may be incomplete.\n{e.__class__.__name__}: {e}",
+					"Please report this error.",
+				),
+			])
+		else:
+			self.queue_progress.put(problems)
+
+	def _scan_data_files(self, scan_settings: ScanSettings) -> list[ProblemInfo | SimpleProblemInfo]:
 		problems: list[ProblemInfo | SimpleProblemInfo] = []
 
 		data_path = self.cmc.game.data_path
 		if data_path is None:
-			self.thread_scan = None
-			return
+			return problems
 
 		if scan_settings[ScanSetting.RaceSubgraphs]:
 			self.queue_progress.put("Race Subgraph Records")
@@ -413,9 +433,7 @@ class ScannerTab(CMCTabFrame):
 				)
 
 		if scan_settings.skip_data_scan:
-			self.thread_scan = None
-			self.queue_progress.put(problems)
-			return
+			return problems
 
 		mod_files = self.build_mod_file_list(scan_settings)
 
@@ -601,8 +619,7 @@ class ScannerTab(CMCTabFrame):
 							)
 							continue
 
-		self.thread_scan = None
-		self.queue_progress.put(problems)
+		return problems
 
 
 class SidePane(Toplevel):
