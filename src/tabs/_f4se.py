@@ -58,12 +58,23 @@ class F4SETab(CMCTabFrame):
 				self.loading_error += "\nTry launching via your mod manager."
 			return False
 
+		try:
+			game_version = self.cmc.game.load_game_version()
+		except Exception:
+			logger.exception("Failed to read Fallout4.exe version")
+			self.loading_error = "Unable to read the version of Fallout4.exe"
+			return False
+
 		self.dll_info.clear()
 		for dll_file in self.cmc.game.f4se_path.iterdir():
 			if dll_file.suffix.lower() == ".dll" and not dll_file.name.startswith("msdia"):
 				logger.debug("Scanning %s", dll_file.name)
-				self.dll_info[dll_file.name] = f4se_utils.parse_dll(dll_file, self.cmc.game.load_game_version())
 				# TODO: make this actually scan the game
+				try:
+					self.dll_info[dll_file.name] = f4se_utils.parse_dll(dll_file, game_version)
+				except OSError:
+					logger.exception("Failed to load %s", dll_file.name)
+					self.dll_info[dll_file.name] = None
 		return True
 
 	def _build_gui(self) -> None:
