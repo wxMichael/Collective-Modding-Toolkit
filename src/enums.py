@@ -21,7 +21,7 @@ from enum import Enum, IntEnum, IntFlag, StrEnum
 
 
 class Tool(tuple[str, ...], Enum):
-	xEdit = ("xedit.exe", "fo4edit.exe")  # ruff: ignore[mixed-case-variable-in-class-scope]
+	xEdit = ("xedit.exe", "fo4edit.exe")
 	BSArch = ("bsarch.exe",)
 
 

@@ -129,7 +129,7 @@ class ArchivePatcher(PatcherBase):
 			return
 
 		for ba2_file in files_to_patch:
-			try:
+			try:  # ruff: ignore[too-many-statements-in-try-clause]
 				# Read-only check disabled due to MO2/Windows 11 incompatibility
 				# https://github.com/ModOrganizer2/modorganizer/issues/2174
 				#

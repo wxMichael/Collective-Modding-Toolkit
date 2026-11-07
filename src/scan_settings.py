@@ -20,7 +20,7 @@
 from collections import UserDict
 from enum import Enum
 from tkinter import *
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from globals import *
 
@@ -120,6 +120,7 @@ class ScanSettings(UserDict[ScanSetting, bool]):
 
 		self.skip_data_scan = True
 		self.mod_files: ModFiles | None = None
+		self.skip_file_suffixes: tuple[str, ...]
 
 		non_data = {
 			ScanSetting.OverviewIssues,
@@ -127,6 +128,7 @@ class ScanSettings(UserDict[ScanSetting, bool]):
 		}
 
 		settings = side_pane.scanner_tab.cmc.settings
+		dynamic_settings = cast("dict[str, Any]", settings.dict)
 		resave = False
 		for setting in ScanSetting:
 			self[setting] = side_pane.bool_vars[setting].get()
@@ -134,8 +136,8 @@ class ScanSettings(UserDict[ScanSetting, bool]):
 				self.skip_data_scan = False
 
 			name = str(f"scanner_{setting.name}")
-			if settings.dict[name] != self[setting]:
-				settings.dict[name] = self[setting]
+			if dynamic_settings[name] != self[setting]:
+				dynamic_settings[name] = self[setting]
 				resave = True
 		if resave:
 			settings.save()

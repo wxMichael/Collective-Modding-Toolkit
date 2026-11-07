@@ -49,7 +49,7 @@ def do_autofix(results_pane: tabs.ResultDetailsPane, selection: str) -> None:
 			assert results_pane.button_autofix is not None
 		solution_func = AUTO_FIXES[results_pane.problem_info.solution]
 		results_pane.button_autofix.configure(text="Fixing...", state=DISABLED)
-		logger.info("Auto-Fix : Running %s", solution_func.__name__)
+		logger.info("Auto-Fix : Running %s", getattr(solution_func, "__name__", solution_func))
 		results_pane.problem_info.autofix_result = solution_func(results_pane.problem_info)
 		if results_pane.problem_info.autofix_result.success:
 			results_pane.button_autofix.configure(text="Fixed!", style="TButton", state=NORMAL)

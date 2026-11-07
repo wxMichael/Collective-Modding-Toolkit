@@ -47,10 +47,11 @@ root = Tk()
 root.wm_withdraw()
 root.update_idletasks()
 
-sys.stderr = StdErr(root)
-CMChecker(root, settings)
 set_theme(root)
 root.update_idletasks()
+
+sys.stderr = StdErr(root)
+CMChecker(root, settings)
 root.wm_deiconify()
 root.update_idletasks()
 root.mainloop()

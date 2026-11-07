@@ -20,7 +20,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Literal, TypedDict, get_args, get_origin
+from typing import Any, Literal, TypedDict, cast, get_args, get_origin
 
 from utils import get_asset_path, is_file
 
@@ -94,6 +94,7 @@ class AppSettings:
 				logger.info("Settings : Adding new settings to JSON: %s", ", ".join(new_settings))
 				resave = True
 
+			dynamic = cast("dict[str, Any]", self.dict)
 			for k, v in json_content.items():
 				if k not in self.dict:
 					logger.error("Settings : Unknown setting '%s' will be removed.", k)
@@ -103,24 +104,24 @@ class AppSettings:
 				annotation = AppSettingsDict.__annotations__.get(k)
 				if not annotation:
 					logger.debug("Settings : '%s' has no set type", k)
-					self.dict[k] = v
+					dynamic[k] = v
 				elif get_origin(annotation) is Literal:
 					if v in get_args(annotation):
 						logger.debug("Settings : '%s' is correct type (%s)", k, type(v).__name__)
-						self.dict[k] = v
+						dynamic[k] = v
 					else:
-						logger.error("Settings : '%s' has invalid value '%s'. Reset to '%s'", k, v, self.dict[k])  # type: ignore[reportUnknownArgumentType]
+						logger.error("Settings : '%s' has invalid value '%s'. Reset to '%s'", k, v, dynamic[k])
 						resave = True
 				elif type(v) is annotation:
 					logger.debug("Settings : '%s' is correct type (%s)", k, type(v).__name__)
-					self.dict[k] = v
+					dynamic[k] = v
 				else:
 					logger.error(
 						"Settings : '%s' has invalid type (%s) '%s'. Reset to '%s'",
 						k,
 						type(v).__name__,
 						v,
-						self.dict[k],  # type: ignore[reportUnknownArgumentType]
+						dynamic[k],
 					)
 					resave = True
 

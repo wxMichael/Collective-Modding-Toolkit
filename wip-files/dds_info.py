@@ -19,7 +19,7 @@
 
 import io
 from enum import IntEnum, IntFlag
-from pathlib import Path
+lazy from pathlib import Path
 
 from enums import Magic
 from utils import read_uint
@@ -261,7 +261,7 @@ class DDSInfo:
 			header = io.BytesIO(header_bytes)
 
 			# Skip Flags ([1:])
-			self._size: tuple[int, int] = read_uint(header, 3)[1:]  # type: ignore[assignment]  # pyright: ignore[reportAttributeAccessIssue]
+			self._size: tuple[int, int] = read_uint(header, 3)[1:]  # ty: ignore[invalid-assignment]
 			_ = read_uint(header, 3)  # pitch, depth, mipmaps
 			_ = read_uint(header, 11)  # reserved
 
@@ -280,9 +280,9 @@ class DDSInfo:
 				return
 
 			if pfflags & DDPF.LUMINANCE:
-				if bitcount == 8:  # noqa: PLR2004
+				if bitcount == 8:
 					self.mode = "L"
-				elif bitcount == 16 and pfflags & DDPF.ALPHAPIXELS:  # noqa: PLR2004
+				elif bitcount == 16 and pfflags & DDPF.ALPHAPIXELS:
 					self.mode = "LA"
 				else:
 					msg = f"Unsupported bitcount {bitcount} for {pfflags}"

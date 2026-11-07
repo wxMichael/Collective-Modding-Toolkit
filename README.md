@@ -1,23 +1,3 @@
-# RowanSkie's Fork of CMT
-
-Custom CMT fork by RowanSkie to fix AE shenanigans + BA2 limits.
-
-## Building
-
-1. Install Python 3.14
-2. Generate a virtual environment via this command : `python -m venv .venv`
-3. Activate virtual environment.
-4. Install the dependencies via this command : `pip install -r requirements.txt`
-5. Install uv, then run this command: `uv run pyinstaller -i src/icon.ico -w --onedir --clean -p src/sv_ttk -p src/patcher --add-data src/assets:assets src/main.py`
-
-Original Readme below.
-
----
-
-> [!IMPORTANT]
-> Future development has moved to a new repo for the C# version.  
-> <https://github.com/wxMichael/CollectiveModdingToolkit>
-
 # Collective Modding Toolkit (Python Version)
 
 Latest Version: [Download](https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest/download/cm-toolkit.zip) – [Release Notes](https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest)
@@ -60,3 +40,10 @@ _**Note:** MO2 users, do not install as a mod and run from inside the VFS. This 
 ![04-Downgrader](https://github.com/user-attachments/assets/31748675-9759-49ff-91d7-78a00625f505)
 
 ![05-ArchivePatcher](https://github.com/user-attachments/assets/3c49478d-5012-457e-8a57-7a153bc276ea)
+
+## Building
+
+1. Install [Python 3.15](https://www.python.org/downloads/)
+2. Install [uv](https://docs.astral.sh/uv/getting-started/installation/): `winget install --id=astral-sh.uv -e`
+3. Create the virtual environment and install dependencies: `uv sync`
+4. Build: `uv run pyinstaller -i src/icon.ico -w --onedir --clean -p src/sv_ttk -p src/patcher --add-data src/assets:assets src/main.py`

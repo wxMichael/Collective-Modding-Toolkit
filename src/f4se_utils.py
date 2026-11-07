@@ -112,32 +112,32 @@ RUNTIME_VERSION_AE_LATEST = RUNTIME_VERSION_1_11_240
 
 
 class VersionSupport(IntFlag):
-	kVersionSupportOG = (1,)  # ruff: ignore[mixed-case-variable-in-class-scope]
-	kVersionSupportNG = (2,)  # ruff: ignore[mixed-case-variable-in-class-scope]
-	kVersionSupportAE = (4,)  # ruff: ignore[mixed-case-variable-in-class-scope]
+	kVersionSupportOG = (1,)
+	kVersionSupportNG = (2,)
+	kVersionSupportAE = (4,)
 
 
 class F4SEPluginVersion(IntFlag):
-	kVersion = 1  # ruff: ignore[mixed-case-variable-in-class-scope]
+	kVersion = 1
 
 
 class F4SEPluginAddressIndependence(IntFlag):
 	# set this if you exclusively use signature matching to find your addresses and have NO HARDCODED ADDRESSES
 	# the F4SE code does not use signature matching, so calling functions in the F4SE headers is not safe with this flag
-	kAddressIndependence_Signatures = 1  # 0b001  # ruff: ignore[mixed-case-variable-in-class-scope]
+	kAddressIndependence_Signatures = 1  # 0b001
 	# set this if you are using a 1.10.980+ version of the Address Library
-	kAddressIndependence_AddressLibrary_1_10_980 = 2  # 0b010  # ruff: ignore[mixed-case-variable-in-class-scope]
+	kAddressIndependence_AddressLibrary_1_10_980 = 2  # 0b010
 	# set this if you are using a 1.11.137+ version of the Address Library
-	kAddressIndependence_AddressLibrary_1_11_137 = 4  # 0b100  # ruff: ignore[mixed-case-variable-in-class-scope]
+	kAddressIndependence_AddressLibrary_1_11_137 = 4  # 0b100
 
 
 class F4SEPluginStructureIndependence(IntFlag):
 	# set this if your plugin doesn't use any game structures
-	kStructureIndependence_NoStructs = 1  # 0b001  # ruff: ignore[mixed-case-variable-in-class-scope]
+	kStructureIndependence_NoStructs = 1  # 0b001
 	# works with the structure layout in 1.10.980+
-	kStructureIndependence_1_10_980Layout = 2  # 0b010  # ruff: ignore[mixed-case-variable-in-class-scope]
+	kStructureIndependence_1_10_980Layout = 2  # 0b010
 	# works with the structure layout in 1.11.137+
-	kStructureIndependence_1_11_137Layout = 4  # 0b100  # ruff: ignore[mixed-case-variable-in-class-scope]
+	kStructureIndependence_1_11_137Layout = 4  # 0b100
 
 
 ArrayCompatibleVersion = ctypes.c_uint32 * 16

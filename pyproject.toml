@@ -5,7 +5,7 @@ license = "GPL-2.0-or-later"
 description = "A toolkit for troubleshooting and optimizing your mod setup for Fallout 4, purpose-built for the Collective Modding Discord Community."
 version = "0.6.2-dev"
 readme = "README.md"
-requires-python = ">=3.14,<3.14.7"
+requires-python = ">=3.15.2,<3.16"
 dependencies = [
     "chardet",
     "packaging",
@@ -15,17 +15,8 @@ dependencies = [
     "pywin32-ctypes",
     "pyxdelta",
     "requests",
+    "sv-ttk>=2.6.1",
     "tkinter-tooltip",
-]
-
-[dependency-groups]
-dev = [
-    "mypy",
-    "pyinstaller",
-    "setuptools",
-    "types-psutil",
-    "types-pywin32",
-    "types-requests",
 ]
 
 [project.urls]
@@ -35,43 +26,39 @@ issues = "https://github.com/wxMichael/Collective-Modding-Toolkit/issues"
 changelog = "https://github.com/wxMichael/Collective-Modding-Toolkit/blob/main/CHANGELOG.md"
 download = "https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest/download/cm-toolkit.zip"
 
-[tool.mypy]
-enable_incomplete_feature = ["NewGenericSyntax"]
-disable_error_code = [
-	"arg-type",         # Redundant with Pyright reportArgumentType
-	"import-untyped",
-	"index",            # Redundant with Pyright reportIndexIssue
-	"name-defined",     # Redundant with Ruff F821
-	"operator",         # Redundant with Pyright reportOperatorIssue
-	"literal-required",
+[tool.uv]
+required-version = ">=0.13.7"
+
+[dependency-groups]
+dev = [
+    "pyinstaller",
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+    "setuptools",
+    "ty>=0.0.99",
+    "types-psutil>=7.2.2.20260906",
+    "types-pywin32>=312.0.0.20261104",
 ]
 
-[[tool.mypy.overrides]]
-module = ["pyxdelta"]
-ignore_missing_imports = true
+[tool.uv.sources]
+pyxdelta = { git = "https://github.com/Illidanz/pyxdelta" }
 
-[tool.pyright]
-typeCheckingMode = "strict"
-reportUnknownMemberType = false
-reportWildcardImportFromLibrary = false
-reportAssignmentType = false            # Redundant with Mypy assignment
-reportMissingParameterType = false      # Redundant with Ruff ANN001
-reportReturnType = false                # Redundant with Mypy return-type
-reportUndefinedVariable = false         # Redundant with Ruff F821
-reportUnusedImport = false              # Redundant with Ruff F401
-reportUnusedVariable = false            # Redundant with Ruff F841
+[tool.ty.environment]
+extra-paths = ["typings"]
+
+[tool.ty.src]
+exclude = [".pytest_cache"]
 
 [tool.ruff]
-extend-exclude = []
-indent-width = 4
 line-length = 130
 
 [tool.ruff.format]
 preview = true
 indent-style = "tab"
-line-ending = "auto"
-quote-style = "double"
-skip-magic-trailing-comma = false
+
+[tool.ruff.lint.pylint]
+max-bool-expr = 10
+max-returns = 10
 
 [tool.ruff.lint]
 preview = true
@@ -121,19 +108,50 @@ extend-select = [
 ]
 
 ignore = [
-	"E501",    # Duplicate of B950 line-too-long
-	"E722",    # Duplicate of B001 bare-except
-	"F403",    # undefined-local-with-import-star
-	"F405",    # undefined-local-with-import-star-usage
-	"PLR0904", # too-many-public-methods
-	"PLR0912", # too-many-branches
-	"PLR0913", # too-many-arguments
-	"PLR0914", # too-many-locals
-	"PLR0915", # too-many-statements
-	"PLR0917", # too-many-positional-arguments
-	"PLR1702", # too-many-nested-blocks
-	"PLR2004", # magic-value-comparison
-	"PYI021",  # docstring-in-stub
-	"PYI051",  # redundant-literal-union
-	"S606",    # start-process-with-no-shell
+	"bare-except", # Duplicate of B001
+	"BLE", # Blind Except
+	"docstring-in-stub",
+	"line-too-long", # Duplicate of B950
+	"magic-value-comparison",
+	"mixed-case-variable-in-class-scope",
+	"no-self-use",
+	"redundant-literal-union",
+	"shebang-not-first-line",
+	"start-process-with-no-shell",
+	"suspicious-subprocess-import",
+	"too-many-arguments",
+	"too-many-branches",
+	"too-many-locals",
+	"too-many-nested-blocks",
+	"too-many-positional-arguments",
+	"too-many-public-methods",
+	"too-many-return-statements",
+	"too-many-statements",
+	"undefined-local-with-import-star-usage",
+	"undefined-local-with-import-star",
+
+	# Conflicts with ruff formatter
+	"avoidable-escaped-quote",
+	"bad-quotes-docstring",
+	"bad-quotes-inline-string",
+	"bad-quotes-multiline-string",
+	"docstring-tab-indentation",
+	"indentation-with-invalid-multiple-comment",
+	"indentation-with-invalid-multiple",
+	"line-too-long",
+	"missing-trailing-comma",
+	"over-indented",
+	"prohibited-trailing-comma",
+	"tab-indentation",
+	"triple-single-quotes",
+	"unnecessary-escaped-quote",
 ]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+reportUnknownMemberType = false
+reportWildcardImportFromLibrary = false
+reportMissingParameterType = false      # Redundant with Ruff ANN001
+reportUndefinedVariable = false         # Redundant with Ruff F821
+reportUnusedImport = false              # Redundant with Ruff F401
+reportUnusedVariable = false            # Redundant with Ruff F841

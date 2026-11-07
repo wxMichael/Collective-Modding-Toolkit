@@ -21,7 +21,7 @@ import csv
 import sys
 from pathlib import Path
 from tkinter import *
-from typing import TYPE_CHECKING, Literal, TypedDict
+from typing import TYPE_CHECKING, Any, Literal, TypedDict, cast
 
 from enums import Tool
 
@@ -128,6 +128,7 @@ class ModManagerInfo:
 			"skip_directories": set(),
 		}
 
+		dynamic_settings = cast("dict[str, Any]", self.mo2_settings)
 		section = None
 		for line in ini_path.read_text(encoding="utf-8").splitlines():
 			if line.startswith("["):
@@ -156,7 +157,7 @@ class ModManagerInfo:
 				continue
 
 			if setting in mo2_setting_list[section]:
-				self.mo2_settings[setting] = value[11:-1] if value.startswith("@ByteArray(") else value
+				dynamic_settings[setting] = value[11:-1] if value.startswith("@ByteArray(") else value
 				if setting == "base_directory":
 					self.mo2_settings["base_directory"] = Path(str(self.mo2_settings["base_directory"]))
 				continue
@@ -166,14 +167,14 @@ class ModManagerInfo:
 				if name.endswith(("directory", "Path")):
 					if isinstance(val, str):
 						if "%BASE_DIR%" in val:
-							self.mo2_settings[name] = self.mo2_settings["base_directory"] / val.replace("%BASE_DIR%", "")
+							dynamic_settings[name] = self.mo2_settings["base_directory"] / val.replace("%BASE_DIR%", "")
 						else:
-							self.mo2_settings[name] = Path(val)
+							dynamic_settings[name] = Path(val)
 					elif isinstance(val, Path) and val.parts[0] == "%BASE_DIR%":
-						self.mo2_settings[name] = self.mo2_settings["base_directory"] / val.relative_to("%BASE_DIR%")
+						dynamic_settings[name] = self.mo2_settings["base_directory"] / val.relative_to("%BASE_DIR%")
 				elif name.startswith("skip_"):
 					csv_reader = csv.reader((str(val),), doublequote=False, escapechar="\\", skipinitialspace=True)
-					self.mo2_settings[name] = next(csv_reader)
+					dynamic_settings[name] = next(csv_reader)
 
 		game_name = self.mo2_settings.get("gameName", "Fallout 4")
 		if game_name != "Fallout 4":

@@ -81,9 +81,9 @@ class PCInfo:
 
 	@staticmethod
 	def _get_ram() -> int:
-		mem: pswin.svmem = psutil.virtual_memory()  # type: ignore[reportUnknownVariableType]
+		mem: pswin.svmem = psutil.virtual_memory()  # ty: ignore[unresolved-attribute]
 		if TYPE_CHECKING:
-			assert isinstance(mem, pswin.svmem)
+			assert isinstance(mem, pswin.svmem)  # ty: ignore[unresolved-attribute]
 		return round(mem.total / 1024**3)
 
 	@staticmethod
@@ -156,14 +156,14 @@ class CMCTabFrame(ttk.Frame, ABC):
 		self.loading_error: str | None = None
 		self.label_loading: ttk.Label | None = None
 
-	def _load(self) -> bool:  # ruff: ignore[no-self-use]
+	def _load(self) -> bool:
 		"""Load any data needed for this tab. Return False on failure."""
 		return True
 
-	def switch_from(self) -> None:  # ruff: ignore[no-self-use]
+	def switch_from(self) -> None:
 		return
 
-	def _switch_to(self) -> None:  # ruff: ignore[no-self-use]
+	def _switch_to(self) -> None:
 		return
 
 	@abstractmethod

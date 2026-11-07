@@ -32,11 +32,11 @@ from typing import TYPE_CHECKING, ClassVar, Literal, overload
 
 import chardet
 import requests
+import sv_ttk
 import win32api
 from packaging.version import InvalidVersion, Version
 from psutil import Process
 
-import sv_ttk
 from globals import APP_VERSION, COLOR_DEFAULT, FONT, FONT_SMALL, NEXUS_LINK
 from mod_manager_info import ModManagerInfo
 
@@ -326,9 +326,35 @@ def set_titlebar_style(window: Misc) -> None:
 	windll.dwmapi.DwmSetWindowAttribute(hwnd, 20, byref(c_int(1)), sizeof(c_int))
 
 
+def apply_green_accent(win: Tk) -> None:
+	"""Recolor sv_ttk's blue accent to green."""
+	sprite_sheet = get_asset_path("sv_ttk/spritesheet_dark_green.png").absolute().as_posix()
+	win.tk.eval(
+		f"""
+		set ns ttk::theme::sv_dark
+		array set ${{ns}}::colors {{-selbg "#05b62e" -accent "#57ff64"}}
+		image create photo sv_green_sheet -file {{{sprite_sheet}}} -format png
+		foreach {{name x y w h}} $::spriteinfo {{
+			[set ${{ns}}::I($name)] copy sv_green_sheet -from $x $y [expr {{$x+$w}}] [expr {{$y+$h}}] -compositingrule set
+		}}
+		ttk::style map Accent.TButton -foreground [list pressed "#252525" disabled "#a5a5a5"]
+		ttk::style map Toggle.TButton -foreground [list {{selected disabled}} "#a5a5a5" {{selected pressed}} "#d0d0d0" selected "#000000" pressed "#252525" disabled "#7a7a7a"]
+		rename configure_colors sv_configure_colors
+		proc configure_colors {{}} {{
+			if {{![info exists ::sv_colors_configured]}} {{
+				set ::sv_colors_configured 1
+				sv_configure_colors
+			}}
+		}}
+		configure_colors
+		"""
+	)
+
+
 def set_theme(win: Tk) -> None:
 	set_titlebar_style(win)
-	sv_ttk.apply_dark_theme()
+	sv_ttk.set_theme("dark", win)
+	apply_green_accent(win)
 	style = ttk.Style(win)
 
 	# Remove blue dotted line from focused tab

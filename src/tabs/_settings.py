@@ -21,6 +21,7 @@ import logging
 from enum import StrEnum
 from tkinter import *
 from tkinter import ttk
+from typing import Any, cast
 
 from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
@@ -103,5 +104,6 @@ class SettingsTab(CMCTabFrame):
 				ToolTip(radio, tooltip)
 
 	def on_radio_change(self, setting: str, variable: Variable) -> None:
-		self.cmc.settings.dict[setting] = variable.get()
+		dynamic_settings = cast("dict[str, Any]", self.cmc.settings.dict)
+		dynamic_settings[setting] = variable.get()
 		self.cmc.settings.save()

@@ -150,7 +150,7 @@ class TreeWindow(ModalWindow):
 			self,
 			columns=columns,
 			selectmode=NONE,
-			show="tree headings" if self.headers else "tree",
+			show="tree headings",
 			padding=1,
 		)
 		scroll_items_y = ttk.Scrollbar(

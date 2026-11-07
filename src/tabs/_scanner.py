@@ -300,7 +300,7 @@ class ScannerTab(CMCTabFrame):
 			return True
 		return False
 
-	def get_stage_paths(self, scan_settings: ScanSettings) -> list[Path]:  # ruff: ignore[no-self-use]
+	def get_stage_paths(self, scan_settings: ScanSettings) -> list[Path]:
 		manager = scan_settings.manager
 		if not (manager and manager.stage_path and manager.profiles_path and manager.selected_profile and manager.overwrite_path):
 			msg = (

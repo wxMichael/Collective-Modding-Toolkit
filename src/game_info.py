@@ -24,6 +24,7 @@ from pathlib import Path
 from tkinter import *
 from tkinter import filedialog, messagebox
 from typing import TYPE_CHECKING, Literal
+lazy from ctypes import c_uint32
 
 import win32api
 
