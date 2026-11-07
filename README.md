@@ -46,4 +46,5 @@ _**Note:** MO2 users, do not install as a mod and run from inside the VFS. This 
 1. Install [Python 3.15](https://www.python.org/downloads/)
 2. Install [uv](https://docs.astral.sh/uv/getting-started/installation/): `winget install --id=astral-sh.uv -e`
 3. Create the virtual environment and install dependencies: `uv sync`
-4. Build: `uv run pyinstaller -i src/icon.ico -w --onedir --clean -p src/sv_ttk -p src/patcher --add-data src/assets:assets src/main.py`
+4. Build: `uv run pyinstaller --noconfirm --clean cm-toolkit.spec` (output in `dist/cm-toolkit`)
+   - To regenerate the spec: `uv run pyi-makespec -n cm-toolkit --noupx -w --onedir -i src/icon.ico --add-data src/icon.ico:. --add-data src/assets:assets src/main.py`

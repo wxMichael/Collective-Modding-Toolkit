@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['src\\main.py'],
+    ['src/main.py'],
     pathex=[],
     binaries=[],
     datas=[('src/icon.ico', '.'), ('src/assets', 'assets')],
@@ -25,21 +25,21 @@ exe = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    upx=False,
     console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['src\\icon.ico'],
+    icon=['src/icon.ico'],
 )
 coll = COLLECT(
     exe,
     a.binaries,
     a.datas,
     strip=False,
-    upx=True,
+    upx=False,
     upx_exclude=[],
     name='cm-toolkit',
 )
