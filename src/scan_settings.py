@@ -60,7 +60,7 @@ DATA_WHITELIST = {
 	"music": {"wav", "xwm"},
 	"textures": {"dds"},
 	"scripts": {"pex", "psc", "txt", "zip"},
-	"sound": {"cdf", "fuz", "lip", "wav", "xwm"},
+	"sound": {"cdf", "fuz", "lip", "wav", "xwm", "hkx"},
 	"vis": {"uvd"},
 }
 """Keys and values are lowercase with no dot."""
