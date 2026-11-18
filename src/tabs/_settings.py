@@ -30,13 +30,6 @@ from utils import add_tooltip
 logger = logging.getLogger(__name__)
 
 
-class UpdateMode(StrEnum):
-	DontCheck = "none"
-	NexusModsOnly = "nexus"
-	GitHubOnly = "github"
-	GitHubAndNexusMods = "both"
-
-
 class LogLevel(StrEnum):
 	DEBUG = "DEBUG"
 	INFO = "INFO"
@@ -47,7 +40,6 @@ class SettingsTab(CMCTabFrame):
 	def __init__(self, cmc: CMCheckerInterface, notebook: ttk.Notebook) -> None:
 		super().__init__(cmc, notebook, "Settings")
 
-		self.sv_setting_update_source = StringVar(value=cmc.settings.dict["update_source"])
 		self.sv_setting_log_level = StringVar(value=cmc.settings.dict["log_level"])
 
 	def _build_gui(self) -> None:
@@ -57,22 +49,9 @@ class SettingsTab(CMCTabFrame):
 		self.grid_rowconfigure(1, weight=0)
 
 		options_radios = {
-			"Update Channel": (
-				TOOLTIP_UPDATE_SOURCE,
-				1,
-				0,
-				self.sv_setting_update_source,
-				"update_source",
-				(
-					("All: GitHub & Nexus Mods", UpdateMode.GitHubAndNexusMods),
-					("Early: GitHub", UpdateMode.GitHubOnly),
-					("Stable: Nexus Mods", UpdateMode.NexusModsOnly),
-					("Never: Don't Check", UpdateMode.DontCheck),
-				),
-			),
 			"Log Level": (
 				TOOLTIP_LOG_LEVEL,
-				2,
+				1,
 				0,
 				self.sv_setting_log_level,
 				"log_level",

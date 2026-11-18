@@ -40,6 +40,7 @@ COLOR_NOTE = "#C5C464"
 COLOR_INDIE = "#4b92da"
 
 NEXUS_LINK = "https://www.nexusmods.com/fallout4/mods/87907"
+NEXUS_UPDATE_LINK = "https://www.nexusmods.com/site/mods/1597"
 DISCORD_INVITE = "https://discord.gg/tktyEyYHZH"
 GITHUB_LINK = "https://github.com/wxMichael/Collective-Modding-Toolkit"
 
@@ -324,9 +325,6 @@ TOOLTIP_SCAN_BA2 = "Scan inside BA2 archives.\nNote: Checks may be limited for c
 TOOLTIP_SCAN_CONFLICTS = "Detect conflicting mods and mod settings."
 TOOLTIP_SCAN_SUGGEST = "Make suggestions for changes to your mod setup."
 
-TOOLTIP_UPDATE_SOURCE = """GitHub will always have the latest release.
-Nexus Mods releases may be delayed to
-await more testing."""
 TOOLTIP_LOG_LEVEL = """Sets the minimum importance level for messages sent to the log file.
 DEBUG: Extra verbose.
 INFO: Default.

@@ -38,8 +38,6 @@ from helpers import (
 )
 from utils import (
 	add_tooltip,
-	check_for_update_github,
-	check_for_update_nexus,
 	get_asset_path,
 )
 
@@ -64,7 +62,7 @@ class CMChecker(CMCheckerInterface):
 		self.overview_problems = []
 		self.processing_data = False
 		self.setup_window()
-		self.check_for_updates()
+		self.show_update_banner()
 
 	def get_image(self, relative_path: str) -> PhotoImage:
 		if relative_path not in self._images:
@@ -118,24 +116,14 @@ class CMChecker(CMCheckerInterface):
 		self.root.bind("<Unmap>", self.on_minimize)
 		self.root.bind("<Map>", self.on_restore)
 
-	def check_for_updates(self) -> None:
-		update_source = self.settings.dict["update_source"]
-		if update_source == "none":
-			return
-
-		nexus_version = check_for_update_nexus() if update_source in {"nexus", "both"} else None
-		github_version = check_for_update_github() if update_source in {"github", "both"} else None
-		if not (nexus_version or github_version):
-			return
-
+	def show_update_banner(self) -> None:
 		update_frame = ttk.Frame(self.root, style="Update.TFrame")
 		update_frame.grid(column=0, row=0, sticky=NSEW)
 
-		column = 0
 		ttk.Label(
 			update_frame,
 			image=self.get_image("images/update-24.png"),
-			text="An update is available:",
+			text="This version is outdated:",
 			compound=LEFT,
 			background="pale green",
 			foreground="dark green",
@@ -143,55 +131,25 @@ class CMChecker(CMCheckerInterface):
 			justify=RIGHT,
 			padding=scale(5),
 			font=FONT,
-		).grid(column=column, row=0, sticky=E)
+		).grid(column=0, row=0, sticky=E)
 
-		if nexus_version:
-			column += 1
-			hyperlink_label_nexus = ttk.Label(
-				update_frame,
-				text=f"v{nexus_version} (NexusMods)",
-				background="pale green",
-				foreground="SteelBlue4",
-				cursor="hand2",
-				anchor=W,
-				justify=LEFT,
-				padding=0,
-				font=(*FONT, "bold underline"),
-			)
-			hyperlink_label_nexus.grid(column=column, row=0, sticky=W)
-			hyperlink_label_nexus.bind("<Button-1>", lambda _: webbrowser.open(NEXUS_LINK))
-			add_tooltip(hyperlink_label_nexus, "Open Nexus Mods")
-
-		if github_version and nexus_version:
-			column += 1
-			ttk.Label(
-				update_frame,
-				text=" / ",
-				background="pale green",
-				foreground="dark green",
-				anchor=W,
-				justify=LEFT,
-				font=FONT,
-			).grid(column=column, row=0, sticky=W)
-
-		if github_version:
-			column += 1
-			hyperlink_label_github = ttk.Label(
-				update_frame,
-				text=f"v{github_version} (GitHub)",
-				background="pale green",
-				foreground="SteelBlue4",
-				cursor="hand2",
-				anchor=W,
-				justify=LEFT,
-				font=(*FONT, "bold underline"),
-			)
-			hyperlink_label_github.grid(column=column, row=0, sticky=W)
-			hyperlink_label_github.bind("<Button-1>", lambda _: webbrowser.open(GITHUB_LINK))
-			add_tooltip(hyperlink_label_github, "Open GitHub")
+		hyperlink_label_nexus = ttk.Label(
+			update_frame,
+			text="Download the new version on Nexus Mods",
+			background="pale green",
+			foreground="SteelBlue4",
+			cursor="hand2",
+			anchor=W,
+			justify=LEFT,
+			padding=0,
+			font=(*FONT, "bold underline"),
+		)
+		hyperlink_label_nexus.grid(column=1, row=0, sticky=W)
+		hyperlink_label_nexus.bind("<Button-1>", lambda _: webbrowser.open(NEXUS_UPDATE_LINK))
+		add_tooltip(hyperlink_label_nexus, "Open Nexus Mods")
 
 		update_frame.grid_columnconfigure(0, weight=1)
-		update_frame.grid_columnconfigure(column, weight=1)
+		update_frame.grid_columnconfigure(1, weight=1)
 		update_frame.grid_rowconfigure(0, weight=1)
 
 	def on_minimize(self, _event: Event[Misc]) -> None:

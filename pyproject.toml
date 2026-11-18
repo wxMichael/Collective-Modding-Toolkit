@@ -47,10 +47,11 @@ pyxdelta = { git = "https://github.com/Illidanz/pyxdelta" }
 extra-paths = ["typings"]
 
 [tool.ty.src]
-exclude = [".pytest_cache"]
+exclude = [".pytest_cache", "wip-files"]
 
 [tool.ruff]
 line-length = 130
+extend-exclude = ["wip-files"]
 
 [tool.ruff.format]
 preview = true

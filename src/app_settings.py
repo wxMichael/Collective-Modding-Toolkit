@@ -22,28 +22,15 @@ import logging
 from pathlib import Path
 from typing import Any, Literal, TypedDict, cast, get_args, get_origin
 
-from utils import get_asset_path, is_file
+from utils import is_file
 
 logger = logging.getLogger(__name__)
 
 SETTINGS_PATH = Path("settings.json")
 
-source_path = get_asset_path("download-source.txt")
-try:  # ruff: ignore[too-many-statements-in-try-clause]
-	download_source = source_path.read_text("utf-8", "ignore").strip()
-	if download_source not in {"nexus", "github"}:
-		logger.error("Settings : Invalid download source: '%s'", download_source)
-		download_source = "nexus"
-	else:
-		logger.debug("Settings : Download source: '%s'", download_source)
-except:
-	logger.exception("Settings : Failed to detect download source.")
-	download_source = "nexus"
-
 
 class AppSettingsDict(TypedDict):
 	log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"]
-	update_source: Literal["nexus", "github", "both", "none"]
 	scanner_OverviewIssues: bool
 	scanner_Errors: bool
 	scanner_WrongFormat: bool
@@ -57,7 +44,6 @@ class AppSettingsDict(TypedDict):
 
 DEFAULT_SETTINGS: AppSettingsDict = {
 	"log_level": "INFO",
-	"update_source": download_source,  # type: ignore[typeddict-item]
 	"scanner_OverviewIssues": True,
 	"scanner_Errors": True,
 	"scanner_WrongFormat": True,

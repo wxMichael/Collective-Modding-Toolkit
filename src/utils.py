@@ -31,14 +31,19 @@ from tkinter import ttk
 from typing import TYPE_CHECKING, ClassVar, Literal, overload
 
 import chardet
-import requests
 import sv_ttk
 import win32api
-from packaging.version import InvalidVersion, Version
+from packaging.version import Version
 from psutil import Process
 from tktooltip import ToolTip  # type: ignore[reportMissingTypeStubs]
 
-from globals import APP_VERSION, COLOR_DEFAULT, FONT, FONT_SMALL, NEXUS_LINK, scale, set_ui_scale
+from globals import (
+	COLOR_DEFAULT,
+	FONT,
+	FONT_SMALL,
+	scale,
+	set_ui_scale,
+)
 from mod_manager_info import ModManagerInfo
 
 if TYPE_CHECKING:
@@ -52,7 +57,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 DONT_RESOLVE_DLL_REFERENCES = 0x00000001
-HTTP_OK = 200
 STATE_CONTROL_MASK = 0x0004
 
 win11_24h2 = sys.getwindowsversion().build >= 26100
@@ -411,69 +415,6 @@ def set_theme(win: Tk) -> None:
 	style.configure("Treeview", font=FONT_SMALL, foreground=COLOR_DEFAULT, rowheight=scale(25))
 	style.configure("Heading", font=FONT_SMALL, foreground=COLOR_DEFAULT)
 	style.configure("Update.TFrame", background="pale green")
-
-
-def check_for_update_nexus() -> str | None:
-	logger.debug("Update Check : Nexus Mods")
-	try:  # ruff: ignore[too-many-statements-in-try-clause]
-		response = requests.get(NEXUS_LINK, timeout=5, stream=True)
-		if response.status_code == HTTP_OK:
-			use_next = False
-			version_line = None
-			for line in response.iter_lines(decode_unicode=True):
-				if TYPE_CHECKING:
-					assert isinstance(line, str)
-				if use_next:
-					version_line = line.rsplit('"', 2)
-					response.close()
-					break
-
-				if line.lstrip().startswith('<meta property="twitter:label1" content="Version"'):
-					use_next = True
-					continue
-
-			if not version_line:
-				logger.error("Update Check : Nexus Mods : Failed")
-				return None
-
-			latest_version = version_line[1]
-			if Version(latest_version) > Version(str(APP_VERSION)):
-				logger.info("Update Check : Nexus Mods : Update Available : v%s", latest_version)  # TODO: test variable
-				return latest_version
-	except requests.RequestException, InvalidVersion, IndexError:
-		logger.exception("Update Check : Nexus Mods : Failed")  # TODO: Reasons
-		return None
-
-	logger.debug("Update Check : Nexus Mods : No Updates")
-	return None
-
-
-def check_for_update_github() -> str | None:
-	logger.debug("Update Check : GitHub")
-	url = "https://api.github.com/repos/wxMichael/Collective-Modding-Toolkit/releases/latest"
-	headers = {
-		"Accept": "application/vnd.github+json",
-		"X-GitHub-Api-Version": "2022-11-28",
-	}
-	try:
-		response = requests.get(url, headers=headers, timeout=5)
-	except requests.RequestException:
-		logger.exception("Update Check : GitHub : Failed")
-		return None
-
-	if response.status_code == HTTP_OK:
-		try:
-			release_data = response.json()
-			latest_version = str(release_data["tag_name"])
-			if Version(latest_version) > Version(str(APP_VERSION)):
-				logger.info("Update Check : GitHub : Update Available : v%s", latest_version)
-				return latest_version
-		except requests.JSONDecodeError, InvalidVersion:
-			logger.exception("Update Check : GitHub : Failed")
-			return None
-
-	logger.debug("Update Check : GitHub : No Updates")
-	return None
 
 
 @overload
