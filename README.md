@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> Future development has moved to a new repo for the C# version.  
+> <https://github.com/wxMichael/CollectiveModdingToolkit>
+
 # Collective Modding Toolkit (Python Version)
 
 Latest Version: [Download](https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest/download/cm-toolkit.zip) – [Release Notes](https://github.com/wxMichael/Collective-Modding-Toolkit/releases/latest)
