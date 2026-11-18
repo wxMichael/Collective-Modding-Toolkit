@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.6.4] - 2026-11-18
+
+### Changed
+
+- Replaced update check with banner for the app rewrite. The Python app is now fully retired.
+
+### Fixed
+
+- Re-whitelisted hkx files in Sounds
+
 ## [0.6.3] - 2026-11-07
 
 ### Added
@@ -279,6 +289,8 @@ _This is the final Python version. No release was published for v0.5.2._
 
 _Initial release._
 
+[0.6.4]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.6.4
+[0.6.3]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.6.3
 [0.5.1]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.5.1
 [0.5.0]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.5.0
 [0.4.0]: https://github.com/wxMichael/Collective-Modding-Toolkit/releases/tag/0.4.0
